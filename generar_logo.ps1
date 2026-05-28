@@ -124,7 +124,7 @@ $textDestWidth = 950    # <-- ANCHO DE LAS LETRAS (por defecto: 950 píxeles)
 $textDestHeight = [int]($textBmp.Height * ($textDestWidth / $textBmp.Width)) # (Calcula el alto proporcional automáticamente)
 $textX = 135            # <-- POSICIÓN HORIZONTAL (X): Aumenta para mover a la derecha, reduce para mover a la izquierda.
 $textY = 50             # <-- POSICIÓN VERTICAL (Y): Aumenta para bajar las letras, reduce para subirlas.
-$textRotationAngle = 0  # <-- ÁNGULO DE ROTACIÓN EN GRADOS (Ej: -4 para rotar a la izquierda, 4 para rotar a la derecha, 0 para recto)
+$textRotationAngle = -15 # <-- ÁNGULO DE ROTACIÓN EN GRADOS (Ej: -4 para rotar a la izquierda, 4 para rotar a la derecha, 0 para recto)
 $textRect = New-Object System.Drawing.Rectangle($textX, $textY, $textDestWidth, $textDestHeight)
 
 # 👤 CAPA 2: EL ENTRENADOR CON EL CHARIZARD (Se dibuja al frente, superpuesto)
