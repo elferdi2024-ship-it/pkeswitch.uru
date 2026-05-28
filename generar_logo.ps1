@@ -119,11 +119,12 @@ $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
 # ==============================================================================
 
 # 🅰️ CAPA 1: LAS LETRAS 3D (Se dibuja atrás)
-# Modifica estas variables para cambiar el tamaño y la ubicación de las letras "PokéSwitch".
+# Modifica estas variables para cambiar el tamaño, la ubicación y la rotación de las letras "PokéSwitch".
 $textDestWidth = 950    # <-- ANCHO DE LAS LETRAS (por defecto: 950 píxeles)
 $textDestHeight = [int]($textBmp.Height * ($textDestWidth / $textBmp.Width)) # (Calcula el alto proporcional automáticamente)
 $textX = 135            # <-- POSICIÓN HORIZONTAL (X): Aumenta para mover a la derecha, reduce para mover a la izquierda.
 $textY = 50             # <-- POSICIÓN VERTICAL (Y): Aumenta para bajar las letras, reduce para subirlas.
+$textRotationAngle = 0  # <-- ÁNGULO DE ROTACIÓN EN GRADOS (Ej: -4 para rotar a la izquierda, 4 para rotar a la derecha, 0 para recto)
 $textRect = New-Object System.Drawing.Rectangle($textX, $textY, $textDestWidth, $textDestHeight)
 
 # 👤 CAPA 2: EL ENTRENADOR CON EL CHARIZARD (Se dibuja al frente, superpuesto)
@@ -134,8 +135,32 @@ $charX = [int](($canvasWidth - $charDestWidth) / 2) # <-- CENTRADO AUTOMÁTICO (
 $charY = 380            # <-- POSICIÓN VERTICAL (Y): Aumenta para bajar al personaje, reduce para subirlo y superponerlo más.
 $charRect = New-Object System.Drawing.Rectangle($charX, $charY, $charDestWidth, $charDestHeight)
 
-# Draw text FIRST (background layer), then character SECOND (foreground layer)
-$g.DrawImage($textBmp, $textRect)
+# 🎨 RENDERIZADO DE LAS CAPAS EN ORDEN DE PROFUNDIDAD
+Write-Host "Drawing layers..."
+
+# Dibujar texto PRIMERO (capa de atrás) con su respectiva rotación si se define un ángulo
+if ($textRotationAngle -ne 0) {
+    Write-Host "Applying rotation of $textRotationAngle degrees to 3D text..."
+    $state = $g.Save()
+    # Calcular el centro exacto de las letras para rotar sobre su propio eje
+    $centerX = $textX + ($textDestWidth / 2)
+    $centerY = $textY + ($textDestHeight / 2)
+    
+    # Aplicar transformaciones matriciales
+    $g.TranslateTransform($centerX, $centerY)
+    $g.RotateTransform($textRotationAngle)
+    
+    # Dibujar el texto rotado desde el nuevo origen
+    $destRectRotated = New-Object System.Drawing.RectangleF(-($textDestWidth/2), -($textDestHeight/2), $textDestWidth, $textDestHeight)
+    $g.DrawImage($textBmp, $destRectRotated)
+    
+    # Restaurar la transformación original para no afectar a las otras capas
+    $g.Restore($state)
+} else {
+    $g.DrawImage($textBmp, $textRect)
+}
+
+# Dibujar personaje SEGUNDO (capa de adelante, encima del texto)
 $g.DrawImage($charBmp, $charRect)
 
 # Clean up resources
