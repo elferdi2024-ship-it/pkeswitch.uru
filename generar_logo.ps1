@@ -122,8 +122,8 @@ $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
 # Modifica estas variables para cambiar el tamaño, la ubicación y la rotación de las letras "PokéSwitch".
 $textDestWidth = 950    # <-- ANCHO DE LAS LETRAS (por defecto: 950 píxeles)
 $textDestHeight = [int]($textBmp.Height * ($textDestWidth / $textBmp.Width)) # (Calcula el alto proporcional automáticamente)
-$textX = 135            # <-- POSICIÓN HORIZONTAL (X): Aumenta para mover a la derecha, reduce para mover a la izquierda.
-$textY = 50             # <-- POSICIÓN VERTICAL (Y): Aumenta para bajar las letras, reduce para subirlas.
+$textX = 125            # <-- POSICIÓN HORIZONTAL (X): Aumenta para mover a la derecha, reduce para mover a la izquierda.
+$textY = 60             # <-- POSICIÓN VERTICAL (Y): Aumenta para bajar las letras, reduce para subirlas.
 $textRotationAngle = -15 # <-- ÁNGULO DE ROTACIÓN EN GRADOS (Ej: -4 para rotar a la izquierda, 4 para rotar a la derecha, 0 para recto)
 $textRect = New-Object System.Drawing.Rectangle($textX, $textY, $textDestWidth, $textDestHeight)
 
