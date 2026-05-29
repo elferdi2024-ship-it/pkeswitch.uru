@@ -1007,10 +1007,11 @@
         }
 
         .subtitle {
-            display: inline-flex;
+            display: flex;
+            width: max-content;
+            margin: 12px auto 0 auto;
             align-items: center;
             justify-content: center;
-            margin-top: 12px;
             padding: 7px 12px;
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 999px;
@@ -2447,8 +2448,7 @@
 
             .pokeswitch-3d-logo {
                 width: clamp(210px, 48vw, 340px);
-                margin-top: 5px;
-                margin-bottom: 0;
+                margin: 5px auto 0 auto;
             }
         }
 
@@ -2531,6 +2531,8 @@
 
         /* 3D Logo Header Styles */
         .pokeswitch-3d-logo {
+            display: block;
+            margin: 15px auto 5px auto;
             width: clamp(240px, 45vw, 420px);
             height: auto;
             object-fit: contain;
@@ -2538,8 +2540,6 @@
             animation: logoFloat 9s ease-in-out infinite;
             z-index: 2;
             position: relative;
-            margin-top: 15px;
-            margin-bottom: 5px;
         }
 
         /* Floating Contact Widget CSS */
