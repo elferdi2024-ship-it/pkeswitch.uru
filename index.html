@@ -58,7 +58,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1540px;
             margin: 0 auto;
         }
 
@@ -973,12 +973,12 @@
         .container {
             position: relative;
             z-index: 1;
-            max-width: 1180px;
+            max-width: 1540px;
+            width: 100%;
         }
 
         .header {
-            margin: 8px auto 22px;
-            padding: 10px 0 2px;
+            display: none !important;
         }
 
         .pokeball-logo {
@@ -1487,17 +1487,29 @@
 
         .team-slot .pokemon-name-small {
             width: 100%;
-            padding: 0 7px;
-            color: var(--ink);
+            padding: 0 4px;
+            color: #1e293b !important;
+            font-size: 0.88rem !important;
+            font-weight: 900 !important;
+            text-align: center !important;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            display: block !important;
+            margin-top: 2px;
+            margin-bottom: 2px;
         }
 
         .team-slot .speed-indicator {
-            border-radius: 999px;
-            background: #2f46ca;
-            box-shadow: 0 8px 16px rgba(47,70,202,0.2);
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+            color: #ffffff !important;
+            font-size: 0.74rem !important;
+            font-weight: 850 !important;
+            padding: 4px 10px !important;
+            border-radius: 8px !important;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(29, 78, 216, 0.2);
         }
 
         .analysis-section {
@@ -2211,10 +2223,7 @@
 
         /* Pokemon X / Kalos 3D assets */
         .header {
-            min-height: 274px;
-            display: grid;
-            place-items: center;
-            isolation: isolate;
+            display: none !important;
         }
 
         .kalos-stage {
@@ -2836,30 +2845,30 @@
         }
 
         .rival-slot .pokemon-name-small {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--ink);
-            text-transform: capitalize;
-            margin-top: 5px;
-            z-index: 2;
             width: 100%;
             padding: 0 4px;
-            text-align: center;
-            white-space: nowrap;
+            color: #1e293b !important;
+            font-size: 0.88rem !important;
+            font-weight: 900 !important;
+            text-align: center !important;
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block !important;
+            margin-top: 2px;
+            margin-bottom: 2px;
         }
 
         .rival-slot .speed-indicator {
-            position: absolute;
-            bottom: 6px;
-            right: 6px;
-            background: var(--poke-red);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 0.65rem;
-            font-weight: 800;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+            color: #ffffff !important;
+            font-size: 0.74rem !important;
+            font-weight: 850 !important;
+            padding: 4px 10px !important;
+            border-radius: 8px !important;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(220, 38, 38, 0.2);
         }
 
         /* --- TABLA RANDOMLOCKE PREMIUM (ESTILO LA REFERENCIA) --- */
@@ -3886,44 +3895,40 @@
 
         /* Botón de Stats rápido en slots superiores */
         .slot-stats-toggle {
-            position: absolute;
-            bottom: 6px;
-            left: 6px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(24, 32, 47, 0.12);
-            color: #475569;
-            font-size: 0.58rem;
-            font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 6px;
+            background: #ffffff;
+            border: 1px solid rgba(59, 130, 246, 0.3) !important;
+            color: #2563eb !important;
+            font-size: 0.74rem !important;
+            font-weight: 850 !important;
+            padding: 4px 10px !important;
+            border-radius: 8px !important;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 2px;
+            gap: 3px;
             user-select: none;
             z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.1);
         }
 
         .slot-stats-toggle:hover {
-            background: var(--poke-blue);
-            color: white;
-            border-color: var(--poke-blue);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(59, 76, 202, 0.2);
+            background: #2563eb !important;
+            color: white !important;
+            border-color: #2563eb !important;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 12px rgba(37, 99, 235, 0.3);
         }
 
         .team-slot.filled, .rival-slot.filled {
-            padding-bottom: 28px !important;
-            padding-top: 24px !important;
+            padding: 8px 8px 12px 8px !important;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            height: 138px !important;
-            min-height: 138px !important;
-            max-height: 138px !important;
+            justify-content: space-between !important;
+            height: 172px !important;
+            min-height: 172px !important;
+            max-height: 172px !important;
             position: relative;
             overflow: visible;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
