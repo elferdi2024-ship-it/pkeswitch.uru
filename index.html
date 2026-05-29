@@ -4723,16 +4723,56 @@
                 </svg>
             </div>
             
-            <!-- Selector de Clima de Batalla Táctico Premium -->
-            <div class="weather-selector-container" id="weatherSelectorContainer" style="display: none; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 12px; font-family: 'Outfit', sans-serif;">
-                <span style="font-size: 0.72rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px;">⛅ CLIMA ACTIVO:</span>
-                <select id="weatherSelect" onchange="changeWeather(this.value)" style="background: white; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 4px 10px; font-size: 0.72rem; font-weight: 800; color: #475569; cursor: pointer; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
-                    <option value="none">☀️ Clima Despejado (Neutral)</option>
-                    <option value="sun">🔥 Sol Brillante (Fuego x1.5, Agua x0.5)</option>
-                    <option value="rain">🌧️ Lluvia Activa (Agua x1.5, Fuego x0.5)</option>
-                    <option value="sandstorm">🌪️ Tormenta Arena (SpD x1.5 Roca/Tierra/Acero)</option>
-                    <option value="hail">❄️ Granizo/Nieve (Def x1.5 Hielo)</option>
-                </select>
+            <!-- Selector de Clima de Batalla Táctico Premium y Efectos de Campo -->
+            <div class="weather-selector-container" id="weatherSelectorContainer" style="display: none; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; font-family: 'Outfit', sans-serif;">
+                
+                <!-- Modo de Estadísticas Selector -->
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <span style="font-size: 0.65rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px;">⚙️ MODO STATS:</span>
+                    <select id="statModeSelect" onchange="changeStatMode(this.value)" style="background: white; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 4px 8px; font-size: 0.68rem; font-weight: 800; color: #475569; cursor: pointer; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                        <option value="competitive">🏆 Competitivo Pro (Nivel/EVs/IVs)</option>
+                        <option value="base">📊 Base Stats (Simplificado)</option>
+                    </select>
+                </div>
+
+                <!-- Clima Select -->
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <span style="font-size: 0.65rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px;">⛅ CLIMA:</span>
+                    <select id="weatherSelect" onchange="changeWeather(this.value)" style="background: white; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 4px 8px; font-size: 0.68rem; font-weight: 800; color: #475569; cursor: pointer; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                        <option value="none">☀️ Clima Despejado (Neutral)</option>
+                        <option value="sun">🔥 Sol Sol (Fuego x1.5, Agua x0.5)</option>
+                        <option value="rain">🌧️ Lluvia Activa (Agua x1.5, Fuego x0.5)</option>
+                        <option value="sandstorm">🌪️ Tormenta de Arena (SpD x1.5 Roca)</option>
+                        <option value="hail">❄️ Granizo/Nieve (Def x1.5 Hielo)</option>
+                    </select>
+                </div>
+
+                <!-- Terreno Select -->
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <span style="font-size: 0.65rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px;">⛰️ TERRENO:</span>
+                    <select id="terrainSelect" onchange="changeTerrain(this.value)" style="background: white; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 4px 8px; font-size: 0.68rem; font-weight: 800; color: #475569; cursor: pointer; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                        <option value="none">🪨 Sin Terreno Activo</option>
+                        <option value="electric">⚡ Terreno Eléctrico (Elec x1.3, Antidormir)</option>
+                        <option value="grassy">🌱 Terreno Planta (Planta x1.3, Rec HP)</option>
+                        <option value="psychic">🔮 Terreno Psíquico (Psí x1.3, Anti-prioridad)</option>
+                        <option value="misty">✨ Terreno de Niebla (Dragón x0.5, Anti-estados)</option>
+                    </select>
+                </div>
+
+                <!-- Toggles de Pantallas (Aliado / Rival) -->
+                <div style="display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.5); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.04);">
+                    <span style="font-size: 0.62rem; font-weight: 800; color: #475569;">🛡️ PANTALLAS PROPIAS:</span>
+                    <button id="btnPlayerReflect" onclick="toggleScreen('player', 'reflect')" class="screen-toggle-btn" style="background:none; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 6px; font-size: 0.6rem; font-weight: 800; cursor:pointer; color: #64748b;">Reflejo</button>
+                    <button id="btnPlayerLightScreen" onclick="toggleScreen('player', 'lightScreen')" class="screen-toggle-btn" style="background:none; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 6px; font-size: 0.6rem; font-weight: 800; cursor:pointer; color: #64748b;">Pant. Luz</button>
+                    <button id="btnPlayerAuroraVeil" onclick="toggleScreen('player', 'auroraVeil')" class="screen-toggle-btn" style="background:none; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 6px; font-size: 0.6rem; font-weight: 800; cursor:pointer; color: #64748b;">V. Aurora</button>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.5); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.04);">
+                    <span style="font-size: 0.62rem; font-weight: 800; color: #b91c1c;">🛡️ PANTALLAS RIVAL:</span>
+                    <button id="btnRivalReflect" onclick="toggleScreen('rival', 'reflect')" class="screen-toggle-btn" style="background:none; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 6px; font-size: 0.6rem; font-weight: 800; cursor:pointer; color: #64748b;">Reflejo</button>
+                    <button id="btnRivalLightScreen" onclick="toggleScreen('rival', 'lightScreen')" class="screen-toggle-btn" style="background:none; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 6px; font-size: 0.6rem; font-weight: 800; cursor:pointer; color: #64748b;">Pant. Luz</button>
+                    <button id="btnRivalAuroraVeil" onclick="toggleScreen('rival', 'auroraVeil')" class="screen-toggle-btn" style="background:none; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 6px; font-size: 0.6rem; font-weight: 800; cursor:pointer; color: #64748b;">V. Aurora</button>
+                </div>
             </div>
 
             <!-- Pestañas de Navegación del Análisis Premium -->
@@ -5257,6 +5297,10 @@
         let activeAnalysisTab = 'pro';
         let currentWeather = 'none'; // 'none', 'sun', 'rain', 'sandstorm', 'hail'
         let currentGeneration = '6'; // '5', '6', '7', '8', '9'
+        let currentStatMode = 'competitive'; // 'base', 'competitive'
+        let activeTerrain = 'none'; // 'none', 'electric', 'grassy', 'misty', 'psychic'
+        let playerScreens = { reflect: false, lightScreen: false, auroraVeil: false };
+        let rivalScreens = { reflect: false, lightScreen: false, auroraVeil: false };
 
         // Estados de expansión y acordeón persistentes entre redibujados (Mobile & Desktop)
         let expandedTeamRows = new Set();
@@ -5353,9 +5397,34 @@
             if (!p.rl) p.rl = {};
             if (!p.rl.status) p.rl.status = 'none';
             if (!p.rl.boosts) p.rl.boosts = { attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
+            
+            // Valores de nivel, IVs y EVs por defecto
+            if (p.rl.level === undefined) p.rl.level = 50;
+            if (!p.rl.ivs) p.rl.ivs = { hp: 31, attack: 31, defense: 31, spa: 31, spd: 31, speed: 31 };
+            if (!p.rl.evs) p.rl.evs = { hp: 0, attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
 
             const base = { ...p.stats };
             const real = { ...p.stats };
+
+            // Modo Competitivo Pro
+            if (currentStatMode === 'competitive') {
+                const level = p.rl.level;
+                const ivs = p.rl.ivs;
+                const evs = p.rl.evs;
+
+                // HP Formula
+                if (p.name.toLowerCase() === 'shedinja' || base.hp === 1) {
+                    real.hp = 1;
+                } else {
+                    real.hp = Math.floor(((2 * base.hp + ivs.hp + Math.floor(evs.hp / 4)) * level) / 100) + level + 10;
+                }
+
+                // Other Stats Formula
+                const statKeys = ['attack', 'defense', 'spa', 'spd', 'speed'];
+                statKeys.forEach(key => {
+                    real[key] = Math.floor(((2 * base[key] + ivs[key] + Math.floor(evs[key] / 4)) * level) / 100) + 5;
+                });
+            }
             
             // 1. Nature modifiers
             let natureBuff = null;
@@ -5365,8 +5434,14 @@
                 if (nat && nat.buff) {
                     natureBuff = nat.buff;
                     natureDebuff = nat.debuff;
-                    real[nat.buff] = Math.round(real[nat.buff] * 1.1);
-                    real[nat.debuff] = Math.round(real[nat.debuff] * 0.9);
+                    
+                    if (currentStatMode === 'competitive') {
+                        real[nat.buff] = Math.floor(real[nat.buff] * 1.1);
+                        real[nat.debuff] = Math.floor(real[nat.debuff] * 0.9);
+                    } else {
+                        real[nat.buff] = Math.round(real[nat.buff] * 1.1);
+                        real[nat.debuff] = Math.round(real[nat.debuff] * 0.9);
+                    }
                 }
             }
             
@@ -5472,7 +5547,6 @@
                 // Paralysis (PAR)
                 if (status === 'par') {
                     if (hasQuickFeet) {
-                        // Quick Feet boosts Speed by 1.5x and ignores status Speed drop!
                         real.speed = Math.round(real.speed * 1.5);
                         abilityBoosts.speed = true;
                     } else {
@@ -5561,6 +5635,508 @@
         }
 
         // ==========================================================================
+        // ==========================================================================
+        // MOTOR MATEMÁTICO COMPETITIVO DE DAMAGE ROLLS Y EFECTOS DE CAMPO PRO
+        // ==========================================================================
+        function changeStatMode(mode) {
+            currentStatMode = mode;
+            showToast(`⚙️ Modalidad de Stats configurada a: ${mode === 'competitive' ? 'Competitivo Pro' : 'Base Stats'}`);
+            analyzeMatchups();
+            if (currentBattleMode === '6vs6') renderMatrix();
+            renderTeam();
+            renderRivalTeam();
+            renderRival();
+            renderRandomlockeTable();
+            renderRandomlockeRivalTable();
+        }
+
+        function changeTerrain(terrain) {
+            activeTerrain = terrain;
+            showToast(`⛰️ Terreno de Campo configurado a: ${terrain.toUpperCase()}`);
+            analyzeMatchups();
+            if (currentBattleMode === '6vs6') renderMatrix();
+            renderRandomlockeTable();
+            renderRandomlockeRivalTable();
+        }
+
+        function toggleScreen(side, type) {
+            const screens = side === 'player' ? playerScreens : rivalScreens;
+            screens[type] = !screens[type];
+            
+            // Actualizar apariencia en UI
+            updateScreenButtons();
+            
+            showToast(`🛡️ Pantalla ${type.toUpperCase()} ${side === 'player' ? 'Aliada' : 'Rival'}: ${screens[type] ? 'ACTIVADA' : 'DESACTIVADA'}`);
+            analyzeMatchups();
+            if (currentBattleMode === '6vs6') renderMatrix();
+            renderRandomlockeTable();
+            renderRandomlockeRivalTable();
+        }
+
+        function updateScreenButtons() {
+            const updateBtn = (id, active) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (active) {
+                        el.style.background = 'linear-gradient(135deg, var(--poke-blue), #2563eb)';
+                        el.style.color = 'white';
+                        el.style.borderColor = 'transparent';
+                    } else {
+                        el.style.background = 'none';
+                        el.style.color = '#64748b';
+                        el.style.borderColor = '#cbd5e1';
+                    }
+                }
+            };
+
+            updateBtn('btnPlayerReflect', playerScreens.reflect);
+            updateBtn('btnPlayerLightScreen', playerScreens.lightScreen);
+            updateBtn('btnPlayerAuroraVeil', playerScreens.auroraVeil);
+
+            updateBtn('btnRivalReflect', rivalScreens.reflect);
+            updateBtn('btnRivalLightScreen', rivalScreens.lightScreen);
+            updateBtn('btnRivalAuroraVeil', rivalScreens.auroraVeil);
+        }
+
+        function calculateDamageRange(attacker, defender, move) {
+            if (!move || !move.name || move.category === 'status') {
+                return null;
+            }
+
+            let power = parseInt(move.power) || 0;
+            if (power <= 0) return null;
+
+            // Clones para modificar temporalmente por habilidades de Ruina o Terreno
+            const attackerStats = { ...calculateRealStats(attacker).real };
+            const defenderStats = { ...calculateRealStats(defender).real };
+
+            const level = attacker.rl.level || 50;
+            const moveNameLower = move.name.toLowerCase();
+            const moveType = move.type.toLowerCase();
+
+            // =========================================================================
+            // A. MODIFICADORES DE POTENCIA DE MOVIMIENTO POR HABILIDADES DEL ATACANTE
+            // =========================================================================
+            if (attacker.rl && attacker.rl.ability) {
+                const ab = attacker.rl.ability.toLowerCase().replace(/[-_]/g, ' ').trim();
+
+                // 1. Technician / Experto (Poder <= 60 recibe x1.5)
+                if ((ab.includes("technician") || ab.includes("experto")) && power <= 60) {
+                    power = Math.floor(power * 1.5);
+                }
+                // 2. Strong Jaw / Mandíbula Fuerte (Mordiscos reciben x1.5)
+                else if ((ab.includes("strong jaw") || ab.includes("mandibula fuerte") || ab.includes("mandíbula fuerte")) && 
+                    (moveNameLower.includes("crunch") || moveNameLower.includes("bite") || moveNameLower.includes("fang") || 
+                     moveNameLower.includes("mordisco") || moveNameLower.includes("triturar") || moveNameLower.includes("colmillo"))) {
+                    power = Math.floor(power * 1.5);
+                }
+                // 3. Sharpness / Cortante (Cortantes reciben x1.5)
+                else if ((ab.includes("sharpness") || ab.includes("cortante")) && 
+                    (moveNameLower.includes("slash") || moveNameLower.includes("cutter") || moveNameLower.includes("blade") || 
+                     moveNameLower.includes("scissor") || moveNameLower.includes("tajo") || moveNameLower.includes("corte") || 
+                     moveNameLower.includes("hoja") || moveNameLower.includes("tijera") || moveNameLower.includes("psycho cut"))) {
+                    power = Math.floor(power * 1.5);
+                }
+                // 4. Iron Fist / Puño Férreo (Puños reciben x1.2)
+                else if ((ab.includes("iron fist") || ab.includes("puno ferreo") || ab.includes("puño férreo")) && 
+                    (moveNameLower.includes("punch") || moveNameLower.includes("puno") || moveNameLower.includes("puño") || 
+                     moveNameLower.includes("gancho") || moveNameLower.includes("hammer arm") || moveNameLower.includes("meteoro"))) {
+                    power = Math.floor(power * 1.2);
+                }
+                // 5. Reckless / Audaz (Recoil reciben x1.2)
+                else if ((ab.includes("reckless") || ab.includes("audaz")) && 
+                    (moveNameLower.includes("blitz") || moveNameLower.includes("double edge") || moveNameLower.includes("brave bird") || 
+                     moveNameLower.includes("wood hammer") || moveNameLower.includes("envite") || moveNameLower.includes("doble filo") || 
+                     moveNameLower.includes("pajaro") || moveNameLower.includes("pájaro") || moveNameLower.includes("martillo") || moveNameLower.includes("recoil"))) {
+                    power = Math.floor(power * 1.2);
+                }
+                // 6. Mega Launcher / Megadisparador (Pulsos y Auras reciben x1.5)
+                else if ((ab.includes("mega launcher") || ab.includes("megadisparador")) && 
+                    (moveNameLower.includes("pulse") || moveNameLower.includes("pulso") || moveNameLower.includes("aura sphere") || moveNameLower.includes("esfera aura"))) {
+                    power = Math.floor(power * 1.5);
+                }
+                // 7. Habilidades de Potenciación Elemental Pasiva
+                // Steelworker / Acero Templado (Acero x1.5)
+                if ((ab.includes("steelworker") || ab.includes("acero templado")) && moveType === 'steel') {
+                    power = Math.floor(power * 1.5);
+                }
+                // Rocky Payload / Transportarrocas (Roca x1.5)
+                else if ((ab.includes("rocky payload") || ab.includes("transportarrocas")) && moveType === 'rock') {
+                    power = Math.floor(power * 1.5);
+                }
+                // Transistor (Eléctrico x1.3)
+                else if (ab.includes("transistor") && moveType === 'electric') {
+                    power = Math.floor(power * 1.3);
+                }
+                // Dragon's Maw / Mandíbula Dragón (Dragón x1.5)
+                else if ((ab.includes("dragons maw") || ab.includes("mandibula dragon") || ab.includes("mandíbula dragón")) && moveType === 'dragon') {
+                    power = Math.floor(power * 1.5);
+                }
+            }
+
+            // =========================================================================
+            // B. MODIFICADORES DE STATS POR ENTORNO Y HABILIDADES ESPECIALES (Gen 9)
+            // =========================================================================
+            // 1. Hadron Engine / Motor Hadrónico (SpA x1.33 en Terreno Eléctrico)
+            if (attacker.rl && attacker.rl.ability) {
+                const ab = attacker.rl.ability.toLowerCase();
+                if ((ab.includes("hadron engine") || ab.includes("motor hadronico") || ab.includes("motor hadrónico")) && activeTerrain === 'electric') {
+                    attackerStats.spa = Math.floor(attackerStats.spa * 1.33);
+                }
+                // 2. Orichalcum Pulse / Latido Oricalco (Atk x1.33 en Sol)
+                if ((ab.includes("orichalcum pulse") || ab.includes("latido oricalco")) && currentWeather === 'sun') {
+                    attackerStats.attack = Math.floor(attackerStats.attack * 1.33);
+                }
+            }
+
+            // 3. Ruinous Abilities (Abalorio, Espada, Tablilla, Caldero de la Debacle)
+            // Beads of Ruin / Abalorio Debacle: SpD del oponente x0.75
+            if (attacker.rl && attacker.rl.ability) {
+                const ab = attacker.rl.ability.toLowerCase();
+                if (ab.includes("beads of ruin") || ab.includes("abalorio debacle")) {
+                    defenderStats.spd = Math.floor(defenderStats.spd * 0.75);
+                }
+                // Sword of Ruin / Espada Debacle: Def del oponente x0.75
+                if (ab.includes("sword of ruin") || ab.includes("espada debacle")) {
+                    defenderStats.defense = Math.floor(defenderStats.defense * 0.75);
+                }
+            }
+            if (defender.rl && defender.rl.ability) {
+                const ab = defender.rl.ability.toLowerCase();
+                // Tablets of Ruin / Tablilla Debacle: Atk del atacante x0.75
+                if (ab.includes("tablets of ruin") || ab.includes("tablilla debacle")) {
+                    attackerStats.attack = Math.floor(attackerStats.attack * 0.75);
+                }
+                // Vessel of Ruin / Caldero Debacle: SpA del atacante x0.75
+                if (ab.includes("vessel of ruin") || ab.includes("caldero debacle")) {
+                    attackerStats.spa = Math.floor(attackerStats.spa * 0.75);
+                }
+            }
+
+            // Determinar estadísticas de ataque y defensa finales basadas en la categoría
+            let atkStat = 1;
+            let defStat = 1;
+
+            if (move.category === 'physical') {
+                atkStat = attackerStats.attack;
+                defStat = defenderStats.defense;
+            } else if (move.category === 'special') {
+                atkStat = attackerStats.spa;
+                defStat = defenderStats.spd;
+            } else {
+                return null;
+            }
+
+            // Fórmula base de daño físico oficial
+            const baseDamage = Math.floor(
+                Math.floor((Math.floor((2 * level) / 5 + 2) * power * atkStat) / defStat) / 50
+            ) + 2;
+
+            // Modificadores:
+            // 1. Clima
+            let weatherMult = 1.0;
+            if (currentWeather === 'sun') {
+                if (moveType === 'fire') weatherMult = 1.5;
+                if (moveType === 'water') weatherMult = 0.5;
+            } else if (currentWeather === 'rain') {
+                if (moveType === 'water') weatherMult = 1.5;
+                if (moveType === 'fire') weatherMult = 0.5;
+            }
+
+            // 2. Terrenos
+            let terrainMult = 1.0;
+            if (activeTerrain === 'electric' && moveType === 'electric') {
+                terrainMult = (parseInt(currentGeneration) >= 8) ? 1.3 : 1.5;
+            } else if (activeTerrain === 'grassy' && moveType === 'grass') {
+                terrainMult = (parseInt(currentGeneration) >= 8) ? 1.3 : 1.5;
+            } else if (activeTerrain === 'psychic' && moveType === 'psychic') {
+                terrainMult = (parseInt(currentGeneration) >= 8) ? 1.3 : 1.5;
+            } else if (activeTerrain === 'misty' && moveType === 'dragon') {
+                terrainMult = 0.5;
+            }
+
+            // 3. STAB (Same Type Attack Bonus)
+            let stabMult = 1.0;
+            if (attacker.types.includes(moveType)) {
+                stabMult = 1.5;
+                // Adaptable
+                if (attacker.rl && attacker.rl.ability) {
+                    const ab = attacker.rl.ability.toLowerCase();
+                    if (ab.includes("adaptability") || ab.includes("adaptable")) {
+                        stabMult = 2.0;
+                    }
+                }
+            }
+
+            // 4. Efectividad elemental básica del defensor
+            const typeMult = getSingleTypeEffectiveness(move.type, defender);
+
+            // 5. Quemadura
+            let burnMult = 1.0;
+            if (attacker.rl && attacker.rl.status === 'brn' && move.category === 'physical') {
+                if (attacker.rl.ability) {
+                    const ab = attacker.rl.ability.toLowerCase();
+                    if (!ab.includes("guts") && !ab.includes("agallas")) {
+                        burnMult = 0.5;
+                    }
+                } else {
+                    burnMult = 0.5;
+                }
+            }
+
+            // 6. Pantallas de Combate
+            let screenMult = 1.0;
+            const defenderIsRival = rivalTeamData.some(r => r.name === defender.name);
+            const screens = defenderIsRival ? rivalScreens : playerScreens;
+
+            if (move.category === 'physical' && (screens.reflect || screens.auroraVeil)) {
+                screenMult = 0.5;
+            } else if (move.category === 'special' && (screens.lightScreen || screens.auroraVeil)) {
+                screenMult = 0.5;
+            }
+
+            // =========================================================================
+            // C. MODIFICADORES DE OBJETOS COMPETITIVOS
+            // =========================================================================
+            let itemMult = 1.0;
+            let focusSashActive = false;
+            let damageReducingBerryActive = false;
+
+            if (attacker.rl && attacker.rl.item) {
+                const item = attacker.rl.item.toLowerCase().trim();
+                // Life Orb / Vidasfera (Daño x1.3)
+                if (item.includes("orb") || item.includes("vida")) {
+                    itemMult = 1.3;
+                }
+                // Expert Belt / Cinto Experto (Daño súper efectivo x1.2)
+                else if ((item.includes("expert belt") || item.includes("cinto experto") || item.includes("cinturon experto")) && typeMult > 1) {
+                    itemMult = 1.2;
+                }
+            }
+
+            if (defender.rl && defender.rl.item) {
+                const item = defender.rl.item.toLowerCase().trim();
+                
+                // Focus Sash / Banda Focus (Asegura sobrevivir con 1 HP si está al 100% de salud)
+                if (item.includes("sash") || item.includes("banda focus") || item.includes("cinta focus")) {
+                    focusSashActive = true;
+                }
+
+                // Bayas de reducción de daño súper efectivo (Baya Yache, Occa, Shuca, etc. x0.5)
+                const berryMap = {
+                    fire: ["occa", "oca"],
+                    water: ["passho", "pasio"],
+                    electric: ["wacan", "gualot"],
+                    grass: ["rindo"],
+                    ice: ["yache", "aslac"],
+                    fighting: ["chople", "choca"],
+                    poison: ["kebia"],
+                    ground: ["shuca", "acardo"],
+                    flying: ["coba", "contra"],
+                    psychic: ["payapa"],
+                    bug: ["tanga"],
+                    rock: ["charti", "alcho"],
+                    ghost: ["kasib", "kasia"],
+                    dragon: ["haban"],
+                    dark: ["colbur", "colos"],
+                    steel: ["babiri"],
+                    fairy: ["roseli", "roselia"]
+                };
+
+                const expectedBerry = berryMap[moveType];
+                if (expectedBerry && typeMult > 1) {
+                    expectedBerry.forEach(bName => {
+                        if (item.includes(bName)) {
+                            damageReducingBerryActive = true;
+                        }
+                    });
+                }
+            }
+
+            // Generar los 16 rodillos aleatorios
+            const rolls = [];
+            for (let i = 85; i <= 100; i++) {
+                let damage = Math.floor(baseDamage * weatherMult);
+                damage = Math.floor(damage * terrainMult);
+                damage = Math.floor(damage * burnMult);
+                damage = Math.floor(damage * screenMult);
+                
+                // Random multiplier
+                damage = Math.floor((damage * i) / 100);
+                
+                damage = Math.floor(damage * stabMult);
+                damage = Math.floor(damage * typeMult);
+                damage = Math.floor(damage * itemMult);
+
+                // Aplicar reducción por baya de resistencia
+                if (damageReducingBerryActive) {
+                    damage = Math.floor(damage * 0.5);
+                }
+
+                // Wonder Guard Check
+                if (defender.rl && defender.rl.ability) {
+                    const ab = defender.rl.ability.toLowerCase().trim();
+                    if (ab.includes("wonder guard") || ab.includes("superguarda")) {
+                        if (typeMult <= 1) {
+                            damage = 0;
+                        }
+                    }
+                }
+
+                if (damage === 0 && typeMult > 0 && power > 0) {
+                    damage = 1;
+                }
+
+                rolls.push(damage);
+            }
+
+            const minDmg = rolls[0];
+            const maxDmg = rolls[15];
+
+            const defHP = defenderStats.hp;
+            const minPercent = Math.round((minDmg / defHP) * 1000) / 10;
+            const maxPercent = Math.round((maxDmg / defHP) * 1000) / 10;
+
+            let koChance = '';
+            if (minDmg >= defHP) {
+                if (focusSashActive) {
+                    koChance = 'Banda Focus Activa 🛡️ (100% supervivencia)';
+                } else {
+                    koChance = '¡OHKO Seguro! 💥';
+                }
+            } else if (maxDmg >= defHP) {
+                if (focusSashActive) {
+                    koChance = 'Banda Focus Activa 🛡️ (100% supervivencia)';
+                } else {
+                    const ohkoRolls = rolls.filter(r => r >= defHP).length;
+                    const ohkoPercent = Math.round((ohkoRolls / 16) * 100);
+                    koChance = `OHKO Factible (${ohkoPercent}%)`;
+                }
+            } else if (minDmg * 2 >= defHP) {
+                koChance = '2HKO Seguro ⚔️';
+            } else if (maxDmg * 2 >= defHP) {
+                const thkoRolls = rolls.filter(r => r * 2 >= defHP).length;
+                const thkoPercent = Math.round((thkoRolls / 16) * 100);
+                koChance = `2HKO Factible (${thkoPercent}%)`;
+            } else if (minDmg * 3 >= defHP) {
+                koChance = '3HKO Seguro 🛡️';
+            } else {
+                koChance = 'Stall / Desgaste';
+            }
+
+            if (damageReducingBerryActive) {
+                koChance += ' (Baya Activada)';
+            }
+
+            return {
+                rolls,
+                minDmg,
+                maxDmg,
+                minPercent,
+                maxPercent,
+                koChance
+            };
+        }
+
+        function presetModalStats(idx, type, isRival) {
+            const team = isRival ? rivalTeamData : teamData;
+            const p = team[idx];
+            if (p) {
+                if (!p.rl) p.rl = {};
+                p.rl.ivs = { hp: 31, attack: 31, defense: 31, spa: 31, spd: 31, speed: 31 };
+                if (type === 'max') {
+                    const baseAtk = p.stats.attack || 0;
+                    const baseSpA = p.stats.spa || 0;
+                    const isSpecial = baseSpA > baseAtk;
+                    p.rl.evs = {
+                        hp: 4,
+                        attack: isSpecial ? 0 : 252,
+                        defense: 0,
+                        spa: isSpecial ? 252 : 0,
+                        spd: 0,
+                        speed: 252
+                    };
+                } else if (type === 'reset') {
+                    p.rl.evs = { hp: 0, attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
+                }
+                saveStateToLocalStorage();
+                const modalBody = document.getElementById('slotStatsModalBody');
+                if (modalBody) {
+                    modalBody.innerHTML = renderSlotStatsModalContent(p, idx, isRival);
+                }
+                analyzeMatchups();
+                if (currentBattleMode === '6vs6') renderMatrix();
+                renderTeam();
+                renderRivalTeam();
+                renderRival();
+                renderRandomlockeTable();
+                renderRandomlockeRivalTable();
+            }
+        }
+
+        function updateModalLevel(idx, val, isRival) {
+            const team = isRival ? rivalTeamData : teamData;
+            const p = team[idx];
+            if (p) {
+                p.rl.level = Math.max(1, Math.min(100, parseInt(val) || 50));
+                saveStateToLocalStorage();
+                const modalBody = document.getElementById('slotStatsModalBody');
+                if (modalBody) {
+                    modalBody.innerHTML = renderSlotStatsModalContent(p, idx, isRival);
+                }
+                analyzeMatchups();
+                if (currentBattleMode === '6vs6') renderMatrix();
+                renderTeam();
+                renderRivalTeam();
+                renderRival();
+                renderRandomlockeTable();
+                renderRandomlockeRivalTable();
+            }
+        }
+
+        function updateModalEV(idx, statKey, val, isRival) {
+            const team = isRival ? rivalTeamData : teamData;
+            const p = team[idx];
+            if (p) {
+                if (!p.rl.evs) p.rl.evs = { hp: 0, attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
+                p.rl.evs[statKey] = Math.max(0, Math.min(252, parseInt(val) || 0));
+                saveStateToLocalStorage();
+                const modalBody = document.getElementById('slotStatsModalBody');
+                if (modalBody) {
+                    modalBody.innerHTML = renderSlotStatsModalContent(p, idx, isRival);
+                }
+                analyzeMatchups();
+                if (currentBattleMode === '6vs6') renderMatrix();
+                renderTeam();
+                renderRivalTeam();
+                renderRival();
+                renderRandomlockeTable();
+                renderRandomlockeRivalTable();
+            }
+        }
+
+        function updateModalIV(idx, statKey, val, isRival) {
+            const team = isRival ? rivalTeamData : teamData;
+            const p = team[idx];
+            if (p) {
+                if (!p.rl.ivs) p.rl.ivs = { hp: 31, attack: 31, defense: 31, spa: 31, spd: 31, speed: 31 };
+                p.rl.ivs[statKey] = Math.max(0, Math.min(31, parseInt(val) || 0));
+                saveStateToLocalStorage();
+                const modalBody = document.getElementById('slotStatsModalBody');
+                if (modalBody) {
+                    modalBody.innerHTML = renderSlotStatsModalContent(p, idx, isRival);
+                }
+                analyzeMatchups();
+                if (currentBattleMode === '6vs6') renderMatrix();
+                renderTeam();
+                renderRivalTeam();
+                renderRival();
+                renderRandomlockeTable();
+                renderRandomlockeRivalTable();
+            }
+        }
+
+
         // MOTOR DE EFECTIVIDAD COMPETITIVA PRO (INMUNIDADES, HABILIDADES E ITEMS)
         // ==========================================================================
         function getSingleTypeEffectiveness(atkType, defender) {
@@ -6550,6 +7126,11 @@
         }
 
         function renderSlotStatsModalContent(p, idx, isRival) {
+            if (!p.rl) p.rl = {};
+            if (p.rl.level === undefined) p.rl.level = 50;
+            if (!p.rl.evs) p.rl.evs = { hp: 0, attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
+            if (!p.rl.ivs) p.rl.ivs = { hp: 31, attack: 31, defense: 31, spa: 31, spd: 31, speed: 31 };
+
             const calc = calculateRealStats(p);
             const statKeys = ['hp', 'attack', 'defense', 'spa', 'spd', 'speed'];
             const statLabels = { hp: 'HP', attack: 'Atk', defense: 'Def', spa: 'SpA', spd: 'SpD', speed: 'Spe' };
@@ -6565,8 +7146,8 @@
                 { id: 'frz', label: 'FRZ', color: '#0891b2' }
             ];
             
-            let statusHtml = '<div style="margin-bottom: 14px;">';
-            statusHtml += '<div style="font-size: 0.68rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 6px; text-transform: uppercase;">Estado de Salud</div>';
+            let statusHtml = '<div style="margin-bottom: 10px;">';
+            statusHtml += '<div style="font-size: 0.65rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 4px; text-transform: uppercase;">Estado de Salud</div>';
             statusHtml += '<div class="rl-status-badges" style="gap: 4px; justify-content: flex-start; margin-bottom: 0;">';
             statuses.forEach(st => {
                 const isActive = currentStatus === st.id;
@@ -6580,9 +7161,16 @@
             });
             statusHtml += '</div></div>';
 
+            // Configuración de Nivel
+            let levelHtml = `
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed rgba(0,0,0,0.06);">
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #475569; font-family:'Outfit',sans-serif;">💥 NIVEL DE COMBATE:</span>
+                    <input type="number" min="1" max="100" value="${p.rl.level}" onchange="updateModalLevel(${idx}, this.value, ${isRival})" style="width: 52px; background: white; border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; padding: 2px 4px; font-size: 0.72rem; font-weight: 900; text-align: center; color: #1e293b;">
+                </div>
+            `;
 
             let statsRowsHtml = '';
-            statsRowsHtml += '<div style="font-size: 0.68rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 6px; text-transform: uppercase;">Estadísticas Reales</div>';
+            statsRowsHtml += '<div style="font-size: 0.65rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 4px; text-transform: uppercase;">Estadísticas Reales</div>';
             
             statKeys.forEach(key => {
                 const baseVal = calc.base[key];
@@ -6595,7 +7183,7 @@
                 if (calc.itemBoosts[key]) colorClass = 'stat-boosted-item';
                 if (calc.abilityBoosts && calc.abilityBoosts[key]) colorClass = 'stat-boosted-ability';
                 
-                const percent = Math.min(100, Math.round((realVal / 180) * 100));
+                const percent = Math.min(100, Math.round((realVal / (key === 'hp' ? 300 : 200)) * 100));
                 
                 let barColor = '#f59e0b';
                 if (key === 'hp') barColor = '#ef4444';
@@ -6636,6 +7224,38 @@
                 `;
             });
 
+            // Panel de EVs e IVs
+            let trainingHtml = `
+                <div style="margin-top: 10px; background: rgba(0,0,0,0.02); border-radius: 8px; padding: 8px; border: 1px solid rgba(0,0,0,0.04);">
+                    <div style="font-size: 0.62rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 6px; text-transform: uppercase; display: flex; justify-content: space-between; align-items:center;">
+                        <span>ENTRENAMIENTO PRO</span>
+                        <div style="display:flex; gap: 6px;">
+                            <a href="#" onclick="presetModalStats(${idx}, 'max', ${isRival}); return false;" style="color: var(--poke-blue); text-decoration: none; font-size: 0.6rem;">Max Atk/Spe</a>
+                            <span style="color:#cbd5e1">|</span>
+                            <a href="#" onclick="presetModalStats(${idx}, 'reset', ${isRival}); return false;" style="color: #ef4444; text-decoration: none; font-size: 0.6rem;">Reset</a>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4px; text-align: center; font-size: 0.62rem; font-weight: 800; color: #64748b; margin-bottom: 4px; padding-bottom: 2px; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <div style="text-align: left;">Stat</div>
+                        <div>Base</div>
+                        <div>EV</div>
+                        <div>IV</div>
+                    </div>
+                    ${statKeys.map(k => `
+                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4px; align-items: center; text-align: center; margin-bottom: 2px;">
+                            <div style="text-align: left; font-size: 0.68rem; font-weight: 800; color: #1e293b;">${statLabels[k]}</div>
+                            <div style="font-size: 0.65rem; color: #94a3b8;">${calc.base[k]}</div>
+                            <div>
+                                <input type="number" min="0" max="252" step="4" value="${p.rl.evs[k] || 0}" onchange="updateModalEV(${idx}, '${k}', this.value, ${isRival})" style="width: 38px; font-size: 0.62rem; font-weight: 800; text-align: center; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; padding: 1px; color:#1e293b; background:white;">
+                            </div>
+                            <div>
+                                <input type="number" min="0" max="31" value="${p.rl.ivs[k] !== undefined ? p.rl.ivs[k] : 31}" onchange="updateModalIV(${idx}, '${k}', this.value, ${isRival})" style="width: 30px; font-size: 0.62rem; font-weight: 800; text-align: center; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; padding: 1px; color:#1e293b; background:white;">
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
             // Types badges HTML
             const typeColors = { normal:'#A8A77A',fire:'#EE8130',water:'#6390F0',electric:'#F7D02C',grass:'#7AC74C',ice:'#96D9D6',fighting:'#C22E28',poison:'#A33EA1',ground:'#E2BF65',flying:'#A98FF3',psychic:'#F95587',bug:'#A6B91A',rock:'#B6A136',ghost:'#735797',dragon:'#6F35FC',dark:'#705746',steel:'#B7B7CE',fairy:'#D685AD' };
             const typeNames = { normal:'Normal',fire:'Fuego',water:'Agua',electric:'Eléc.',grass:'Planta',ice:'Hielo',fighting:'Lucha',poison:'Veneno',ground:'Tierra',flying:'Volador',psychic:'Psíq.',bug:'Bicho',rock:'Roca',ghost:'Fantas.',dragon:'Dragón',dark:'Siniestro',steel:'Acero',fairy:'Hada' };
@@ -6656,9 +7276,11 @@
                         <div style="display: flex; gap: 4px;">${typesHtml}</div>
                     </div>
                     ${statusHtml}
+                    ${levelHtml}
                     ${statsRowsHtml}
+                    ${trainingHtml}
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;">
-                        <span style="font-size:0.72rem;font-weight:900;color:#475569;font-family:'Outfit',sans-serif;">TOTAL</span>
+                        <span style="font-size:0.72rem;font-weight:900;color:#475569;font-family:'Outfit',sans-serif;">TOTAL REAL</span>
                         <span style="font-size:0.82rem;font-weight:900;color:${totalReal > totalBase ? '#10b981' : totalReal < totalBase ? '#ef4444' : '#475569'};">${totalReal}</span>
                     </div>
                 </div>
@@ -6924,7 +7546,71 @@
                 `;
             } else {
                 // RENDERIZADO PRO: Plan de Combate & Rotaciones Clave
-                // 1. Encontrar Sweepers (Pokémon míos que outspeedean al rival y le pegan súper efectivo)
+                
+                // ----------------------------------------------------
+                // 1. Escala de Velocidades (Speed Tiers Timeline)
+                // ----------------------------------------------------
+                const speedList = [];
+                teamData.forEach((myPoke, idx) => {
+                    const calc = calculateRealStats(myPoke);
+                    speedList.push({
+                        poke: myPoke,
+                        isRival: false,
+                        speed: calc.real.speed,
+                        idx
+                    });
+                });
+
+                const activeRivalsForSpeed = currentBattleMode === '6vs6' ? rivalTeamData : (rivalData ? [rivalData] : []);
+                activeRivalsForSpeed.forEach((rivalPoke, idx) => {
+                    const calc = calculateRealStats(rivalPoke);
+                    speedList.push({
+                        poke: rivalPoke,
+                        isRival: true,
+                        speed: calc.real.speed,
+                        idx
+                    });
+                });
+
+                speedList.sort((a, b) => b.speed - a.speed);
+
+                const speedTiersHtml = speedList.map((item, i) => {
+                    const borderColor = item.isRival ? '#ef4444' : 'var(--poke-blue)';
+                    const bg = item.isRival ? 'rgba(239, 68, 68, 0.03)' : 'rgba(59, 76, 202, 0.03)';
+                    const nameColor = item.isRival ? '#b91c1c' : '#1e3a8a';
+                    const label = item.isRival ? 'Rival' : 'Aliado';
+
+                    return `
+                        <div style="display: flex; align-items: center; flex-shrink: 0; background: ${bg}; border: 1.5px solid ${borderColor}; border-radius: 10px; padding: 4px 8px; gap: 6px; position: relative; min-width: 105px;">
+                            <span style="position: absolute; top: -6px; right: 6px; font-size: 0.5rem; font-weight: 900; color: white; background: ${borderColor}; padding: 0px 3px; border-radius: 3px; text-transform: uppercase;">
+                                ${label}
+                            </span>
+                            <img src="${item.poke.sprite}" alt="${item.poke.name}" style="width: 24px; height: 24px; object-fit: contain;">
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-size: 0.65rem; font-weight: 800; color: ${nameColor}; text-transform: capitalize;">${formatPokemonName(item.poke.name).substring(0, 8)}</span>
+                                <span style="font-size: 0.6rem; font-weight: 900; color: #475569;">⚡ ${item.speed} Spe</span>
+                            </div>
+                            ${i < speedList.length - 1 ? `<div style="font-size: 0.8rem; font-weight: 900; color: #cbd5e1; margin-left: 2px;">➔</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                const speedTimelineWidget = `
+                    <div class="pro-card" style="border-left: 5px solid #ec4899; margin-bottom: 12px; width: 100%; box-sizing: border-box;">
+                        <div class="pro-card-title" style="color: #db2777; justify-content: space-between; align-items: center; font-size:0.8rem;">
+                            <span style="display:flex; align-items:center; gap:4px;">⚡ Escala de Velocidades (Speed Tiers en Vivo)</span>
+                            <span style="font-size: 0.62rem; background: rgba(236, 72, 153, 0.1); color: #db2777; padding: 2px 6px; border-radius: 6px; font-weight:800;">Orden de Turnos Real</span>
+                        </div>
+                        <p style="font-size: 0.72rem; color: #64748b; font-weight: 600; margin-bottom: 8px; line-height: 1.3;">
+                            Calculado según la velocidad real en combate, considerando climas, parálisis, boosts de stage y objetos equipados.
+                        </p>
+                        <div style="display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px; scrollbar-width: thin; -ms-overflow-style: none;">
+                            ${speedTiersHtml}
+                        </div>
+                    </div>
+                `;
+
+                // 2. Encontrar Sweepers y calcular Damage Rolls reales
                 const sweepers = [];
                 const activeRivals = currentBattleMode === '6vs6' ? rivalTeamData : [rivalData];
 
@@ -6936,26 +7622,35 @@
                     activeRivals.forEach(rivalPoke => {
                         const rivalReal = calculateRealStats(rivalPoke);
                         
-                        // Evaluar si es más rápido
+                        // Velocidad
                         const outspeeds = myReal.real.speed > rivalReal.real.speed;
 
-                        // Evaluar efectividad elemental ofensiva competitiva real
+                        // Efectividad ofensiva
                         let mult = getMatchupEffectiveness(myPoke, rivalPoke);
 
-                        // Evaluar si posee un movimiento registrado que sea súper efectivo contra el rival
-                        let hasSuperEffectiveMove = false;
+                        // Evaluar si posee un movimiento súper efectivo o que haga más de 50% de daño (2HKO)
+                        let hasCompetitivelyStrongMove = false;
+                        let bestMoveDetails = "";
+
                         if (myPoke.rl && myPoke.rl.moves) {
                             myPoke.rl.moves.forEach(m => {
-                                if (m.name && m.type) {
-                                    let moveMult = getSingleTypeEffectiveness(m.type, rivalPoke);
-                                    if (moveMult > 1) hasSuperEffectiveMove = true;
+                                if (m.name && m.type && m.power && m.power !== '-') {
+                                    const dmg = calculateDamageRange(myPoke, rivalPoke, m);
+                                    if (dmg) {
+                                        if (dmg.maxPercent >= 50 || getSingleTypeEffectiveness(m.type, rivalPoke) > 1) {
+                                            hasCompetitivelyStrongMove = true;
+                                            if (dmg.maxPercent > 0) {
+                                                bestMoveDetails = ` (${m.name} ${dmg.minPercent}%-${dmg.maxPercent}%)`;
+                                            }
+                                        }
+                                    }
                                 }
                             });
                         }
 
-                        if (outspeeds && (mult > 1 || hasSuperEffectiveMove)) {
+                        if (outspeeds && (mult > 1 || hasCompetitivelyStrongMove)) {
                             sweepCount++;
-                            sweepTargets.push(formatPokemonName(rivalPoke.name));
+                            sweepTargets.push(formatPokemonName(rivalPoke.name) + bestMoveDetails);
                         }
                     });
 
@@ -6969,30 +7664,49 @@
                     }
                 });
 
-                // Ordenar sweepers por mayor número de oponentes barridos
+                // Ordenar sweepers
                 sweepers.sort((a, b) => b.count - a.count);
 
-                // 2. Determinar Pivots Seguros para cada Pokémon Rival
+                // 3. Determinar Pivots Seguros
                 const pivots = [];
                 activeRivals.forEach(rivalPoke => {
                     let bestPivot = null;
                     let bestPivotDamage = Infinity;
                     let bestPivotBulk = -Infinity;
+                    let bestPivotDetails = "";
 
                     teamData.forEach(myPoke => {
+                        // Daño recibido estimado básico
                         let damageTaken = getMatchupEffectiveness(rivalPoke, myPoke);
+                        
+                        // Si el rival tiene ataques definidos, calcular daño real del peor golpe recibido
+                        let maxRealDmgTaken = 0;
+                        if (rivalPoke.rl && rivalPoke.rl.moves) {
+                            rivalPoke.rl.moves.forEach(m => {
+                                if (m.name && m.type && m.power && m.power !== '-') {
+                                    const dmg = calculateDamageRange(rivalPoke, myPoke, m);
+                                    if (dmg && dmg.maxPercent > maxRealDmgTaken) {
+                                        maxRealDmgTaken = dmg.maxPercent;
+                                    }
+                                }
+                            });
+                        }
+
+                        // Usar porcentaje de daño real si está disponible
+                        const metric = maxRealDmgTaken > 0 ? maxRealDmgTaken / 100 : damageTaken;
 
                         const myReal = calculateRealStats(myPoke);
                         const bulk = myReal.real.hp + myReal.real.defense + myReal.real.spd;
 
-                        // Preferir menor daño recibido; en caso de empate, preferir mayor bulk total real
-                        if (damageTaken < bestPivotDamage) {
-                            bestPivotDamage = damageTaken;
+                        if (metric < bestPivotDamage) {
+                            bestPivotDamage = metric;
                             bestPivotBulk = bulk;
                             bestPivot = myPoke;
-                        } else if (damageTaken === bestPivotDamage && bulk > bestPivotBulk) {
+                            bestPivotDetails = maxRealDmgTaken > 0 ? `Max golpe: ${maxRealDmgTaken}%` : `Daño: x${damageTaken}`;
+                        } else if (metric === bestPivotDamage && bulk > bestPivotBulk) {
                             bestPivotBulk = bulk;
                             bestPivot = myPoke;
+                            bestPivotDetails = maxRealDmgTaken > 0 ? `Max golpe: ${maxRealDmgTaken}%` : `Daño: x${damageTaken}`;
                         }
                     });
 
@@ -7001,12 +7715,13 @@
                             rival: rivalPoke,
                             pivot: bestPivot,
                             damage: bestPivotDamage,
-                            bulk: bestPivotBulk
+                            bulk: bestPivotBulk,
+                            details: bestPivotDetails
                         });
                     }
                 });
 
-                // 3. Determinar Amenazas Críticas del Rival (outspeeds + súper efectivo contra varios de mis pokes)
+                // 4. Determinar Amenazas Críticas del Rival
                 const threats = [];
                 activeRivals.forEach(rivalPoke => {
                     const rivalReal = calculateRealStats(rivalPoke);
@@ -7016,12 +7731,26 @@
                     teamData.forEach(myPoke => {
                         const myReal = calculateRealStats(myPoke);
                         const outspeeds = rivalReal.real.speed > myReal.real.speed;
-
                         let mult = getMatchupEffectiveness(rivalPoke, myPoke);
 
-                        if (outspeeds && mult > 1) {
+                        // Si tiene movimientos reales
+                        let hasHardHittingMove = false;
+                        let hitDetails = "";
+                        if (rivalPoke.rl && rivalPoke.rl.moves) {
+                            rivalPoke.rl.moves.forEach(m => {
+                                if (m.name && m.type && m.power && m.power !== '-') {
+                                    const dmg = calculateDamageRange(rivalPoke, myPoke, m);
+                                    if (dmg && dmg.maxPercent >= 50) {
+                                        hasHardHittingMove = true;
+                                        hitDetails = ` (${dmg.koChance || (dmg.maxPercent + '%')})`;
+                                    }
+                                }
+                            });
+                        }
+
+                        if (outspeeds && (mult > 1 || hasHardHittingMove)) {
                             threatCount++;
-                            threatTargets.push(formatPokemonName(myPoke.name));
+                            threatTargets.push(formatPokemonName(myPoke.name) + hitDetails);
                         }
                     });
 
@@ -7035,125 +7764,132 @@
                     }
                 });
 
-                // Construir la vista de Plan de Combate Pro
+                // Construir HTML de sweepers
                 let sweepersHtml = '';
                 if (sweepers.length > 0) {
                     const topSweeper = sweepers[0];
                     sweepersHtml = `
                         <div class="pro-card" style="border-left: 5px solid #10b981; background: rgba(16, 185, 129, 0.02);">
-                            <div class="pro-card-title" style="color: #047857;">
+                            <div class="pro-card-title" style="color: #047857; font-size:0.8rem;">
                                 🏆 Condición de Victoria (Sweeper Estrella)
                             </div>
                             <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
-                                <img src="${topSweeper.poke.animatedSprite}" alt="${topSweeper.poke.name}" style="width: 50px; height: 50px; object-fit: contain;" onerror="this.onerror=null; this.src='${topSweeper.poke.sprite}';">
+                                <img src="${topSweeper.poke.animatedSprite}" alt="${topSweeper.poke.name}" style="width: 44px; height: 44px; object-fit: contain;" onerror="this.onerror=null; this.src='${topSweeper.poke.sprite}';">
                                 <div>
-                                    <div style="font-weight: 900; font-size: 1.1rem; color: #065f46;">${formatPokemonName(topSweeper.poke.name)}</div>
-                                    <div style="font-size: 0.78rem; color: #047857; font-weight: 700; margin-top: 2px;">
-                                        Velocidad Real: ⚡${topSweeper.speed} | Barre a ⚔️ ${topSweeper.count} oponente(s)
+                                    <div style="font-weight: 900; font-size: 1.05rem; color: #065f46; text-transform:capitalize;">${formatPokemonName(topSweeper.poke.name)}</div>
+                                    <div style="font-size: 0.75rem; color: #047857; font-weight: 700; margin-top: 1px;">
+                                        Velocidad Real: ⚡${topSweeper.speed} Spe | Barre a ⚔️ ${topSweeper.count} oponente(s)
                                     </div>
                                 </div>
                             </div>
-                            <p style="font-size: 0.8rem; color: #374151; font-weight: 600; line-height: 1.4; margin-bottom: 0;">
-                                Con su velocidad superior y cobertura elemental ofensiva, <strong>${formatPokemonName(topSweeper.poke.name)}</strong> es tu mejor opción para liderar el barrido ofensivo. Puede noquear directamente a: <span style="color: #047857; font-weight: 800;">${topSweeper.targets.join(', ')}</span>.
+                            <p style="font-size: 0.76rem; color: #374151; font-weight: 600; line-height: 1.4; margin-bottom: 0;">
+                                Con su velocidad superior y cobertura elemental ofensiva, <strong>${formatPokemonName(topSweeper.poke.name)}</strong> es tu mejor opción para liderar el ataque. Puede noquear o presionar con gran daño a: <span style="color: #047857; font-weight: 800;">${topSweeper.targets.join(', ')}</span>.
                             </p>
                         </div>
                     `;
                 } else {
                     sweepersHtml = `
                         <div class="pro-card" style="border-left: 5px solid #64748b;">
-                            <div class="pro-card-title" style="color: #475569;">
+                            <div class="pro-card-title" style="color: #475569; font-size:0.8rem;">
                                 ⚔️ Condición de Victoria
                             </div>
-                            <p style="font-size: 0.8rem; color: #475569; font-weight: 600; line-height: 1.4; margin-bottom: 0; text-align: center; padding: 10px 0;">
-                                ⚖️ No se detectan sweepers puros más veloces con ventaja elemental. Se aconseja un juego defensivo basado en switches y desgaste.
+                            <p style="font-size: 0.76rem; color: #475569; font-weight: 600; line-height: 1.4; margin-bottom: 0; text-align: center; padding: 10px 0;">
+                                ⚖️ No se detectan sweepers puros con ventaja de velocidad y daño crítico. Se aconseja juego defensivo, pivots y desgaste.
                             </p>
                         </div>
                     `;
                 }
 
+                // Construir HTML de amenazas
                 let threatsHtml = '';
                 if (threats.length > 0) {
                     threatsHtml = threats.map(t => `
                         <div class="pro-card" style="border-left: 5px solid #ef4444; background: rgba(239, 68, 68, 0.02); margin-top: 12px;">
-                            <div class="pro-card-title" style="color: #b91c1c;">
-                                ⚠️ ALERTA DE AMENAZA CRÍTICA
+                            <div class="pro-card-title" style="color: #b91c1c; font-size:0.8rem;">
+                                ⚠️ ALERTA DE AMENAZA CRÍTICA RIVAL
                             </div>
                             <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
-                                <img src="${t.rival.animatedSprite}" alt="${t.rival.name}" style="width: 48px; height: 48px; object-fit: contain;" onerror="this.onerror=null; this.src='${t.rival.sprite}';">
+                                <img src="${t.rival.animatedSprite}" alt="${t.rival.name}" style="width: 40px; height: 40px; object-fit: contain;" onerror="this.onerror=null; this.src='${t.rival.sprite}';">
                                 <div>
-                                    <div style="font-weight: 900; font-size: 1rem; color: #991b1b;">${formatPokemonName(t.rival.name)}</div>
-                                    <div style="font-size: 0.78rem; color: #b91c1c; font-weight: 700; margin-top: 2px;">
-                                        Velocidad Rival: ⚡${t.speed} | Amenaza a ${t.count} de tus Pokémon
+                                    <div style="font-weight: 900; font-size: 1rem; color: #991b1b; text-transform:capitalize;">${formatPokemonName(t.rival.name)}</div>
+                                    <div style="font-size: 0.75rem; color: #b91c1c; font-weight: 700; margin-top: 1px;">
+                                        Velocidad Rival: ⚡${t.speed} Spe | Amenaza a ${t.count} de tus Pokémon
                                     </div>
                                 </div>
                             </div>
-                            <p style="font-size: 0.8rem; color: #374151; font-weight: 600; line-height: 1.4; margin-bottom: 0;">
-                                💀 <strong>${formatPokemonName(t.rival.name)}</strong> supera y destruye con golpes súper efectivos a: <span style="color: #b91c1c; font-weight: 800;">${t.targets.join(', ')}</span>. Evita mantener a estos Pokémon en el campo de batalla frente a él. ¡Usa rotaciones seguras!
+                            <p style="font-size: 0.76rem; color: #374151; font-weight: 600; line-height: 1.4; margin-bottom: 0;">
+                                💀 <strong>${formatPokemonName(t.rival.name)}</strong> supera en velocidad y daña críticamente a: <span style="color: #b91c1c; font-weight: 800;">${t.targets.join(', ')}</span>. ¡Evita mantener a estos Pokémon en combate frente a él y usa pivots!
                             </p>
                         </div>
                     `).join('');
                 } else {
                     threatsHtml = `
                         <div class="pro-card" style="border-left: 5px solid #10b981; background: rgba(16, 185, 129, 0.02); margin-top: 12px;">
-                            <div class="pro-card-title" style="color: #047857;">
+                            <div class="pro-card-title" style="color: #047857; font-size:0.8rem;">
                                 👍 Alertas de Amenazas
                             </div>
-                            <p style="font-size: 0.8rem; color: #047857; font-weight: 600; line-height: 1.4; margin-bottom: 0; text-align: center; padding: 10px 0;">
-                                ✅ ¡Excelente! No se detectan Pokémon rivales más rápidos que amenacen con barrer a varios miembros de tu equipo.
+                            <p style="font-size: 0.76rem; color: #047857; font-weight: 600; line-height: 1.4; margin-bottom: 0; text-align: center; padding: 10px 0;">
+                                ✅ ¡Perfecto! No se detectan oponentes más rápidos que amenacen con barrer a múltiples miembros de tu equipo.
                             </p>
                         </div>
                     `;
                 }
 
-                // Rotaciones clave (Pivot Seguro)
+                // Rotaciones clave (Pivots)
                 let pivotsHtml = pivots.map(p => {
-                    const dmgText = p.damage === 0 ? '🚫 Inmune (x0)' : p.damage < 1 ? `🛡️ Resistente (x${p.damage})` : `⚠️ Débil (x${p.damage})`;
-                    const dmgColor = p.damage === 0 ? '#4b5563' : p.damage < 1 ? '#047857' : '#b91c1c';
-                    const dmgBg = p.damage === 0 ? '#f3f4f6' : p.damage < 1 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+                    const dmgText = p.details || `Daño: x${p.damage}`;
+                    const isDangerous = p.damage > 1;
+                    const dmgColor = isDangerous ? '#b91c1c' : '#047857';
+                    const dmgBg = isDangerous ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)';
 
                     return `
-                        <div class="pro-item-row" style="padding: clamp(10px, 1.5vw, 14px) 0;">
-                            <div class="pro-item-left" style="gap: clamp(8px, 1.5vw, 15px);">
-                                <div style="display: flex; flex-direction: column; align-items: center; min-width: 60px;">
-                                    <span style="font-size: 0.62rem; color: #b91c1c; font-weight: 800; text-transform: uppercase; margin-bottom: 2px;">Si sale</span>
-                                    <img src="${p.rival.sprite}" alt="${p.rival.name}" style="width: 32px; height: 32px; object-fit: contain;">
-                                    <span style="font-size: 0.72rem; font-weight: 800; color: #1e293b;">${formatPokemonName(p.rival.name).substring(0, 8)}</span>
+                        <div class="pro-item-row" style="padding: 10px 0;">
+                            <div class="pro-item-left" style="gap: 10px;">
+                                <div style="display: flex; flex-direction: column; align-items: center; min-width: 55px;">
+                                    <span style="font-size: 0.58rem; color: #b91c1c; font-weight: 900; text-transform: uppercase; margin-bottom: 2px;">Si sale</span>
+                                    <img src="${p.rival.sprite}" alt="${p.rival.name}" style="width: 28px; height: 28px; object-fit: contain;">
+                                    <span style="font-size: 0.68rem; font-weight: 800; color: #1e293b; text-transform:capitalize;">${formatPokemonName(p.rival.name).substring(0, 8)}</span>
                                 </div>
-                                <div style="font-size: 1.1rem; color: var(--poke-blue); font-weight: 900;">➔</div>
-                                <div style="display: flex; flex-direction: column; align-items: center; min-width: 60px;">
-                                    <span style="font-size: 0.62rem; color: var(--poke-blue); font-weight: 800; text-transform: uppercase; margin-bottom: 2px;">Cambia a</span>
-                                    <img src="${p.pivot.sprite}" alt="${p.pivot.name}" style="width: 32px; height: 32px; object-fit: contain;">
-                                    <span style="font-size: 0.72rem; font-weight: 800; color: #1e293b;">${formatPokemonName(p.pivot.name).substring(0, 8)}</span>
+                                <div style="font-size: 1rem; color: var(--poke-blue); font-weight: 900;">➔</div>
+                                <div style="display: flex; flex-direction: column; align-items: center; min-width: 55px;">
+                                    <span style="font-size: 0.58rem; color: var(--poke-blue); font-weight: 900; text-transform: uppercase; margin-bottom: 2px;">Cambia a</span>
+                                    <img src="${p.pivot.sprite}" alt="${p.pivot.name}" style="width: 28px; height: 28px; object-fit: contain;">
+                                    <span style="font-size: 0.68rem; font-weight: 800; color: #1e293b; text-transform:capitalize;">${formatPokemonName(p.pivot.name).substring(0, 8)}</span>
                                 </div>
                             </div>
                             <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 4px;">
-                                <span class="effectiveness-badge" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 900; background: ${dmgBg}; color: ${dmgColor}; border-radius: 8px;">
+                                <span class="effectiveness-badge" style="padding: 3px 6px; font-size: 0.68rem; font-weight: 900; background: ${dmgBg}; color: ${dmgColor}; border-radius: 6px; white-space: nowrap;">
                                     ${dmgText}
                                 </span>
-                                <span style="font-size: 0.62rem; color: #64748b; font-weight: 700;">Bulk Real: 🛡️${p.bulk}</span>
+                                <span style="font-size: 0.6rem; color: #64748b; font-weight: 700;">Bulk Total: 🛡️${p.bulk}</span>
                             </div>
                         </div>
                     `;
                 }).join('');
 
                 analysisContent.innerHTML = `
-                    <div class="analysis-tab-content active">
+                    <div class="analysis-tab-content active" style="display:flex; flex-direction:column; gap:12px;">
+                        
+                        <!-- Timeline de Velocidades -->
+                        ${speedTimelineWidget}
+                        
+                        <!-- Grid de Plan de Combate -->
                         <div class="pro-plan-grid">
-                            <!-- Columna Izquierda: Sweeper Estrella y Alertas -->
+                            <!-- Columna Izquierda: Sweepers y Alertas -->
                             <div>
                                 ${sweepersHtml}
                                 ${threatsHtml}
                             </div>
-                            <!-- Columna Derecha: Rotaciones Clave y Pivots Seguros -->
+                            <!-- Columna Derecha: Pivots Seguros -->
                             <div class="pro-card" style="border-left: 5px solid var(--poke-blue);">
-                                <div class="pro-card-title" style="color: var(--poke-blue); justify-content: space-between;">
+                                <div class="pro-card-title" style="color: var(--poke-blue); justify-content: space-between; font-size:0.8rem;">
                                     <span>🔄 Rotaciones Clave / Cambios Seguros</span>
-                                    <span style="font-size: 0.65rem; background: rgba(59, 76, 202, 0.1); color: var(--poke-blue); padding: 2px 6px; border-radius: 6px;">Defensa Real</span>
+                                    <span style="font-size: 0.62rem; background: rgba(59, 76, 202, 0.1); color: var(--poke-blue); padding: 2px 6px; border-radius: 6px; font-weight:800;">Simulador Defensivo</span>
                                 </div>
-                                <p style="font-size: 0.78rem; color: #64748b; font-weight: 600; margin-bottom: 12px; line-height: 1.3;">
-                                    Calcula en tiempo real cuál de tus Pokémon absorbe mejor los tipos del rival y posee la mayor defensa real.
+                                <p style="font-size: 0.72rem; color: #64748b; font-weight: 600; margin-bottom: 8px; line-height: 1.3;">
+                                    Calcula el Pokémon de tu equipo que mejor resiste al rival y posee el mayor bulk defensivo real en vivo.
                                 </p>
-                                <div class="pro-step-list" style="gap: 5px;">
+                                <div class="pro-step-list" style="gap: 4px;">
                                     ${pivotsHtml}
                                 </div>
                             </div>
@@ -8075,7 +8811,7 @@
             `;
         }
 
-        const ALL_ABILITIES = [{"en":"stench","es":"Hedor"},{"en":"drizzle","es":"Llovizna"},{"en":"speed-boost","es":"Impulso"},{"en":"battle-armor","es":"Armadura Batalla"},{"en":"sturdy","es":"Robustez"},{"en":"damp","es":"Humedad"},{"en":"limber","es":"Flexibilidad"},{"en":"sand-veil","es":"Velo Arena"},{"en":"static","es":"Elec. Estática"},{"en":"volt-absorb","es":"Absorbe Elec"},{"en":"water-absorb","es":"Absorbe Agua"},{"en":"oblivious","es":"Despiste"},{"en":"cloud-nine","es":"Aclimatación"},{"en":"compound-eyes","es":"Ojo Compuesto"},{"en":"insomnia","es":"Insomnio"},{"en":"color-change","es":"Cambio Color"},{"en":"immunity","es":"Inmunidad"},{"en":"flash-fire","es":"Absorbe Fuego"},{"en":"shield-dust","es":"Polvo Escudo"},{"en":"own-tempo","es":"Ritmo Propio"},{"en":"suction-cups","es":"Ventosas"},{"en":"intimidate","es":"Intimidación"},{"en":"shadow-tag","es":"Sombra Trampa"},{"en":"rough-skin","es":"Piel Tosca"},{"en":"wonder-guard","es":"Superguarda"},{"en":"levitate","es":"Levitación"},{"en":"effect-spore","es":"Efecto Espora"},{"en":"synchronize","es":"Sincronía"},{"en":"clear-body","es":"Cuerpo Puro"},{"en":"natural-cure","es":"Cura Natural"},{"en":"lightning-rod","es":"Pararrayos"},{"en":"serene-grace","es":"Dicha"},{"en":"swift-swim","es":"Nado Rápido"},{"en":"chlorophyll","es":"Clorofila"},{"en":"illuminate","es":"Iluminación"},{"en":"trace","es":"Rastro"},{"en":"huge-power","es":"Potencia"},{"en":"poison-point","es":"Punto Tóxico"},{"en":"inner-focus","es":"Foco Interno"},{"en":"magma-armor","es":"Escudo Magma"},{"en":"water-veil","es":"Velo Agua"},{"en":"magnet-pull","es":"Imán"},{"en":"soundproof","es":"Insonorizar"},{"en":"rain-dish","es":"Cura Lluvia"},{"en":"sand-stream","es":"Chorro Arena"},{"en":"pressure","es":"Presión"},{"en":"thick-fat","es":"Sebo"},{"en":"early-bird","es":"Madrugar"},{"en":"flame-body","es":"Cuerpo Llama"},{"en":"run-away","es":"Fuga"},{"en":"keen-eye","es":"Vista Lince"},{"en":"hyper-cutter","es":"Corte Fuerte"},{"en":"pickup","es":"Recogida"},{"en":"truant","es":"Ausente"},{"en":"hustle","es":"Entusiasmo"},{"en":"cute-charm","es":"Gran Encanto"},{"en":"plus","es":"Más"},{"en":"minus","es":"Menos"},{"en":"forecast","es":"Predicción"},{"en":"sticky-hold","es":"Viscosidad"},{"en":"shed-skin","es":"Mudar"},{"en":"guts","es":"Agallas"},{"en":"marvel-scale","es":"Escama Especial"},{"en":"liquid-ooze","es":"Lodo Líquido"},{"en":"overgrow","es":"Espesura"},{"en":"blaze","es":"Mar Llamas"},{"en":"torrent","es":"Torrente"},{"en":"swarm","es":"Enjambre"},{"en":"rock-head","es":"Cabeza Roca"},{"en":"drought","es":"Sequía"},{"en":"arena-trap","es":"Trampa Arena"},{"en":"vital-spirit","es":"Espíritu Vital"},{"en":"white-smoke","es":"Humo Blanco"},{"en":"pure-power","es":"Energía Pura"},{"en":"shell-armor","es":"Caparazón"},{"en":"air-lock","es":"Bucle Aire"},{"en":"tangled-feet","es":"Tumbos"},{"en":"motor-drive","es":"Electromotor"},{"en":"rivalry","es":"Rivalidad"},{"en":"steadfast","es":"Impasible"},{"en":"snow-cloak","es":"Manto Níveo"},{"en":"gluttony","es":"Gula"},{"en":"anger-point","es":"Irascible"},{"en":"unburden","es":"Liviano"},{"en":"heatproof","es":"Ignífugo"},{"en":"simple","es":"Simple"},{"en":"dry-skin","es":"Piel Seca"},{"en":"download","es":"Descarga"},{"en":"iron-fist","es":"Puño Férreo"},{"en":"poison-heal","es":"Antídoto"},{"en":"adaptability","es":"Adaptable"},{"en":"skill-link","es":"Encadenado"},{"en":"hydration","es":"Hidratación"},{"en":"solar-power","es":"Poder Solar"},{"en":"quick-feet","es":"Pies Rápidos"},{"en":"normalize","es":"Normalidad"},{"en":"sniper","es":"Francotirador"},{"en":"magic-guard","es":"Muro Mágico"},{"en":"no-guard","es":"Indefenso"},{"en":"stall","es":"Rezagado"},{"en":"technician","es":"Experto"},{"en":"leaf-guard","es":"Defensa Hoja"},{"en":"klutz","es":"Zoquete"},{"en":"mold-breaker","es":"Rompemoldes"},{"en":"super-luck","es":"Afortunado"},{"en":"aftermath","es":"Detonación"},{"en":"anticipation","es":"Anticipación"},{"en":"forewarn","es":"Alerta"},{"en":"unaware","es":"Ignorante"},{"en":"tinted-lens","es":"Cromolente"},{"en":"filter","es":"Filtro"},{"en":"slow-start","es":"Inicio Lento"},{"en":"scrappy","es":"Intrépido"},{"en":"storm-drain","es":"Colector"},{"en":"ice-body","es":"Gélido"},{"en":"solid-rock","es":"Roca Sólida"},{"en":"snow-warning","es":"Nevada"},{"en":"honey-gather","es":"Recogemiel"},{"en":"frisk","es":"Cacheo"},{"en":"reckless","es":"Audaz"},{"en":"multitype","es":"Multitipo"},{"en":"flower-gift","es":"Don Floral"},{"en":"bad-dreams","es":"Mal Sueño"},{"en":"pickpocket","es":"Hurto"},{"en":"sheer-force","es":"Potencia Bruta"},{"en":"contrary","es":"Respondón"},{"en":"unnerve","es":"Nerviosismo"},{"en":"defiant","es":"Competitivo"},{"en":"defeatist","es":"Flaqueza"},{"en":"cursed-body","es":"Cuerpo Maldito"},{"en":"healer","es":"Alma Cura"},{"en":"friend-guard","es":"Compiescolta"},{"en":"weak-armor","es":"Armadura Frágil"},{"en":"heavy-metal","es":"Metal Pesado"},{"en":"light-metal","es":"Metal Liviano"},{"en":"multiscale","es":"Multiescamas"},{"en":"toxic-boost","es":"Ímpetu Tóxico"},{"en":"flare-boost","es":"Ímpetu Ardiente"},{"en":"harvest","es":"Cosecha"},{"en":"telepathy","es":"Telepatía"},{"en":"moody","es":"Veleta"},{"en":"overcoat","es":"Funda"},{"en":"poison-touch","es":"Toque Tóxico"},{"en":"regenerator","es":"Regeneración"},{"en":"big-pecks","es":"Sacapecho"},{"en":"sand-rush","es":"Ímpetu Arena"},{"en":"wonder-skin","es":"Piel Milagro"},{"en":"analytic","es":"Cálculo Final"},{"en":"illusion","es":"Ilusión"},{"en":"imposter","es":"Impostor"},{"en":"infiltrator","es":"Allanamiento"},{"en":"mummy","es":"Momia"},{"en":"moxie","es":"Autoestima"},{"en":"justified","es":"Justiciero"},{"en":"rattled","es":"Cobardía"},{"en":"magic-bounce","es":"Espejo Mágico"},{"en":"sap-sipper","es":"Herbívoro"},{"en":"prankster","es":"Bromista"},{"en":"sand-force","es":"Poder Arena"},{"en":"iron-barbs","es":"Punta Acero"},{"en":"zen-mode","es":"Modo Daruma"},{"en":"victory-star","es":"Tinovictoria"},{"en":"turboblaze","es":"Turbollama"},{"en":"teravolt","es":"Terravoltaje"},{"en":"aroma-veil","es":"Velo Aroma"},{"en":"flower-veil","es":"Velo Flor"},{"en":"cheek-pouch","es":"Carrillo"},{"en":"protean","es":"Mutatipo"},{"en":"fur-coat","es":"Pelaje Recio"},{"en":"magician","es":"Prestidigitador"},{"en":"bulletproof","es":"Antibalas"},{"en":"competitive","es":"Tenacidad"},{"en":"strong-jaw","es":"Mandíbula Fuerte"},{"en":"refrigerate","es":"Piel Helada"},{"en":"sweet-veil","es":"Velo Dulce"},{"en":"stance-change","es":"Cambio Táctico"},{"en":"gale-wings","es":"Alas Vendaval"},{"en":"mega-launcher","es":"Megadisparador"},{"en":"grass-pelt","es":"Manto Frondoso"},{"en":"symbiosis","es":"Simbiosis"},{"en":"tough-claws","es":"Garra Dura"},{"en":"pixilate","es":"Piel Feérica"},{"en":"gooey","es":"Baba"},{"en":"aerilate","es":"Piel Celeste"},{"en":"parental-bond","es":"Amor Filial"},{"en":"dark-aura","es":"Aura Oscura"},{"en":"fairy-aura","es":"Aura Feérica"},{"en":"aura-break","es":"Rompeaura"},{"en":"primordial-sea","es":"Mar del Albor"},{"en":"desolate-land","es":"Tierra del Ocaso"},{"en":"delta-stream","es":"Ráfaga Delta"},{"en":"stamina","es":"Firmeza"},{"en":"wimp-out","es":"Huida"},{"en":"emergency-exit","es":"Retirada"},{"en":"water-compaction","es":"Hidrorrefuerzo"},{"en":"merciless","es":"Ensañamiento"},{"en":"shields-down","es":"Escudo Limitado"},{"en":"stakeout","es":"Vigilante"},{"en":"water-bubble","es":"Pompa"},{"en":"steelworker","es":"Acero Templado"}];
+        const ALL_ABILITIES = [{"en":"beads-of-ruin","es":"Abalorio Debacle"},{"en":"water-absorb","es":"Absorbe Agua"},{"en":"volt-absorb","es":"Absorbe Elec"},{"en":"flash-fire","es":"Absorbe Fuego"},{"en":"steelworker","es":"Acero Templado"},{"en":"stalwart","es":"Acérrimo"},{"en":"cloud-nine","es":"Aclimatación"},{"en":"adaptability","es":"Adaptable"},{"en":"super-luck","es":"Afortunado"},{"en":"guts","es":"Agallas"},{"en":"power-construct","es":"Agrupamiento"},{"en":"gale-wings","es":"Alas Vendaval"},{"en":"forewarn","es":"Alerta"},{"en":"infiltrator","es":"Allanamiento"},{"en":"steely-spirit","es":"Alma Acerada"},{"en":"healer","es":"Alma Cura"},{"en":"wandering-spirit","es":"Alma Errante"},{"en":"parental-bond","es":"Amor Filial"},{"en":"bulletproof","es":"Antibalas"},{"en":"screen-cleaner","es":"Antibarrera"},{"en":"anticipation","es":"Anticipación"},{"en":"poison-heal","es":"Antídoto"},{"en":"aqua-boost","es":"Aqua Boost"},{"en":"battle-armor","es":"Armadura Batalla"},{"en":"weak-armor","es":"Armadura Frágil"},{"en":"prism-armor","es":"Armadura Prisma"},{"en":"reckless","es":"Audaz"},{"en":"fairy-aura","es":"Aura Feérica"},{"en":"dark-aura","es":"Aura Oscura"},{"en":"truant","es":"Ausente"},{"en":"moxie","es":"Autoestima"},{"en":"gooey","es":"Baba"},{"en":"schooling","es":"Banco"},{"en":"battery","es":"Batería"},{"en":"black-hole","es":"Black Hole"},{"en":"bodyguard","es":"Bodyguard"},{"en":"bonanza","es":"Bonanza"},{"en":"prankster","es":"Bromista"},{"en":"air-lock","es":"Bucle Aire"},{"en":"rock-head","es":"Cabeza Roca"},{"en":"frisk","es":"Cacheo"},{"en":"toxic-chain","es":"Cadena Tóxica"},{"en":"analytic","es":"Cálculo Final"},{"en":"vessel-of-ruin","es":"Caldero Debacle"},{"en":"calming","es":"Calming"},{"en":"color-change","es":"Cambio Color"},{"en":"zero-to-hero","es":"Cambio Heroico"},{"en":"stance-change","es":"Cambio Táctico"},{"en":"toxic-debris","es":"Capa Tóxica"},{"en":"shell-armor","es":"Caparazón"},{"en":"ice-face","es":"Cara de Hielo"},{"en":"quark-drive","es":"Carga Cuark"},{"en":"cheek-pouch","es":"Carrillo"},{"en":"celebrate","es":"Celebrate"},{"en":"sand-stream","es":"Chorro Arena"},{"en":"climber","es":"Climber"},{"en":"chlorophyll","es":"Clorofila"},{"en":"rattled","es":"Cobardía"},{"en":"armor-tail","es":"Cola Armadura"},{"en":"surge-surfer","es":"Cola Surf"},{"en":"storm-drain","es":"Colector"},{"en":"berserk","es":"Cólera"},{"en":"commander","es":"Comandar"},{"en":"steam-engine","es":"Combustible"},{"en":"defiant","es":"Competitivo"},{"en":"friend-guard","es":"Compiescolta"},{"en":"confidence","es":"Confidence"},{"en":"conqueror","es":"Conqueror"},{"en":"soul-heart","es":"Coránima"},{"en":"anger-shell","es":"Coraza Ira"},{"en":"mirror-armor","es":"Coraza Reflejo"},{"en":"corrosion","es":"Corrosión"},{"en":"sharpness","es":"Cortante"},{"en":"hyper-cutter","es":"Corte Fuerte"},{"en":"harvest","es":"Cosecha"},{"en":"tinted-lens","es":"Cromolente"},{"en":"good-as-gold","es":"Cuerpo Áureo"},{"en":"well-baked-body","es":"Cuerpo Horneado"},{"en":"flame-body","es":"Cuerpo Llama"},{"en":"cursed-body","es":"Cuerpo Maldito"},{"en":"perish-body","es":"Cuerpo Mortal"},{"en":"clear-body","es":"Cuerpo Puro"},{"en":"dazzling","es":"Cuerpo Vívido"},{"en":"rain-dish","es":"Cura Lluvia"},{"en":"natural-cure","es":"Cura Natural"},{"en":"daze","es":"Daze"},{"en":"decoy","es":"Decoy"},{"en":"deep-sleep","es":"Deep Sleep"},{"en":"leaf-guard","es":"Defensa Hoja"},{"en":"download","es":"Descarga"},{"en":"oblivious","es":"Despiste"},{"en":"aftermath","es":"Detonación"},{"en":"serene-grace","es":"Dicha"},{"en":"electromorphosis","es":"Dinamo"},{"en":"seed-sower","es":"Disemillar"},{"en":"disguise","es":"Disfraz"},{"en":"disgust","es":"Disgust"},{"en":"dodge","es":"Dodge"},{"en":"flower-gift","es":"Don Floral"},{"en":"dragonize","es":"Dragonize"},{"en":"effect-spore","es":"Efecto Espora"},{"en":"static","es":"Elec. Estática"},{"en":"electric-surge","es":"Electrogénesis"},{"en":"motor-drive","es":"Electromotor"},{"en":"skill-link","es":"Encadenado"},{"en":"wind-power","es":"Energía Eólica"},{"en":"pure-power","es":"Energía Pura"},{"en":"swarm","es":"Enjambre"},{"en":"merciless","es":"Ensañamiento"},{"en":"hustle","es":"Entusiasmo"},{"en":"ice-scales","es":"Escama de Hielo"},{"en":"marvel-scale","es":"Escama Especial"},{"en":"shields-down","es":"Escudo Limitado"},{"en":"magma-armor","es":"Escudo Magma"},{"en":"dauntless-shield","es":"Escudo Recio"},{"en":"sword-of-ruin","es":"Espada Debacle"},{"en":"intrepid-sword","es":"Espada Indómita"},{"en":"magic-bounce","es":"Espejo Mágico"},{"en":"overgrow","es":"Espesura"},{"en":"vital-spirit","es":"Espíritu Vital"},{"en":"embody-aspect","es":"Evocarrecuerdos"},{"en":"technician","es":"Experto"},{"en":"explode","es":"Explode"},{"en":"sand-spit","es":"Expulsarena"},{"en":"filter","es":"Filtro"},{"en":"stamina","es":"Firmeza"},{"en":"flame-boost","es":"Flame Boost"},{"en":"defeatist","es":"Flaqueza"},{"en":"limber","es":"Flexibilidad"},{"en":"inner-focus","es":"Foco Interno"},{"en":"fortune","es":"Fortune"},{"en":"sniper","es":"Francotirador"},{"en":"frighten","es":"Frighten"},{"en":"frostbite","es":"Frostbite"},{"en":"power-spot","es":"Fuente Energía"},{"en":"battle-bond","es":"Fuerte Afecto"},{"en":"neuroforce","es":"Fuerza Cerebral"},{"en":"run-away","es":"Fuga"},{"en":"overcoat","es":"Funda"},{"en":"tough-claws","es":"Garra Dura"},{"en":"neutralizing-gas","es":"Gas Reactivo"},{"en":"ice-body","es":"Gélido"},{"en":"supreme-overlord","es":"General Supremo"},{"en":"earth-eater","es":"Geofagia"},{"en":"cute-charm","es":"Gran Encanto"},{"en":"grass-cloak","es":"Grass Cloak"},{"en":"shadow-shield","es":"Guardia Espectro"},{"en":"full-metal-body","es":"Guardia Metálica"},{"en":"gluttony","es":"Gula"},{"en":"gulp","es":"Gulp"},{"en":"stench","es":"Hedor"},{"en":"propeller-tail","es":"Hélice Caudal"},{"en":"herbivore","es":"Herbivore"},{"en":"sap-sipper","es":"Herbívoro"},{"en":"grassy-surge","es":"Herbogénesis"},{"en":"hero","es":"Hero"},{"en":"hydration","es":"Hidratación"},{"en":"water-compaction","es":"Hidrorrefuerzo"},{"en":"high-rise","es":"High-rise"},{"en":"hospitality","es":"Hospitalidad"},{"en":"hot-blooded","es":"Hot Blooded"},{"en":"wimp-out","es":"Huida"},{"en":"damp","es":"Humedad"},{"en":"white-smoke","es":"Humo Blanco"},{"en":"pickpocket","es":"Hurto"},{"en":"heatproof","es":"Ignífugo"},{"en":"unaware","es":"Ignorante"},{"en":"illuminate","es":"Iluminación"},{"en":"illusion","es":"Ilusión"},{"en":"magnet-pull","es":"Imán"},{"en":"steadfast","es":"Impasible"},{"en":"flare-boost","es":"Ímpetu Ardiente"},{"en":"sand-rush","es":"Ímpetu Arena"},{"en":"toxic-boost","es":"Ímpetu Tóxico"},{"en":"imposter","es":"Impostor"},{"en":"speed-boost","es":"Impulso"},{"en":"no-guard","es":"Indefenso"},{"en":"slow-start","es":"Inicio Lento"},{"en":"immunity","es":"Inmunidad"},{"en":"insomnia","es":"Insomnio"},{"en":"soundproof","es":"Insonorizar"},{"en":"instinct","es":"Instinct"},{"en":"interference","es":"Interference"},{"en":"intimidate","es":"Intimidación"},{"en":"scrappy","es":"Intrépido"},{"en":"anger-point","es":"Irascible"},{"en":"jagged-edge","es":"Jagged Edge"},{"en":"justified","es":"Justiciero"},{"en":"last-bastion","es":"Last Bastion"},{"en":"orichalcum-pulse","es":"Latido Oricalco"},{"en":"comatose","es":"Letargo Perenne"},{"en":"levitate","es":"Levitación"},{"en":"libero","es":"Líbero"},{"en":"life-force","es":"Life Force"},{"en":"unburden","es":"Liviano"},{"en":"drizzle","es":"Llovizna"},{"en":"liquid-ooze","es":"Lodo Líquido"},{"en":"lullaby","es":"Lullaby"},{"en":"lunchbox","es":"Lunchbox"},{"en":"early-bird","es":"Madrugar"},{"en":"ripen","es":"Maduración"},{"en":"bad-dreams","es":"Mal Sueño"},{"en":"dragons-maw","es":"Mandíbula Dragón"},{"en":"strong-jaw","es":"Mandíbula Fuerte"},{"en":"quick-draw","es":"Mano Rápida"},{"en":"grass-pelt","es":"Manto Frondoso"},{"en":"snow-cloak","es":"Manto Níveo"},{"en":"primordial-sea","es":"Mar del Albor"},{"en":"blaze","es":"Mar Llamas"},{"en":"plus","es":"Más"},{"en":"medic","es":"Medic"},{"en":"curious-medicine","es":"Medicina Extraña"},{"en":"mega-sol","es":"Mega Sol"},{"en":"mega-launcher","es":"Megadisparador"},{"en":"melee","es":"Melee"},{"en":"minus","es":"Menos"},{"en":"light-metal","es":"Metal Liviano"},{"en":"heavy-metal","es":"Metal Pesado"},{"en":"mimicry","es":"Mimetismo"},{"en":"zen-mode","es":"Modo Daruma"},{"en":"mummy","es":"Momia"},{"en":"gorilla-tactics","es":"Monotema"},{"en":"mood-maker","es":"Mood Maker"},{"en":"hadron-engine","es":"Motor Hadrónico"},{"en":"mountaineer","es":"Mountaineer"},{"en":"shed-skin","es":"Mudar"},{"en":"multiscale","es":"Multiescamas"},{"en":"multitype","es":"Multitipo"},{"en":"magic-guard","es":"Muro Mágico"},{"en":"hunger-switch","es":"Mutapetito"},{"en":"protean","es":"Mutatipo"},{"en":"swift-swim","es":"Nado Rápido"},{"en":"misty-surge","es":"Nebulogénesis"},{"en":"supersweet-syrup","es":"Néctar Dulce"},{"en":"unnerve","es":"Nerviosismo"},{"en":"snow-warning","es":"Nevada"},{"en":"nomad","es":"Nomad"},{"en":"normalize","es":"Normalidad"},{"en":"nurse","es":"Nurse"},{"en":"compound-eyes","es":"Ojo Compuesto"},{"en":"minds-eye","es":"Ojo Mental "},{"en":"lingering-aroma","es":"Olor Persistente"},{"en":"omnipotent","es":"Omnipotent"},{"en":"opportunist","es":"Oportunista"},{"en":"protosynthesis","es":"Paleosíntesis"},{"en":"lightning-rod","es":"Pararrayos"},{"en":"dancer","es":"Pareja de Baile"},{"en":"parry","es":"Parry"},{"en":"fur-coat","es":"Pelaje Recio"},{"en":"fluffy","es":"Peluche"},{"en":"cotton-down","es":"Pelusa"},{"en":"perception","es":"Perception"},{"en":"guard-dog","es":"Perro Guardián"},{"en":"aerilate","es":"Piel Celeste"},{"en":"galvanize","es":"Piel Eléctrica"},{"en":"pixilate","es":"Piel Feérica"},{"en":"refrigerate","es":"Piel Helada"},{"en":"wonder-skin","es":"Piel Milagro"},{"en":"dry-skin","es":"Piel Seca"},{"en":"rough-skin","es":"Piel Tosca"},{"en":"piercing-drill","es":"Piercing Drill"},{"en":"quick-feet","es":"Pies Rápidos"},{"en":"sand-force","es":"Poder Arena"},{"en":"mycelium-might","es":"Poder Fúngico"},{"en":"solar-power","es":"Poder Solar"},{"en":"shield-dust","es":"Polvo Escudo"},{"en":"water-bubble","es":"Pompa"},{"en":"huge-power","es":"Potencia"},{"en":"sheer-force","es":"Potencia Bruta"},{"en":"power-nap","es":"Power Nap"},{"en":"forecast","es":"Predicción"},{"en":"pressure","es":"Presión"},{"en":"magician","es":"Prestidigitador"},{"en":"pride","es":"Pride"},{"en":"triage","es":"Primer Auxilio"},{"en":"psychic-surge","es":"Psicogénesis"},{"en":"punk-rock","es":"Punk Rock"},{"en":"iron-barbs","es":"Punta Acero"},{"en":"poison-point","es":"Punto Tóxico"},{"en":"iron-fist","es":"Puño Férreo"},{"en":"unseen-fist","es":"Puño Invisible"},{"en":"slush-rush","es":"Quitanieves"},{"en":"delta-stream","es":"Ráfaga Delta"},{"en":"trace","es":"Rastro"},{"en":"power-of-alchemy","es":"Reacción Química"},{"en":"receiver","es":"Receptor"},{"en":"ball-fetch","es":"Recogebolas"},{"en":"honey-gather","es":"Recogemiel"},{"en":"pickup","es":"Recogida"},{"en":"regenerator","es":"Regeneración"},{"en":"queenly-majesty","es":"Regia Presencia"},{"en":"chilling-neigh","es":"Relincho Blanco"},{"en":"grim-neigh","es":"Relincho Negro"},{"en":"long-reach","es":"Remoto"},{"en":"contrary","es":"Respondón"},{"en":"emergency-exit","es":"Retirada"},{"en":"innards-out","es":"Revés"},{"en":"stall","es":"Rezagado"},{"en":"own-tempo","es":"Ritmo Propio"},{"en":"rivalry","es":"Rivalidad"},{"en":"tangling-hair","es":"Rizos Rebeldes"},{"en":"sturdy","es":"Robustez"},{"en":"solid-rock","es":"Roca Sólida"},{"en":"aura-break","es":"Rompeaura"},{"en":"mold-breaker","es":"Rompemoldes"},{"en":"cud-chew","es":"Rumia"},{"en":"run-up","es":"Run Up"},{"en":"big-pecks","es":"Sacapecho"},{"en":"purifying-salt","es":"Sal Purificadora"},{"en":"sandpit","es":"Sandpit"},{"en":"thick-fat","es":"Sebo"},{"en":"sequence","es":"Sequence"},{"en":"drought","es":"Sequía"},{"en":"shackle","es":"Shackle"},{"en":"shadow-dash","es":"Shadow Dash"},{"en":"share","es":"Share"},{"en":"shield","es":"Shield"},{"en":"symbiosis","es":"Simbiosis"},{"en":"simple","es":"Simple"},{"en":"synchronize","es":"Sincronía"},{"en":"rks-system","es":"Sistema Alfa"},{"en":"skater","es":"Skater"},{"en":"shadow-tag","es":"Sombra Trampa"},{"en":"spicy-spray","es":"Spicy Spray"},{"en":"spirit","es":"Spirit"},{"en":"sponge","es":"Sponge"},{"en":"sprint","es":"Sprint"},{"en":"stealth","es":"Stealth"},{"en":"wonder-guard","es":"Superguarda"},{"en":"wind-rider","es":"Surcavientos"},{"en":"tablets-of-ruin","es":"Tablilla Debacle"},{"en":"telepathy","es":"Telepatía"},{"en":"competitive","es":"Tenacidad"},{"en":"tenacity","es":"Tenacity"},{"en":"tera-shift","es":"Teracambio"},{"en":"tera-shell","es":"Teracaparazón"},{"en":"teraform-zero","es":"Teraformación 0"},{"en":"thermal-exchange","es":"Termoscambio"},{"en":"teravolt","es":"Terravoltaje"},{"en":"thrust","es":"Thrust"},{"en":"desolate-land","es":"Tierra del Ocaso"},{"en":"victory-star","es":"Tinovictoria"},{"en":"poison-puppeteer","es":"Títere Tóxico"},{"en":"poison-touch","es":"Toque Tóxico"},{"en":"torrent","es":"Torrente"},{"en":"gulp-missile","es":"Tragamisil"},{"en":"arena-trap","es":"Trampa Arena"},{"en":"transistor","es":"Transistor"},{"en":"rocky-payload","es":"Transportarrocas"},{"en":"tangled-feet","es":"Tumbos"},{"en":"turboblaze","es":"Turbollama"},{"en":"beast-boost","es":"Ultraimpulso"},{"en":"as-one-glastrier","es":"Unidad Ecuestre"},{"en":"as-one-spectrier","es":"Unidad Ecuestre"},{"en":"costar","es":"Unísono"},{"en":"vanguard","es":"Vanguard"},{"en":"moody","es":"Veleta"},{"en":"water-veil","es":"Velo Agua"},{"en":"sand-veil","es":"Velo Arena"},{"en":"aroma-veil","es":"Velo Aroma"},{"en":"sweet-veil","es":"Velo Dulce"},{"en":"flower-veil","es":"Velo Flor"},{"en":"pastel-veil","es":"Velo Pastel"},{"en":"suction-cups","es":"Ventosas"},{"en":"stakeout","es":"Vigilante"},{"en":"sticky-hold","es":"Viscosidad"},{"en":"keen-eye","es":"Vista Lince"},{"en":"liquid-voice","es":"Voz Fluida"},{"en":"warm-blanket","es":"Warm Blanket"},{"en":"wave-rider","es":"Wave Rider"},{"en":"klutz","es":"Zoquete"}];
 
         let abilityCache = {};
 
@@ -8517,6 +9253,9 @@
                 // 2. Parsear el resto de las líneas
                 let ability = "";
                 let nature = "";
+                let level = 50;
+                let evs = { hp: 0, attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
+                let ivs = { hp: 31, attack: 31, defense: 31, spa: 31, spd: 31, speed: 31 };
                 const moves = [];
 
                 lines.slice(1).forEach(line => {
@@ -8525,6 +9264,38 @@
                         ability = line.substring(8).trim();
                     } else if (lowerLine.startsWith('habilidad:')) {
                         ability = line.substring(10).trim();
+                    } else if (lowerLine.startsWith('level:')) {
+                        level = parseInt(lowerLine.replace('level:', '').trim()) || 50;
+                    } else if (lowerLine.startsWith('evs:')) {
+                        const evParts = lowerLine.replace('evs:', '').split('/');
+                        evParts.forEach(part => {
+                            const match = part.trim().match(/^(\d+)\s+(\w+)$/);
+                            if (match) {
+                                const val = parseInt(match[1]) || 0;
+                                const statName = match[2].trim();
+                                if (statName === 'hp') evs.hp = val;
+                                else if (statName === 'atk' || statName === 'attack') evs.attack = val;
+                                else if (statName === 'def' || statName === 'defense') evs.defense = val;
+                                else if (statName === 'spa') evs.spa = val;
+                                else if (statName === 'spd') evs.spd = val;
+                                else if (statName === 'spe' || statName === 'speed') evs.speed = val;
+                            }
+                        });
+                    } else if (lowerLine.startsWith('ivs:')) {
+                        const ivParts = lowerLine.replace('ivs:', '').split('/');
+                        ivParts.forEach(part => {
+                            const match = part.trim().match(/^(\d+)\s+(\w+)$/);
+                            if (match) {
+                                const val = parseInt(match[1]) || 0;
+                                const statName = match[2].trim();
+                                if (statName === 'hp') ivs.hp = val;
+                                else if (statName === 'atk' || statName === 'attack') ivs.attack = val;
+                                else if (statName === 'def' || statName === 'defense') ivs.defense = val;
+                                else if (statName === 'spa') ivs.spa = val;
+                                else if (statName === 'spd') ivs.spd = val;
+                                else if (statName === 'spe' || statName === 'speed') ivs.speed = val;
+                            }
+                        });
                     } else if (lowerLine.includes('nature') || lowerLine.includes('naturaleza')) {
                         const parts = line.split(/\s+/);
                         let natName = "";
@@ -8622,6 +9393,9 @@
                     nature: finalNature,
                     status: 'none',
                     boosts: { attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 },
+                    level: level,
+                    evs: evs,
+                    ivs: ivs,
                     moves: finalMoves
                 };
 
