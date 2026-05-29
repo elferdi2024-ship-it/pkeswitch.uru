@@ -2745,6 +2745,27 @@
             box-shadow: 0 4px 15px rgba(255, 27, 78, 0.4);
         }
 
+        /* --- PREMIUM DOUBLE BATTLE SWITCH --- */
+        .premium-switch input:checked + .premium-slider {
+            background: linear-gradient(135deg, #FFF200 0%, #FFAA00 100%);
+            box-shadow: 0 0 10px rgba(255,242,0,0.5);
+        }
+        .premium-slider::before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .premium-switch input:checked + .premium-slider::before {
+            transform: translateX(20px);
+        }
+
         /* --- GRID DEL RIVAL EN MODO 6 VS 6 --- */
         .rival-grid {
             display: grid;
@@ -4483,14 +4504,44 @@
                 </div>
                 <!-- Vista Asistente (1 Rival) -->
                 <div id="rivalSingleView">
-                    <div class="search-box">
-                        <input type="text" class="search-input" id="rivalSearch" placeholder="Busca en Kalos... (gren, luc, char)" autocomplete="off">
-                        <div class="suggestions" id="rivalSuggestions"></div>
+                    <!-- Selector de Combate Dúo Premium -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:8px 12px; background:rgba(255,255,255,0.02); border:1.5px solid rgba(255,255,255,0.06); border-radius:10px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);">
+                        <span style="font-size:0.75rem; font-weight:800; color:#cbd5e1; display:flex; align-items:center; gap:6px;">
+                            👥 Formato Combate Dúo (VGC / 2vs2)
+                        </span>
+                        <label class="premium-switch" style="position:relative; display:inline-block; width:44px; height:24px; cursor:pointer;">
+                            <input type="checkbox" id="doubleBattleToggle" onchange="toggleDoubleBattle(this.checked)" style="opacity:0; width:0; height:0;">
+                            <span class="premium-slider" style="position:absolute; inset:0; background-color:#475569; transition:0.3s; border-radius:24px;"></span>
+                        </label>
                     </div>
-                    <div class="pokemon-display" id="rivalDisplay">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">🔍</div>
-                            <div>Busca un Pokémon rival</div>
+
+                    <div id="rivalSearchContainer" style="display: grid; grid-template-columns: 1fr; gap: 12px; transition: all 0.3s ease;">
+                        <!-- Buscador Rival 1 -->
+                        <div class="search-box" id="rivalSearchBox1">
+                            <input type="text" class="search-input" id="rivalSearch" placeholder="Busca primer rival... (gren, luc, char)" autocomplete="off">
+                            <div class="suggestions" id="rivalSuggestions"></div>
+                        </div>
+                        <!-- Buscador Rival 2 -->
+                        <div class="search-box" id="rivalSearchBox2" style="display:none;">
+                            <input type="text" class="search-input" id="rivalSearch2" placeholder="Busca segundo rival..." autocomplete="off">
+                            <div class="suggestions" id="rivalSuggestions2"></div>
+                        </div>
+                    </div>
+
+                    <div id="rivalDisplayContainer" style="display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 12px; transition: all 0.3s ease;">
+                        <!-- Display Rival 1 -->
+                        <div class="pokemon-display" id="rivalDisplay">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔍</div>
+                                <div>Busca un Pokémon rival</div>
+                            </div>
+                        </div>
+                        <!-- Display Rival 2 -->
+                        <div class="pokemon-display" id="rivalDisplay2" style="display:none;">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔍</div>
+                                <div>Busca segundo Pokémon rival</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -5286,6 +5337,8 @@
         }
 
         let rivalData = null;
+        let rivalData2 = null;
+        let isDoubleBattle = false;
         let teamData = [];
         let rivalTeamData = []; // Array de hasta 6 Pokémon enemigos para el modo 6vs6
         let activeRivalIndex = 0; // Índice del oponente activo en el combate
@@ -6661,7 +6714,7 @@
             }
 
             dropdown.innerHTML = filtered.map(p => `
-                <div class="suggestion-item" onclick="selectPokemon('${p.name}', ${!isTeam})">
+                <div class="suggestion-item" onclick="selectPokemon('${p.name}', ${!isTeam}, '${dropdown.id}')">
                     <img src="${getSuggestionSprite(p)}"
                          alt="${p.name}" class="suggestion-img" onerror="this.onerror=null;this.style.opacity='0';">
                     <div class="suggestion-info">
@@ -6853,8 +6906,69 @@
             saveStateToLocalStorage();
         }
 
+        function toggleDoubleBattle(checked) {
+            isDoubleBattle = checked;
+            const searchContainer = document.getElementById('rivalSearchContainer');
+            const displayContainer = document.getElementById('rivalDisplayContainer');
+            const searchBox2 = document.getElementById('rivalSearchBox2');
+            const display2 = document.getElementById('rivalDisplay2');
+
+            if (checked) {
+                if (searchContainer) searchContainer.style.gridTemplateColumns = '1fr 1fr';
+                if (displayContainer) displayContainer.style.gridTemplateColumns = '1fr 1fr';
+                if (searchBox2) searchBox2.style.display = 'block';
+                if (display2) display2.style.display = 'block';
+                renderRival2();
+            } else {
+                rivalData2 = null;
+                if (searchContainer) searchContainer.style.gridTemplateColumns = '1fr';
+                if (displayContainer) displayContainer.style.gridTemplateColumns = '1fr';
+                if (searchBox2) searchBox2.style.display = 'none';
+                if (display2) display2.style.display = 'none';
+            }
+
+            analyzeMatchups();
+            saveStateToLocalStorage();
+        }
+
+        function renderRival2() {
+            const display = document.getElementById('rivalDisplay2');
+            if (!display) return;
+            
+            if (!rivalData2) {
+                display.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <div>Busca segundo Pokémon rival</div>
+                    </div>`;
+                display.classList.remove('has-data');
+                return;
+            }
+
+            const types = rivalData2.types.map(t => 
+                `<span class="type-badge" style="background:${TYPE_COLORS[t]}">
+                    ${TYPE_ICONS[t] || ''} ${TYPE_NAMES[t] || t}
+                </span>`
+            ).join('');
+
+            display.innerHTML = `
+                <img src="${rivalData2.animatedSprite}" alt="${rivalData2.name}" class="pokemon-img-large" onerror="this.onerror=null; this.src='${rivalData2.sprite}';">
+                <div class="pokemon-name-display">${formatPokemonName(rivalData2.name)}</div>
+                <div class="type-badges">${types}</div>
+                <div class="pokemon-stats">
+                    <div class="stat-box"><div class="stat-label">HP</div><div class="stat-value">${rivalData2.stats.hp}</div></div>
+                    <div class="stat-box"><div class="stat-label">ATK</div><div class="stat-value">${rivalData2.stats.attack}</div></div>
+                    <div class="stat-box"><div class="stat-label">DEF</div><div class="stat-value">${rivalData2.stats.defense}</div></div>
+                    <div class="stat-box"><div class="stat-label">SPA</div><div class="stat-value">${rivalData2.stats.spa}</div></div>
+                    <div class="stat-box"><div class="stat-label">SPD</div><div class="stat-value">${rivalData2.stats.spd}</div></div>
+                    <div class="stat-box"><div class="stat-label">SPE</div><div class="stat-value">${rivalData2.stats.speed}</div></div>
+                </div>
+            `;
+            display.classList.add('has-data');
+        }
+
         // Select Pokemon
-        async function selectPokemon(name, isRival) {
+        async function selectPokemon(name, isRival, dropdownId = '') {
             const fetched = await fetchPokemon(name);
             if (!fetched) return;
 
@@ -6894,10 +7008,17 @@
                     document.getElementById('rivalTeamSuggestions').style.display = 'none';
                     document.getElementById('rivalTeamSearch').value = '';
                 } else {
-                    rivalData = pokemon;
-                    renderRival();
-                    document.getElementById('rivalSuggestions').style.display = 'none';
-                    document.getElementById('rivalSearch').value = '';
+                    if (dropdownId === 'rivalSuggestions2') {
+                        rivalData2 = pokemon;
+                        renderRival2();
+                        document.getElementById('rivalSuggestions2').style.display = 'none';
+                        document.getElementById('rivalSearch2').value = '';
+                    } else {
+                        rivalData = pokemon;
+                        renderRival();
+                        document.getElementById('rivalSuggestions').style.display = 'none';
+                        document.getElementById('rivalSearch').value = '';
+                    }
                 }
             } else {
                 if (teamData.length >= 6) {
@@ -7358,7 +7479,6 @@
             showToast(`🔍 Escala de visualización adaptada al ${Math.round(val * 100)}%`);
         }
 
-        // Analyze matchups
         function analyzeMatchups() {
             const analysisTabs = document.getElementById('analysisTabs');
             const weatherSelectorContainer = document.getElementById('weatherSelectorContainer');
@@ -7399,7 +7519,7 @@
                 // Outspeeding is critical (⚡ +25 pts)
                 if (speedDiff > 0) score += 25;
 
-                // Max damage we can deal to the oponent
+                // Max damage we can deal to the opponent
                 let maxDmgDealt = 0;
                 let leadMoveName = "";
                 const movesToCalc = [];
@@ -7462,22 +7582,96 @@
 
                 score -= Math.min(30, maxDmgTaken / 3); // Penalty for taking damage (max -30 pts)
 
+                // SI ES COMBATE DÚO Y RIVAL 2 EXISTE
+                let maxDmgDealt2 = 0;
+                let leadMoveName2 = "";
+                let maxDmgTaken2 = 0;
+                let speedDiff2 = 0;
+
+                if (isDoubleBattle && rivalData2) {
+                    const rivalReal2 = calculateRealStats(rivalData2);
+                    speedDiff2 = myReal.real.speed - rivalReal2.real.speed;
+                    if (speedDiff2 > 0) score += 25;
+
+                    movesToCalc.forEach(m => {
+                        const dmg = calculateDamageRange(p, rivalData2, m);
+                        if (dmg && dmg.maxPercent > maxDmgDealt2) {
+                            maxDmgDealt2 = dmg.maxPercent;
+                            leadMoveName2 = m.name;
+                        }
+                    });
+                    score += Math.min(40, maxDmgDealt2 / 2.5);
+
+                    const rivalMoves2 = [];
+                    if (rivalData2.rl && rivalData2.rl.moves) {
+                        rivalData2.rl.moves.forEach(m => {
+                            if (m.name && m.type && m.power && m.power !== '-') {
+                                rivalMoves2.push(m);
+                            }
+                        });
+                    }
+                    if (rivalMoves2.length === 0) {
+                        rivalData2.types.forEach(t => {
+                            rivalMoves2.push({
+                                name: `STAB ${TYPE_NAMES[t] || t}`,
+                                type: t,
+                                category: (rivalData2.stats.spa || 0) > (rivalData2.stats.attack || 0) ? 'special' : 'physical',
+                                power: '90'
+                            });
+                        });
+                    }
+                    rivalMoves2.forEach(m => {
+                        const dmg = calculateDamageRange(rivalData2, p, m);
+                        if (dmg && dmg.maxPercent > maxDmgTaken2) {
+                            maxDmgTaken2 = dmg.maxPercent;
+                        }
+                    });
+                    score -= Math.min(30, maxDmgTaken2 / 3);
+                }
+
                 if (score > bestLeadScore) {
                     bestLeadScore = score;
                     bestLeadPoke = p;
 
                     let reasons = [];
-                    if (speedDiff > 0) {
-                        reasons.push(`ataca primero con velocidad superior (⚡${myReal.real.speed} Spe)`);
+                    if (isDoubleBattle && rivalData2) {
+                        // Razones para Combate Dúo
+                        if (speedDiff > 0 && speedDiff2 > 0) {
+                            reasons.push(`ataca primero a ambos rivales (⚡${myReal.real.speed} Spe)`);
+                        } else if (speedDiff > 0) {
+                            reasons.push(`supera en velocidad a ${formatPokemonName(rivalData.name)}`);
+                        } else if (speedDiff2 > 0) {
+                            reasons.push(`supera en velocidad a ${formatPokemonName(rivalData2.name)}`);
+                        } else {
+                            reasons.push(`resiste bien la ofensiva combinada`);
+                        }
+
+                        if (maxDmgDealt >= 50 && maxDmgDealt2 >= 50) {
+                            reasons.push(`daña críticamente a ambos enemigos con más del 50%`);
+                        } else if (maxDmgDealt >= 50) {
+                            reasons.push(`daña masivamente a ${formatPokemonName(rivalData.name)} (${Math.round(maxDmgDealt)}% máx)`);
+                        } else if (maxDmgDealt2 >= 50) {
+                            reasons.push(`daña masivamente a ${formatPokemonName(rivalData2.name)} (${Math.round(maxDmgDealt2)}% máx)`);
+                        }
+
+                        if (maxDmgTaken < 30 && maxDmgTaken2 < 30) {
+                            reasons.push(`recibe daño mínimo de ambos oponentes`);
+                        }
                     } else {
-                        reasons.push(`resiste de forma excelente los movimientos del rival`);
+                        // Razones individuales normales
+                        if (speedDiff > 0) {
+                            reasons.push(`ataca primero con velocidad superior (⚡${myReal.real.speed} Spe)`);
+                        } else {
+                            reasons.push(`resiste de forma excelente los movimientos del rival`);
+                        }
+                        if (maxDmgDealt >= 50) {
+                            reasons.push(`aplica daño crítico con ${leadMoveName} (${Math.round(maxDmgDealt)}% máx)`);
+                        }
+                        if (maxDmgTaken < 30) {
+                            reasons.push(`recibe daño mínimo del oponente (${Math.round(maxDmgTaken)}% máx)`);
+                        }
                     }
-                    if (maxDmgDealt >= 50) {
-                        reasons.push(`aplica daño crítico con ${leadMoveName} (${Math.round(maxDmgDealt)}% máx)`);
-                    }
-                    if (maxDmgTaken < 30) {
-                        reasons.push(`recibe daño mínimo del oponente (${Math.round(maxDmgTaken)}% máx)`);
-                    }
+
                     if (reasons.length === 0) {
                         reasons.push(`posee el mejor balance general en combate`);
                     }
@@ -7530,11 +7724,43 @@
                         }
                     });
 
-                    if (maxDmgTaken < 35) {
+                    // SI ES COMBATE DÚO Y RIVAL 2 EXISTE
+                    let maxDmgTaken2 = 0;
+                    if (isDoubleBattle && rivalData2) {
+                        const rivalMoves2 = [];
+                        if (rivalData2.rl && rivalData2.rl.moves) {
+                            rivalData2.rl.moves.forEach(m => {
+                                if (m.name && m.type && m.power && m.power !== '-') {
+                                    rivalMoves2.push(m);
+                                }
+                            });
+                        }
+                        if (rivalMoves2.length === 0) {
+                            rivalData2.types.forEach(t => {
+                                rivalMoves2.push({
+                                    name: `STAB ${TYPE_NAMES[t] || t}`,
+                                    type: t,
+                                    category: (rivalData2.stats.spa || 0) > (rivalData2.stats.attack || 0) ? 'special' : 'physical',
+                                    power: '90'
+                                });
+                            });
+                        }
+                        rivalMoves2.forEach(m => {
+                            const dmg = calculateDamageRange(rivalData2, p, m);
+                            if (dmg && dmg.maxPercent > maxDmgTaken2) {
+                                maxDmgTaken2 = dmg.maxPercent;
+                            }
+                        });
+                    }
+
+                    const combinedDmg = maxDmgTaken + maxDmgTaken2;
+                    const condition = (isDoubleBattle && rivalData2) ? (combinedDmg < 50 || (maxDmgTaken < 30 && maxDmgTaken2 < 30)) : (maxDmgTaken < 35);
+
+                    if (condition) {
                         setupCandidates.push({
                             poke: p,
                             move: setupMoveName,
-                            dmg: Math.round(maxDmgTaken)
+                            dmg: Math.round(isDoubleBattle ? combinedDmg : maxDmgTaken)
                         });
                     }
                 }
@@ -7550,11 +7776,12 @@
                 let setupBannerHtml = '';
                 if (setupCandidates.length > 0) {
                     const topSetup = setupCandidates[0];
+                    const labelText = (isDoubleBattle && rivalData2) ? `combinado de la pareja` : `del rival`;
                     setupBannerHtml = `
                         <div style="margin-top: 10px; padding: 8px 12px; background: rgba(255, 242, 0, 0.1); border: 1.5px dashed rgba(255,242,0,0.5); border-radius: 10px; display:flex; align-items:center; gap:8px;">
                             <span style="font-size:1.2rem;">🎯</span>
                             <div style="font-size: 0.74rem; color: #fff; font-weight: 600; line-height: 1.35;">
-                                <strong style="color:#fff200;">Oportunidad de Boost</strong>: <strong>${formatPokemonName(topSetup.poke.name)}</strong> solo recibe un máximo de <strong>${topSetup.dmg}%</strong> del rival. ¡Usa <strong>${topSetup.move}</strong> de forma segura para incrementar tus estadísticas y asegurar el barrido!
+                                <strong style="color:#fff200;">Oportunidad de Boost</strong>: <strong>${formatPokemonName(topSetup.poke.name)}</strong> solo recibe un máximo de <strong>${topSetup.dmg}%</strong> ${labelText}. ¡Usa <strong>${topSetup.move}</strong> de forma segura para incrementar tus estadísticas y asegurar el barrido!
                             </div>
                         </div>
                     `;
@@ -7599,9 +7826,48 @@
                     const speedDiff = pReal.speed - rReal.speed;
 
                     const effClass = offensive > 1 ? 'eff-super' : offensive < 1 ? (offensive === 0 ? 'eff-immune' : 'eff-weak') : 'eff-neutral';
-                    const effText = offensive > 1 ? `🔥 x${offensive}` : offensive < 1 ? (offensive === 0 ? '🚫 Inmune' : `🛡️ x${offensive}`) : '⚖️ x1';
+                    let effText = offensive > 1 ? `🔥 x${offensive}` : offensive < 1 ? (offensive === 0 ? '🚫 Inmune' : `🛡️ x${offensive}`) : '⚖️ x1';
 
-                    const isBest = bestPokemon && p.name === bestPokemon.name;
+                    let defText = `${defensive < 1 ? '🛡️' : defensive > 1 ? '⚠️' : '⚖️'} x${defensive}`;
+                    let speedText = speedDiff > 0 ? '▲ +' + speedDiff : speedDiff < 0 ? '▼ ' + speedDiff : '= Igual';
+                    let speedColor = speedDiff > 0 ? '#10b981' : speedDiff < 0 ? '#ef4444' : '#f59e0b';
+
+                    if (isDoubleBattle && rivalData2) {
+                        let offensive2 = getMatchupEffectiveness(p, rivalData2);
+                        let defensive2 = getMatchupEffectiveness(rivalData2, p);
+                        let speedDiff2 = pReal.speed - calculateRealStats(rivalData2).real.speed;
+
+                        const effClass2 = offensive2 > 1 ? 'eff-super' : offensive2 < 1 ? (offensive2 === 0 ? 'eff-immune' : 'eff-weak') : 'eff-neutral';
+                        let effText2 = offensive2 > 1 ? `🔥 x${offensive2}` : offensive2 < 1 ? (offensive2 === 0 ? '🚫 Inmune' : `🛡️ x${offensive2}`) : '⚖️ x1';
+                        let defText2 = `${defensive2 < 1 ? '🛡️' : defensive2 > 1 ? '⚠️' : '⚖️'} x${defensive2}`;
+
+                        effText = `
+                            <div style="font-size:0.68rem; line-height:1.25;">
+                                <div><strong>R1:</strong> <span class="effectiveness-badge ${effClass}" style="padding:1px 3px; font-size:0.6rem;">${effText}</span></div>
+                                <div style="margin-top:2px;"><strong>R2:</strong> <span class="effectiveness-badge ${effClass2}" style="padding:1px 3px; font-size:0.6rem;">${effText2}</span></div>
+                            </div>`;
+
+                        defText = `
+                            <div style="font-size:0.68rem; line-height:1.25;">
+                                <div><strong>R1:</strong> <span class="effectiveness-badge ${defensive < 1 ? 'eff-super' : defensive > 1 ? 'eff-weak' : 'eff-neutral'}" style="padding:1px 3px; font-size:0.6rem;">${defText}</span></div>
+                                <div style="margin-top:2px;"><strong>R2:</strong> <span class="effectiveness-badge ${defensive2 < 1 ? 'eff-super' : defensive2 > 1 ? 'eff-weak' : 'eff-neutral'}" style="padding:1px 3px; font-size:0.6rem;">${defText2}</span></div>
+                            </div>`;
+
+                        const speedText2 = speedDiff2 > 0 ? '▲ +' + speedDiff2 : speedDiff2 < 0 ? '▼ ' + speedDiff2 : '= Igual';
+                        const speedColor2 = speedDiff2 > 0 ? '#10b981' : speedDiff2 < 0 ? '#ef4444' : '#f59e0b';
+                        
+                        speedText = `
+                            <div style="font-size:0.68rem; line-height:1.25; font-weight:800;">
+                                <div><strong>R1:</strong> <span style="color:${speedColor}">${speedText}</span></div>
+                                <div><strong>R2:</strong> <span style="color:${speedColor2}">${speedText2}</span></div>
+                            </div>`;
+                    } else {
+                        effText = `<span class="effectiveness-badge ${effClass}">${effText}</span>`;
+                        defText = `<span class="effectiveness-badge ${defensive < 1 ? 'eff-super' : defensive > 1 ? 'eff-weak' : 'eff-neutral'}">${defText}</span>`;
+                        speedText = `<span style="font-weight:800; font-size:0.82rem; color:${speedColor}">${speedText}</span>`;
+                    }
+
+                    const isBest = bestLeadPoke && p.name === bestLeadPoke.name;
 
                     return `
                         <tr class="matchup-row ${isBest ? 'active' : ''}" style="${isBest ? 'border-left: 4px solid var(--poke-blue); background: rgba(59, 76, 202, 0.04);' : ''}">
@@ -7614,13 +7880,9 @@
                                     </div>
                                 </div>
                             </td>
-                            <td><span class="effectiveness-badge ${effClass}">${effText}</span></td>
-                            <td><span class="effectiveness-badge ${defensive < 1 ? 'eff-super' : defensive > 1 ? 'eff-weak' : 'eff-neutral'}">
-                                ${defensive < 1 ? '🛡️' : defensive > 1 ? '⚠️' : '⚖️'} x${defensive}
-                            </span></td>
-                            <td style="font-weight:800;font-size:0.82rem;color:${speedDiff > 0 ? '#10b981' : speedDiff < 0 ? '#ef4444' : '#f59e0b'}">
-                                ${speedDiff > 0 ? '▲ +' + speedDiff : speedDiff < 0 ? '▼ ' + speedDiff : '= Igual'}
-                            </td>
+                            <td>${effText}</td>
+                            <td>${defText}</td>
+                            <td>${speedText}</td>
                         </tr>
                     `;
                 }).join('');
@@ -7658,6 +7920,10 @@
                 });
 
                 const activeRivalsForSpeed = currentBattleMode === '6vs6' ? rivalTeamData : (rivalData ? [rivalData] : []);
+                if (currentBattleMode === '1vsTeam' && isDoubleBattle && rivalData2) {
+                    activeRivalsForSpeed.push(rivalData2);
+                }
+
                 activeRivalsForSpeed.forEach((rivalPoke, idx) => {
                     const calc = calculateRealStats(rivalPoke);
                     speedList.push({
@@ -7784,21 +8050,93 @@
 
                     score -= Math.min(30, maxDmgTaken / 3);
 
+                    // SI ES COMBATE DÚO Y RIVAL 2 EXISTE
+                    let maxDmgDealt2 = 0;
+                    let leadMoveName2 = "";
+                    let maxDmgTaken2 = 0;
+                    let speedDiff2 = 0;
+
+                    if (isDoubleBattle && rivalData2) {
+                        const rivalReal2 = calculateRealStats(rivalData2);
+                        speedDiff2 = myReal.real.speed - rivalReal2.real.speed;
+                        if (speedDiff2 > 0) score += 25;
+
+                        movesToCalc.forEach(m => {
+                            const dmg = calculateDamageRange(p, rivalData2, m);
+                            if (dmg && dmg.maxPercent > maxDmgDealt2) {
+                                maxDmgDealt2 = dmg.maxPercent;
+                                leadMoveName2 = m.name;
+                            }
+                        });
+                        score += Math.min(40, maxDmgDealt2 / 2.5);
+
+                        const rivalMoves2 = [];
+                        if (rivalData2.rl && rivalData2.rl.moves) {
+                            rivalData2.rl.moves.forEach(m => {
+                                if (m.name && m.type && m.power && m.power !== '-') {
+                                    rivalMoves2.push(m);
+                                }
+                            });
+                        }
+                        if (rivalMoves2.length === 0) {
+                            rivalData2.types.forEach(t => {
+                                rivalMoves2.push({
+                                    name: `STAB ${TYPE_NAMES[t] || t}`,
+                                    type: t,
+                                    category: (rivalData2.stats.spa || 0) > (rivalData2.stats.attack || 0) ? 'special' : 'physical',
+                                    power: '90'
+                                });
+                            });
+                        }
+                        rivalMoves2.forEach(m => {
+                            const dmg = calculateDamageRange(rivalData2, p, m);
+                            if (dmg && dmg.maxPercent > maxDmgTaken2) {
+                                maxDmgTaken2 = dmg.maxPercent;
+                            }
+                        });
+                        score -= Math.min(30, maxDmgTaken2 / 3);
+                    }
+
                     if (score > bestLeadScore) {
                         bestLeadScore = score;
                         bestLeadPoke = p;
 
                         let reasons = [];
-                        if (speedDiff > 0) {
-                            reasons.push(`ataca primero con velocidad superior (⚡${myReal.real.speed} Spe)`);
+                        if (isDoubleBattle && rivalData2) {
+                            // Razones para Combate Dúo
+                            if (speedDiff > 0 && speedDiff2 > 0) {
+                                reasons.push(`ataca primero a ambos rivales (⚡${myReal.real.speed} Spe)`);
+                            } else if (speedDiff > 0) {
+                                reasons.push(`supera en velocidad a ${formatPokemonName(rivalData.name)}`);
+                            } else if (speedDiff2 > 0) {
+                                reasons.push(`supera en velocidad a ${formatPokemonName(rivalData2.name)}`);
+                            } else {
+                                reasons.push(`resiste bien la ofensiva combinada`);
+                            }
+
+                            if (maxDmgDealt >= 50 && maxDmgDealt2 >= 50) {
+                                reasons.push(`daña críticamente a ambos enemigos con más del 50%`);
+                            } else if (maxDmgDealt >= 50) {
+                                reasons.push(`daña masivamente a ${formatPokemonName(rivalData.name)} (${Math.round(maxDmgDealt)}% máx)`);
+                            } else if (maxDmgDealt2 >= 50) {
+                                reasons.push(`daña masivamente a ${formatPokemonName(rivalData2.name)} (${Math.round(maxDmgDealt2)}% máx)`);
+                            }
+
+                            if (maxDmgTaken < 30 && maxDmgTaken2 < 30) {
+                                reasons.push(`recibe daño mínimo de ambos oponentes`);
+                            }
                         } else {
-                            reasons.push(`resiste bien los movimientos del oponente`);
-                        }
-                        if (maxDmgDealt >= 50) {
-                            reasons.push(`hace daño masivo con ${leadMoveName} (${Math.round(maxDmgDealt)}% máx)`);
-                        }
-                        if (maxDmgTaken < 30) {
-                            reasons.push(`recibe daño mínimo (${Math.round(maxDmgTaken)}% máx)`);
+                            if (speedDiff > 0) {
+                                reasons.push(`ataca primero con velocidad superior (⚡${myReal.real.speed} Spe)`);
+                            } else {
+                                reasons.push(`resiste bien los movimientos del oponente`);
+                            }
+                            if (maxDmgDealt >= 50) {
+                                reasons.push(`hace daño masivo con ${leadMoveName} (${Math.round(maxDmgDealt)}% máx)`);
+                            }
+                            if (maxDmgTaken < 30) {
+                                reasons.push(`recibe daño mínimo (${Math.round(maxDmgTaken)}% máx)`);
+                            }
                         }
                         leadReason = `Lidera el combate con <strong>${formatPokemonName(p.name)}</strong>. ${reasons.join(', ')}.`;
                     }
@@ -7848,11 +8186,43 @@
                             }
                         });
 
-                        if (maxDmgTaken < 35) {
+                        // SI ES COMBATE DÚO Y RIVAL 2 EXISTE
+                        let maxDmgTaken2 = 0;
+                        if (isDoubleBattle && rivalData2) {
+                            const rivalMoves2 = [];
+                            if (rivalData2.rl && rivalData2.rl.moves) {
+                                rivalData2.rl.moves.forEach(m => {
+                                    if (m.name && m.type && m.power && m.power !== '-') {
+                                        rivalMoves2.push(m);
+                                    }
+                                });
+                            }
+                            if (rivalMoves2.length === 0) {
+                                rivalData2.types.forEach(t => {
+                                    rivalMoves2.push({
+                                        name: `STAB ${TYPE_NAMES[t] || t}`,
+                                        type: t,
+                                        category: (rivalData2.stats.spa || 0) > (rivalData2.stats.attack || 0) ? 'special' : 'physical',
+                                        power: '90'
+                                    });
+                                });
+                            }
+                            rivalMoves2.forEach(m => {
+                                const dmg = calculateDamageRange(rivalData2, p, m);
+                                if (dmg && dmg.maxPercent > maxDmgTaken2) {
+                                    maxDmgTaken2 = dmg.maxPercent;
+                                }
+                            });
+                        }
+
+                        const combinedDmg = maxDmgTaken + maxDmgTaken2;
+                        const condition = (isDoubleBattle && rivalData2) ? (combinedDmg < 50 || (maxDmgTaken < 30 && maxDmgTaken2 < 30)) : (maxDmgTaken < 35);
+
+                        if (condition) {
                             setupCandidates.push({
                                 poke: p,
                                 move: setupMoveName,
-                                dmg: Math.round(maxDmgTaken)
+                                dmg: Math.round(isDoubleBattle ? combinedDmg : maxDmgTaken)
                             });
                         }
                     }
@@ -7860,11 +8230,12 @@
 
                 if (setupCandidates.length > 0) {
                     const topSetup = setupCandidates[0];
+                    const labelText = (isDoubleBattle && rivalData2) ? `combinado de la pareja` : `del rival`;
                     setupHtml = `
                         <div style="margin-top: 8px; padding: 8px 12px; background: rgba(245, 158, 11, 0.05); border: 1.5px dashed #f59e0b; border-radius: 10px; display:flex; align-items:center; gap:8px;">
                             <span style="font-size:1.2rem;">🎯</span>
                             <div style="font-size: 0.74rem; color: #78350f; font-weight: 600; line-height: 1.3;">
-                                <strong>Oportunidad de Boost</strong>: <strong>${formatPokemonName(topSetup.poke.name)}</strong> solo recibe un ${topSetup.dmg}% máx del rival. ¡Usa <strong>${topSetup.move}</strong> para boostearte y barrer!
+                                <strong>Oportunidad de Boost</strong>: <strong>${formatPokemonName(topSetup.poke.name)}</strong> solo recibe un ${topSetup.dmg}% máx ${labelText}. ¡Usa <strong>${topSetup.move}</strong> para boostearte y barrer!
                             </div>
                         </div>
                     `;
@@ -7898,6 +8269,9 @@
                 // ----------------------------------------------------
                 const sweepers = [];
                 const activeRivals = currentBattleMode === '6vs6' ? rivalTeamData : [rivalData];
+                if (currentBattleMode === '1vsTeam' && isDoubleBattle && rivalData2) {
+                    activeRivals.push(rivalData2);
+                }
 
                 teamData.forEach(myPoke => {
                     const myReal = calculateRealStats(myPoke);
@@ -8079,8 +8453,21 @@
                             lethalMovesList.push({
                                 poke: myPoke,
                                 move: m,
-                                dmg: dmg
+                                dmg: dmg,
+                                targetRival: rivalData
                             });
+                        }
+
+                        if (isDoubleBattle && rivalData2) {
+                            const dmg2 = calculateDamageRange(myPoke, rivalData2, m);
+                            if (dmg2 && (dmg2.maxPercent >= 20 || getSingleTypeEffectiveness(m.type, rivalData2) > 1)) {
+                                lethalMovesList.push({
+                                    poke: myPoke,
+                                    move: m,
+                                    dmg: dmg2,
+                                    targetRival: rivalData2
+                                });
+                            }
                         }
                     });
                 });
@@ -8093,13 +8480,14 @@
                         const percentColor = item.dmg.maxPercent >= 100 ? '#10b981' : item.dmg.maxPercent >= 50 ? '#f59e0b' : '#475569';
                         const typeColor = TYPE_COLORS[item.move.type] || '#64748b';
                         const typeIcon = TYPE_ICONS[item.move.type] || '🔮';
+                        const rivalLabel = (isDoubleBattle && rivalData2) ? ` <span style="font-size:0.52rem; color:#475569; background:rgba(0,0,0,0.04); padding:1px 4px; border-radius:3px; font-weight:700;">vs ${formatPokemonName(item.targetRival.name)}</span>` : '';
 
                         return `
                             <div class="pro-item-row" style="padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.03); display:flex; justify-content:space-between; align-items:center;">
                                 <div style="display:flex; align-items:center; gap:6px;">
                                     <img src="${item.poke.sprite}" alt="${item.poke.name}" style="width:20px; height:20px; object-fit:contain;">
                                     <div style="display:flex; flex-direction:column;">
-                                        <span style="font-size:0.68rem; font-weight:800; color:#1e293b; text-transform:capitalize;">${formatPokemonName(item.poke.name)}</span>
+                                        <span style="font-size:0.68rem; font-weight:800; color:#1e293b; text-transform:capitalize;">${formatPokemonName(item.poke.name)}${rivalLabel}</span>
                                         <span style="font-size:0.62rem; font-weight:800; color:${typeColor}; display:flex; align-items:center; gap:2px;">
                                             ${typeIcon} ${item.move.name} ${isRealBadge}
                                         </span>
@@ -8124,42 +8512,46 @@
                 // 7. Algoritmo de Ataques Peligrosos del Rival
                 // ----------------------------------------------------
                 let rivalDangerousAttacksHtml = '';
-                const rivalMovesToCalc = [];
-                let hasRivalRealMoves = false;
-
-                if (rivalData.rl && rivalData.rl.moves) {
-                    rivalData.rl.moves.forEach(m => {
-                        if (m.name && m.type && m.power && m.power !== '-') {
-                            rivalMovesToCalc.push({ ...m, isReal: true });
-                            hasRivalRealMoves = true;
-                        }
-                    });
-                }
-
-                if (!hasRivalRealMoves) {
-                    rivalData.types.forEach(t => {
-                        const isSpecial = (rivalData.stats.spa || 0) > (rivalData.stats.attack || 0);
-                        rivalMovesToCalc.push({
-                            name: `Mov. ${TYPE_NAMES[t] || t} (STAB)`,
-                            type: t,
-                            category: isSpecial ? 'special' : 'physical',
-                            power: '90',
-                            isReal: false
-                        });
-                    });
-                }
-
                 const rivalLethalList = [];
-                teamData.forEach(myPoke => {
-                    rivalMovesToCalc.forEach(m => {
-                        const dmg = calculateDamageRange(rivalData, myPoke, m);
-                        if (dmg && (dmg.maxPercent >= 20 || getSingleTypeEffectiveness(m.type, myPoke) > 1)) {
-                            rivalLethalList.push({
-                                myPoke: myPoke,
-                                move: m,
-                                dmg: dmg
+
+                activeRivals.forEach(activeRivalPoke => {
+                    const rivalMovesToCalc = [];
+                    let hasRivalRealMoves = false;
+
+                    if (activeRivalPoke.rl && activeRivalPoke.rl.moves) {
+                        activeRivalPoke.rl.moves.forEach(m => {
+                            if (m.name && m.type && m.power && m.power !== '-') {
+                                rivalMovesToCalc.push({ ...m, isReal: true });
+                                hasRivalRealMoves = true;
+                            }
+                        });
+                    }
+
+                    if (!hasRivalRealMoves) {
+                        activeRivalPoke.types.forEach(t => {
+                            const isSpecial = (activeRivalPoke.stats.spa || 0) > (activeRivalPoke.stats.attack || 0);
+                            rivalMovesToCalc.push({
+                                name: `Mov. ${TYPE_NAMES[t] || t} (STAB)`,
+                                type: t,
+                                category: isSpecial ? 'special' : 'physical',
+                                power: '90',
+                                isReal: false
                             });
-                        }
+                        });
+                    }
+
+                    teamData.forEach(myPoke => {
+                        rivalMovesToCalc.forEach(m => {
+                            const dmg = calculateDamageRange(activeRivalPoke, myPoke, m);
+                            if (dmg && (dmg.maxPercent >= 20 || getSingleTypeEffectiveness(m.type, myPoke) > 1)) {
+                                rivalLethalList.push({
+                                    attacker: activeRivalPoke,
+                                    myPoke: myPoke,
+                                    move: m,
+                                    dmg: dmg
+                                });
+                            }
+                        });
                     });
                 });
 
@@ -8170,6 +8562,7 @@
                         const percentColor = item.dmg.maxPercent >= 50 ? '#ef4444' : '#f59e0b';
                         const typeColor = TYPE_COLORS[item.move.type] || '#cbd5e1';
                         const typeIcon = TYPE_ICONS[item.move.type] || '⚡';
+                        const attackerLabel = (isDoubleBattle && rivalData2) ? ` <span style="font-size:0.52rem; color:#b91c1c; background:rgba(239,68,68,0.05); padding:1px 4px; border-radius:3px; font-weight:700;">Rival: ${formatPokemonName(item.attacker.name)}</span>` : '';
 
                         return `
                             <div class="pro-item-row" style="padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.03); display:flex; justify-content:space-between; align-items:center;">
@@ -8180,7 +8573,7 @@
                                         <span style="font-size:0.58rem; font-weight:800; color:#1e293b; text-transform:capitalize;">${formatPokemonName(item.myPoke.name).substring(0,6)}</span>
                                     </div>
                                     <div style="display:flex; flex-direction:column; margin-left:3px;">
-                                        <span style="font-size:0.65rem; font-weight:800; color:#b91c1c; text-transform:capitalize;">${formatPokemonName(rivalData.name)}</span>
+                                        <span style="font-size:0.65rem; font-weight:800; color:#b91c1c; text-transform:capitalize;">${formatPokemonName(item.attacker.name)}${attackerLabel}</span>
                                         <span style="font-size:0.6rem; font-weight:800; color:${typeColor}; display:flex; align-items:center; gap:2px;">
                                             ${typeIcon} ${item.move.name}
                                         </span>
@@ -8196,7 +8589,7 @@
                 } else {
                     rivalDangerousAttacksHtml = `
                         <div style="text-align:center; padding:12px; color:#64748b; font-size:0.72rem; font-weight:600;">
-                            ✅ ¡Excelente! El rival activo no tiene ataques efectivos contra ningún miembro de tu equipo.
+                            ✅ ¡Excelente! Los rivales activos no tienen ataques efectivos contra ningún miembro de tu equipo.
                         </div>
                     `;
                 }
@@ -8278,6 +8671,7 @@
                     const isDangerous = p.damage > 1;
                     const dmgColor = isDangerous ? '#b91c1c' : '#047857';
                     const dmgBg = isDangerous ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)';
+                    const rivalLabel = (isDoubleBattle && rivalData2) ? ` <span style="font-size:0.52rem; color:#475569; background:rgba(0,0,0,0.04); padding:1px 4px; border-radius:3px;">vs ${formatPokemonName(p.rival.name)}</span>` : '';
 
                     return `
                         <div class="pro-item-row" style="padding: 10px 0;">
@@ -8298,7 +8692,7 @@
                                 <span class="effectiveness-badge" style="padding: 3px 6px; font-size: 0.68rem; font-weight: 900; background: ${dmgBg}; color: ${dmgColor}; border-radius: 6px; white-space: nowrap;">
                                     ${dmgText}
                                 </span>
-                                <span style="font-size: 0.6rem; color: #64748b; font-weight: 700;">Bulk Total: 🛡️${p.bulk}</span>
+                                <span style="font-size: 0.6rem; color: #64748b; font-weight: 700;">Bulk Total: 🛡️${p.bulk}${rivalLabel}</span>
                             </div>
                         </div>
                     `;
@@ -9400,6 +9794,13 @@
         document.getElementById('rivalSearch').addEventListener('input', (e) => {
             showSuggestions(e.target, document.getElementById('rivalSuggestions'), false);
         });
+
+        const rSearch2 = document.getElementById('rivalSearch2');
+        if (rSearch2) {
+            rSearch2.addEventListener('input', (e) => {
+                showSuggestions(e.target, document.getElementById('rivalSuggestions2'), false);
+            });
+        }
 
         document.getElementById('rivalTeamSearch').addEventListener('input', (e) => {
             showSuggestions(e.target, document.getElementById('rivalTeamSuggestions'), false);
