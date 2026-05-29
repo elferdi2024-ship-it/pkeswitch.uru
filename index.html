@@ -57,9 +57,14 @@
             padding-bottom: 100px;
         }
 
+        :root {
+            --app-zoom: 1;
+        }
+
         .container {
             max-width: 1540px;
             margin: 0 auto;
+            zoom: var(--app-zoom, 1);
         }
 
         /* Header con Pokéball */
@@ -3545,6 +3550,197 @@
             border: 1px solid rgba(245, 158, 11, 0.2) !important; 
         }
 
+        /* Diseño Premium de Randomlocke para PC (> 768px) */
+        @media (min-width: 769px) {
+            .rl-table {
+                min-width: 100% !important;
+                border-collapse: separate;
+                border-spacing: 0 16px;
+            }
+
+            .rl-row {
+                background: #ffffff;
+                box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+                border: 1px solid rgba(15, 23, 42, 0.04);
+                border-radius: 16px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                display: flex !important;
+                align-items: stretch;
+                padding: 16px;
+                gap: 20px;
+                margin-bottom: 12px;
+            }
+
+            .rl-row:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 30px rgba(59, 76, 202, 0.07);
+                border-color: rgba(59, 76, 202, 0.15);
+            }
+
+            .rl-row td {
+                display: flex !important;
+                flex-direction: column !important;
+                padding: 0 !important;
+                border: none !important;
+                background: transparent !important;
+            }
+
+            /* Columna 1: Pokémon */
+            .rl-row td:nth-child(1) {
+                flex: 0 0 130px !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            /* Columna 2: Stats & Metadata */
+            .rl-row td:nth-child(2) {
+                flex: 1 1 340px !important;
+                justify-content: flex-start !important;
+                gap: 12px !important;
+            }
+
+            /* Columna 3: Movimientos */
+            .rl-row td.rl-moves-column {
+                flex: 1.3 1 450px !important;
+                justify-content: space-between !important;
+            }
+
+            /* Tarjeta del Pokémon */
+            .rl-poke-card {
+                background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.8) 100%);
+                border: 1px solid rgba(15, 23, 42, 0.05);
+                border-radius: 16px;
+                padding: 12px;
+                width: 100% !important;
+                height: 100%;
+                justify-content: center;
+                box-shadow: inset 0 2px 4px rgba(255,255,255,0.8);
+                transition: all 0.25s ease;
+            }
+
+            .rl-row:hover .rl-poke-card {
+                background: linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(241, 245, 249, 0.95) 100%);
+                border-color: rgba(59, 76, 202, 0.12);
+                transform: scale(1.02);
+            }
+
+            .rl-poke-img {
+                width: 85px !important;
+                height: 85px !important;
+                object-fit: contain;
+                filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.12));
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            .rl-row:hover .rl-poke-img {
+                transform: scale(1.15) translateY(-4px);
+                filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.16));
+            }
+
+            .rl-poke-name {
+                font-size: 0.95rem !important;
+                font-weight: 900 !important;
+                color: #0f172a;
+                margin-top: 4px;
+                letter-spacing: 0.2px;
+            }
+
+            /* Acordeón y Metadata en PC */
+            .rl-info-stats-wrapper {
+                height: 100%;
+                justify-content: space-between;
+                gap: 12px !important;
+            }
+
+            .rl-stats-details {
+                border-radius: 12px !important;
+                width: 100%;
+            }
+
+            .rl-meta-stack {
+                width: 100% !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                gap: 6px !important;
+            }
+
+            .rl-meta-box {
+                flex: 1 1 calc(50% - 4px) !important;
+                font-size: 0.76rem !important;
+                padding: 6px 8px !important;
+                border-radius: 10px !important;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+            }
+
+            /* Movimientos en PC */
+            .rl-moves-table {
+                height: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                gap: 6px !important;
+                width: 100%;
+            }
+
+            .rl-move-row {
+                flex: 1 !important;
+                display: flex !important;
+                align-items: center !important;
+                background: #f8fafc !important;
+                border: 1px solid rgba(15, 23, 42, 0.04) !important;
+                border-radius: 12px !important;
+                padding: 6px 12px !important;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01) !important;
+                transition: all 0.2s ease !important;
+                margin-bottom: 0 !important;
+                width: 100%;
+            }
+
+            .rl-move-row:hover {
+                background: #ffffff !important;
+                border-color: rgba(59, 76, 202, 0.15) !important;
+                box-shadow: 0 4px 12px rgba(59, 76, 202, 0.06) !important;
+                transform: translateY(-1px);
+            }
+
+            .rl-move-row td {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 0 !important;
+                border: none !important;
+                background: transparent !important;
+            }
+
+            .rl-move-row td:first-child {
+                flex: 1.4 !important;
+                justify-content: flex-start !important;
+            }
+
+            .rl-move-row td.rl-move-type {
+                flex: 0.9 !important;
+            }
+
+            .rl-move-row td.rl-move-cat {
+                flex: 0.5 !important;
+            }
+
+            .rl-move-row td.rl-move-stat {
+                flex: 0.5 !important;
+                font-size: 0.85rem !important;
+                font-weight: 800 !important;
+                color: #334155 !important;
+            }
+
+            .rl-move-name-box {
+                font-size: 0.85rem !important;
+                font-weight: 800 !important;
+                color: #0f172a !important;
+                width: 100% !important;
+                text-align: left !important;
+            }
+        }
+
         /* Responsive para Móviles */
         @media (max-width: 768px) {
             .rl-table-container {
@@ -4224,7 +4420,16 @@
                 <option value="8">Generación 8 (Galar Battles)</option>
                 <option value="9">Generación 9 (Paldea Active Mode)</option>
             </select>
+            <select id="zoomSelect" onchange="changeZoom(this.value)" style="background: white; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; padding: 4px 10px; font-size: 0.72rem; font-weight: 800; color: #475569; cursor: pointer; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                <option value="0.9">🔍 Zoom: Compacto (90%)</option>
+                <option value="1" selected>🔍 Zoom: Normal (100%)</option>
+                <option value="1.1">🔍 Zoom: Ampliado (110%)</option>
+                <option value="1.2">🔍 Zoom: Grande (120%)</option>
+                <option value="1.3">🔍 Zoom: Gigante (130%)</option>
+                <option value="1.4">🔍 Zoom: Extra Grande (140%)</option>
+            </select>
             <button class="btn btn-primary" onclick="loadPremiumSimulation()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #059669; font-weight: 800; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);">🧪 Cargar Simulación Pro</button>
+            <button class="btn btn-primary" onclick="openShowdownImportModal()" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-color: #1d4ed8; font-weight: 800; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);">📤 Importar Showdown</button>
             <button class="btn btn-danger" onclick="clearAll()">🗑️ Limpiar</button>
         </div>
 
@@ -4471,36 +4676,6 @@
             </div>
         </div>
 
-        <!-- Matriz Global 6x6 (Solo Combate 6vs6) -->
-        <div class="matrix-section card" id="matrixSection">
-            <div class="premium-header-container">
-                <svg class="premium-poke-icon" viewBox="0 0 100 100" aria-hidden="true">
-                    <ellipse cx="50" cy="92" rx="35" ry="8" fill="url(#ballShadow)"/>
-                    <circle cx="50" cy="50" r="46" fill="url(#whiteHalf)" stroke="#1d2638" stroke-width="6"/>
-                    <path d="M 4 50 A 46 46 0 0 1 96 50 Z" fill="url(#redHalf)" stroke="#1d2638" stroke-width="6"/>
-                    <line x1="4" y1="50" x2="96" y2="50" stroke="#1d2638" stroke-width="7"/>
-                    <circle cx="50" cy="50" r="16" fill="#1d2638"/>
-                    <circle cx="50" cy="50" r="12" fill="#FFFFFF" stroke="#1d2638" stroke-width="2"/>
-                </svg>
-                <svg class="premium-title-svg" viewBox="0 0 460 50" aria-label="Matriz Global 6x6">
-                    <g transform="skewX(-10) translate(10, 0)">
-                        <text x="4" y="38" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="#855b32" stroke="#855b32" stroke-width="6" stroke-linejoin="round">MATRIZ GLOBAL 6X6</text>
-                        <text x="3" y="37" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="#724c26" stroke="#724c26" stroke-width="6" stroke-linejoin="round">MATRIZ GLOBAL 6X6</text>
-                        <text x="2" y="36" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="#5c3b1c" stroke="#5c3b1c" stroke-width="6" stroke-linejoin="round">MATRIZ GLOBAL 6X6</text>
-                        <text x="0" y="34" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="7" stroke-linejoin="round">MATRIZ GLOBAL 6X6</text>
-                        <text x="0" y="34" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="#3b50da" stroke="#3b50da" stroke-width="4" stroke-linejoin="round">MATRIZ GLOBAL 6X6</text>
-                        <text x="0" y="34" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="url(#pokeGoldGradTeam)">MATRIZ GLOBAL 6X6</text>
-                    </g>
-                </svg>
-            </div>
-            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 15px; font-weight: 600;">
-                Mapa interactivo de matchups globales. Muestra las ventajas elementales ofensivas y defensivas calculadas en formato 6x6.
-            </p>
-            <div class="matrix-grid-container">
-                <div id="matrixContainer"></div>
-            </div>
-        </div>
-
         <!-- Analysis -->
         <div class="analysis-section">
             <div class="premium-header-container">
@@ -4571,6 +4746,36 @@
                     <div class="empty-state-icon">📋</div>
                     <div>Añade un equipo y un rival para ver el análisis</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Matriz Global 6x6 (Solo Combate 6vs6) -->
+        <div class="matrix-section card" id="matrixSection">
+            <div class="premium-header-container">
+                <svg class="premium-poke-icon" viewBox="0 0 100 100" aria-hidden="true">
+                    <ellipse cx="50" cy="92" rx="35" ry="8" fill="url(#ballShadow)"/>
+                    <circle cx="50" cy="50" r="46" fill="url(#whiteHalf)" stroke="#1d2638" stroke-width="6"/>
+                    <path d="M 4 50 A 46 46 0 0 1 96 50 Z" fill="url(#redHalf)" stroke="#1d2638" stroke-width="6"/>
+                    <line x1="4" y1="50" x2="96" y2="50" stroke="#1d2638" stroke-width="7"/>
+                    <circle cx="50" cy="50" r="16" fill="#1d2638"/>
+                    <circle cx="50" cy="50" r="12" fill="#FFFFFF" stroke="#1d2638" stroke-width="2"/>
+                </svg>
+                <svg class="premium-title-svg" viewBox="0 0 460 50" aria-label="Matriz Global 6x6">
+                    <g transform="skewX(-10) translate(10, 0)">
+                        <text x="4" y="38" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="#855b32" stroke="#855b32" stroke-width="6" stroke-linejoin="round">MATRIZ GLOBAL 6X6</text>
+                        <text x="3" y="37" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="#724c26" stroke="#724c26" stroke-width="6" stroke-linejoin="round">MATRIZ GLOBAL 6X6</text>
+                        <text x="2" y="36" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="#5c3b1c" stroke="#5c3b1c" stroke-width="6" stroke-linejoin="round">MATRIZ GLOBAL 6X6</text>
+                        <text x="0" y="34" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="7" stroke-linejoin="round">MATRIZ GLOBAL 6X6</text>
+                        <text x="0" y="34" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="#3b50da" stroke="#3b50da" stroke-width="4" stroke-linejoin="round">MATRIZ GLOBAL 6X6</text>
+                        <text x="0" y="34" font-family="Outfit, sans-serif" font-size="28" font-weight="900" letter-spacing="1" fill="url(#pokeGoldGradTeam)">MATRIZ GLOBAL 6X6</text>
+                    </g>
+                </svg>
+            </div>
+            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 15px; font-weight: 600;">
+                Mapa interactivo de matchups globales. Muestra las ventajas elementales ofensivas y defensivas calculadas en formato 6x6.
+            </p>
+            <div class="matrix-grid-container">
+                <div id="matrixContainer"></div>
             </div>
         </div>
 
@@ -4823,6 +5028,14 @@
                     </div>
                 </div>
 
+                <div class="guide-item" style="display: flex; gap: 14px; background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.02); transition: transform 0.2s;">
+                    <div class="guide-icon" style="font-size: 1.8rem; line-height: 1;">📤</div>
+                    <div class="guide-info">
+                        <h3 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem; color: var(--ink); margin-bottom: 6px;">7. Importación Showdown Ultra-Veloz</h3>
+                        <p style="font-size: 0.76rem; color: #475569; line-height: 1.4; font-weight: 600;">Pega un set de Pokémon Showdown o un equipo de hasta 6 miembros en formato de exportación Smogon. PokéSwitch parseará dinámicamente sus nombres, objetos, habilidades, naturalezas y consultará la PokéAPI en tiempo real para autocompletar potencias, precisiones y categorías elementales de sus 4 movimientos de inmediato.</p>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -4880,6 +5093,40 @@
             <div class="rl-modal-footer">
                 <button class="btn btn-secondary" onclick="closeRlModal()">Cancelar</button>
                 <button class="btn btn-success" id="rlModalSaveBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Importación de Showdown -->
+    <div class="rl-modal" id="showdownImportModal">
+        <div class="rl-modal-content" style="max-width: 550px;">
+            <div class="rl-modal-header" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+                <h3 style="font-family:'Outfit',sans-serif;font-weight:900;font-size:1.1rem;color:white;margin:0;">📤 Importar Pokémon Showdown</h3>
+                <button class="rl-modal-close" onclick="closeShowdownImportModal()">×</button>
+            </div>
+            <div class="rl-modal-body" style="padding: 20px;">
+                <p style="font-size: 0.76rem; color: #475569; font-weight: 600; line-height: 1.4; margin-bottom: 12px;">
+                    Pega aquí el texto de exportación de tu equipo o Pokémon de <strong>Pokémon Showdown</strong> (Smogon Export Format). Nuestro motor parseará automáticamente el Pokémon, su objeto, habilidad, naturaleza y movimientos en un segundo.
+                </p>
+                <div class="rl-form-group">
+                    <label for="showdownImportText" style="font-weight: 800; font-size: 0.72rem; color: #64748b; text-transform: uppercase; margin-bottom: 6px; display: block;">Texto del Set / Equipo</label>
+                    <textarea class="rl-input" id="showdownImportText" rows="10" placeholder="Talonflame @ Choice Band&#10;Ability: Gale Wings&#10;Level: 50&#10;Jolly Nature&#10;- Flare Blitz&#10;- Brave Bird&#10;- U-turn&#10;- Roost" style="width: 100%; font-family: monospace; font-size: 0.74rem; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); outline: none; background: #fafafa; resize: vertical; min-height: 180px;"></textarea>
+                </div>
+                <div class="rl-form-group" style="margin-top: 14px;">
+                    <label style="font-weight: 800; font-size: 0.72rem; color: #64748b; text-transform: uppercase; margin-bottom: 6px; display: block;">Destino de la Importación</label>
+                    <div style="display: flex; gap: 10px;">
+                        <label style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: #f1f5f9; padding: 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; color: #334155; cursor: pointer; border: 1px solid rgba(0,0,0,0.05);">
+                            <input type="radio" name="importTarget" value="team" checked style="accent-color: #3b82f6;"> 🛡️ Mi Equipo (Llenará slots)
+                        </label>
+                        <label style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: #f1f5f9; padding: 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 800; color: #334155; cursor: pointer; border: 1px solid rgba(0,0,0,0.05);">
+                            <input type="radio" name="importTarget" value="rival" style="accent-color: #ef4444;"> ⚔️ Equipo Rival (6vs6 / 1vsTeam)
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="rl-modal-footer">
+                <button class="btn btn-secondary" onclick="closeShowdownImportModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="processShowdownImport()" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-color: #1d4ed8; font-weight: 800; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);">⚡ Importar e Integrar</button>
             </div>
         </div>
     </div>
@@ -4979,6 +5226,21 @@
             spd: 'SpD',
             speed: 'Spe'
         };
+
+        function safeSetItem(key, val) {
+            try {
+                localStorage.setItem(key, val);
+            } catch (e) {
+                console.warn('LocalStorage lleno. Limpiando caché de PokéAPI...', e);
+                try {
+                    localStorage.removeItem('pokeswitch_api_cache');
+                    cache = {}; // Vaciar caché en memoria
+                    localStorage.setItem(key, val);
+                } catch (err) {
+                    console.error('Error persistente al guardar en localStorage:', err);
+                }
+            }
+        }
 
         let rivalData = null;
         let teamData = [];
@@ -5142,7 +5404,7 @@
             // 3. Ability modifiers
             let abilityBoosts = {};
             if (p.rl && p.rl.ability) {
-                const ability = p.rl.ability.toLowerCase().trim();
+                const ability = p.rl.ability.toLowerCase().replace(/[-_]/g, ' ').trim();
                 
                 // Huge Power / Pure Power (x2 Atk)
                 if (ability.includes("huge power") || ability.includes("potencia") || ability.includes("pure power") || ability.includes("fuerza pura")) {
@@ -5159,36 +5421,108 @@
                     real.defense = Math.round(real.defense * 1.5);
                     abilityBoosts.defense = true;
                 }
+
+                // Habilidades climáticas de velocidad: Clorofila, Nado Rápido, Ímpetu Arena, Ímpetu Nieve
+                if (
+                    (currentWeather === 'sun' && (ability.includes("chlorophyll") || ability.includes("clorofila"))) ||
+                    (currentWeather === 'rain' && (ability.includes("swift swim") || ability.includes("nado rápido") || ability.includes("nado rapido"))) ||
+                    (currentWeather === 'sandstorm' && (ability.includes("sand rush") || ability.includes("ímpetu arena") || ability.includes("impetu arena"))) ||
+                    (currentWeather === 'hail' && (ability.includes("slush rush") || ability.includes("ímpetu nieve") || ability.includes("impetu nieve")))
+                ) {
+                    real.speed = real.speed * 2;
+                    abilityBoosts.speed = true;
+                }
+
+                // Solar Power / Poder Solar (SpA x1.5 en Sol)
+                if (currentWeather === 'sun' && (ability.includes("solar power") || ability.includes("poder solar"))) {
+                    real.spa = Math.round(real.spa * 1.5);
+                    abilityBoosts.spa = true;
+                }
             }
 
             // 4. Climas Competitivos (Tormenta de Arena -> SpD x1.5 para Roca; Hail/Nieve -> Def x1.5 para Hielo)
             if (currentWeather === 'sandstorm' && p.types.includes('rock')) {
                 real.spd = Math.round(real.spd * 1.5);
-                itemBoosts.spd = true; // Visual indicator style
+                itemBoosts.spd = true;
             }
             if (currentWeather === 'hail' && p.types.includes('ice')) {
                 real.defense = Math.round(real.defense * 1.5);
-                itemBoosts.defense = true; // Visual indicator style
+                itemBoosts.defense = true;
             }
 
-            // 5. Cambios de Estado Competitivos
+            // 5. Cambios de Estado Competitivos y Habilidades asociadas (Agallas, Pies Rápidos, etc.)
             if (p.rl && p.rl.status && p.rl.status !== 'none') {
                 const status = p.rl.status;
+                const hasAbility = (name1, name2) => {
+                    if (!p.rl.ability) return false;
+                    const cleanAbility = p.rl.ability.toLowerCase().replace(/[-_]/g, ' ').trim();
+                    const cleanName1 = name1.toLowerCase().replace(/[-_]/g, ' ').trim();
+                    const cleanName2 = name2 ? name2.toLowerCase().replace(/[-_]/g, ' ').trim() : '';
+                    return cleanAbility.includes(cleanName1) || (cleanName2 && cleanAbility.includes(cleanName2));
+                };
+                
+                const hasGuts = hasAbility("guts", "agallas");
+                const hasQuickFeet = hasAbility("quick feet", "pies rápidos");
+                const hasFlareBoost = hasAbility("flare boost", "ímpetu ardiente");
+                const hasToxicBoost = hasAbility("toxic boost", "ímpetu tóxico");
+
+                // Paralysis (PAR)
                 if (status === 'par') {
-                    const gen = Number(currentGeneration);
-                    const parMult = gen <= 6 ? 0.25 : 0.50;
-                    real.speed = Math.round(real.speed * parMult);
-                } else if (status === 'brn') {
-                    // Soporte de Guts (Agallas) -> Incrementa ataque x1.5 en vez de reducirlo
-                    const hasGuts = p.rl.ability && (
-                        p.rl.ability.toLowerCase().includes("guts") || 
-                        p.rl.ability.toLowerCase().includes("agallas")
-                    );
+                    if (hasQuickFeet) {
+                        // Quick Feet boosts Speed by 1.5x and ignores status Speed drop!
+                        real.speed = Math.round(real.speed * 1.5);
+                        abilityBoosts.speed = true;
+                    } else {
+                        const gen = Number(currentGeneration);
+                        const parMult = gen <= 6 ? 0.25 : 0.50;
+                        real.speed = Math.round(real.speed * parMult);
+                    }
+                    if (hasGuts) {
+                        real.attack = Math.round(real.attack * 1.5);
+                        abilityBoosts.attack = true;
+                    }
+                } 
+                // Burn (BRN)
+                else if (status === 'brn') {
                     if (hasGuts) {
                         real.attack = Math.round(real.attack * 1.5);
                         abilityBoosts.attack = true;
                     } else {
                         real.attack = Math.round(real.attack * 0.5);
+                    }
+                    if (hasQuickFeet) {
+                        real.speed = Math.round(real.speed * 1.5);
+                        abilityBoosts.speed = true;
+                    }
+                    if (hasFlareBoost) {
+                        real.spa = Math.round(real.spa * 1.5);
+                        abilityBoosts.spa = true;
+                    }
+                } 
+                // Poison (PSN)
+                else if (status === 'psn') {
+                    if (hasGuts) {
+                        real.attack = Math.round(real.attack * 1.5);
+                        abilityBoosts.attack = true;
+                    }
+                    if (hasQuickFeet) {
+                        real.speed = Math.round(real.speed * 1.5);
+                        abilityBoosts.speed = true;
+                    }
+                    if (hasToxicBoost) {
+                        real.attack = Math.round(real.attack * 1.5);
+                        abilityBoosts.attack = true;
+                    }
+                }
+                // Sleep / Freeze (SLP / FRZ)
+                else if (status === 'slp' || status === 'frz') {
+                    if (hasGuts) {
+                        real.attack = Math.round(real.attack * 1.5);
+                        abilityBoosts.attack = true;
+                    }
+                    if (hasQuickFeet) {
+                        real.speed = Math.round(real.speed * 1.5);
+                        abilityBoosts.speed = true;
                     }
                 }
             }
@@ -5226,110 +5560,109 @@
         // ==========================================================================
         // MOTOR DE EFECTIVIDAD COMPETITIVA PRO (INMUNIDADES, HABILIDADES E ITEMS)
         // ==========================================================================
-        function getMatchupEffectiveness(attacker, defender) {
-            let totalMult = null;
+        function getSingleTypeEffectiveness(atkType, defender) {
+            let typeMult = 1;
             
-            attacker.types.forEach(atkType => {
-                let typeMult = 1;
-                
-                // Efectividad base frente a los tipos del defensor
-                defender.types.forEach(defType => {
-                    let mult = (TYPE_CHART[atkType]?.[defType] || 1);
-                    // Retrocompatibilidad con Gen 5 (BW): Acero resiste Fantasma y Siniestro (0.5x)
-                    if (currentGeneration === '5' && defType === 'steel' && (atkType === 'dark' || atkType === 'ghost')) {
-                        mult = 0.5;
-                    }
-                    typeMult *= mult;
-                });
-
-                
-                // Modificadores por habilidades del DEFENSOR
-                if (defender.rl && defender.rl.ability) {
-                    const ability = defender.rl.ability.toLowerCase().trim();
-                    
-                    // Levitate -> Inmune a Tierra
-                    if (atkType === 'ground' && (ability.includes("levitate") || ability.includes("levitación"))) {
-                        typeMult = 0;
-                    }
-                    // Flash Fire -> Inmune a Fuego
-                    else if (atkType === 'fire' && (ability.includes("flash fire") || ability.includes("absorbe fuego"))) {
-                        typeMult = 0;
-                    }
-                    // Sap Sipper -> Inmune a Planta
-                    else if (atkType === 'grass' && (ability.includes("sap sipper") || ability.includes("herbívoro"))) {
-                        typeMult = 0;
-                    }
-                    // Volt Absorb / Lightning Rod / Motor Drive -> Inmune a Eléctrico
-                    else if (atkType === 'electric' && (
-                        ability.includes("volt absorb") || ability.includes("absorbe elec") || 
-                        ability.includes("lightning rod") || ability.includes("pararrayos") ||
-                        ability.includes("motor drive") || ability.includes("electromotor")
-                    )) {
-                        typeMult = 0;
-                    }
-                    // Water Absorb / Storm Drain / Dry Skin -> Inmune a Agua
-                    else if (atkType === 'water' && (
-                        ability.includes("water absorb") || ability.includes("absorbe agua") || 
-                        ability.includes("storm drain") || ability.includes("colector") ||
-                        ability.includes("dry skin") || ability.includes("piel seca")
-                    )) {
-                        typeMult = 0;
-                    }
-                    
-                    // Thick Fat -> Mitad de daño de Fuego e Hielo
-                    if ((atkType === 'fire' || atkType === 'ice') && (ability.includes("thick fat") || ability.includes("sebo"))) {
-                        typeMult *= 0.5;
-                    }
-                    
-                    // Dry Skin -> Aumenta daño de Fuego un 25% (x1.25)
-                    if (atkType === 'fire' && (ability.includes("dry skin") || ability.includes("piel seca"))) {
-                        typeMult *= 1.25;
-                    }
+            // Efectividad base frente a los tipos del defensor
+            defender.types.forEach(defType => {
+                let mult = (TYPE_CHART[atkType]?.[defType] || 1);
+                // Retrocompatibilidad con Gen 5 (BW): Acero resiste Fantasma y Siniestro (0.5x)
+                if (currentGeneration === '5' && defType === 'steel' && (atkType === 'dark' || atkType === 'ghost')) {
+                    mult = 0.5;
                 }
-                
-                // Modificadores por objetos del DEFENSOR
-                if (defender.rl && defender.rl.item) {
-                    const item = defender.rl.item.toLowerCase().trim();
-                    
-                    // Air Balloon -> Inmune a Tierra
-                    if (atkType === 'ground' && (item.includes("balloon") || item.includes("globo"))) {
-                        typeMult = 0;
-                    }
-                }
-                
-                // Modificadores por Clima de Batalla
-                if (currentWeather === 'sun') {
-                    if (atkType === 'fire') typeMult *= 1.5;
-                    else if (atkType === 'water') typeMult *= 0.5;
-                } else if (currentWeather === 'rain') {
-                    if (atkType === 'water') typeMult *= 1.5;
-                    else if (atkType === 'fire') typeMult *= 0.5;
-                }
-                
-                // Selección inteligente de la mejor opción ofensiva (máxima efectividad)
-                if (totalMult === null || typeMult > totalMult) {
-                    totalMult = typeMult;
-                }
+                typeMult *= mult;
             });
             
-            if (totalMult === null) totalMult = 1;
+            // Modificadores por habilidades del DEFENSOR
+            if (defender.rl && defender.rl.ability) {
+                const ability = defender.rl.ability.toLowerCase().trim();
+                
+                // Levitate -> Inmune a Tierra
+                if (atkType === 'ground' && (ability.includes("levitate") || ability.includes("levitación"))) {
+                    typeMult = 0;
+                }
+                // Flash Fire -> Inmune a Fuego
+                else if (atkType === 'fire' && (ability.includes("flash fire") || ability.includes("absorbe fuego"))) {
+                    typeMult = 0;
+                }
+                // Sap Sipper -> Inmune a Planta
+                else if (atkType === 'grass' && (ability.includes("sap sipper") || ability.includes("herbívoro"))) {
+                    typeMult = 0;
+                }
+                // Volt Absorb / Lightning Rod / Motor Drive -> Inmune a Eléctrico
+                else if (atkType === 'electric' && (
+                    ability.includes("volt absorb") || ability.includes("absorbe elec") || 
+                    ability.includes("lightning rod") || ability.includes("pararrayos") ||
+                    ability.includes("motor drive") || ability.includes("electromotor")
+                )) {
+                    typeMult = 0;
+                }
+                // Water Absorb / Storm Drain / Dry Skin -> Inmune a Agua
+                else if (atkType === 'water' && (
+                    ability.includes("water absorb") || ability.includes("absorbe agua") || 
+                    ability.includes("storm drain") || ability.includes("colector") ||
+                    ability.includes("dry skin") || ability.includes("piel seca")
+                )) {
+                    typeMult = 0;
+                }
+                
+                // Thick Fat -> Mitad de daño de Fuego e Hielo
+                if ((atkType === 'fire' || atkType === 'ice') && (ability.includes("thick fat") || ability.includes("sebo"))) {
+                    typeMult *= 0.5;
+                }
+                
+                // Dry Skin -> Aumenta daño de Fuego un 25% (x1.25)
+                if (atkType === 'fire' && (ability.includes("dry skin") || ability.includes("piel seca"))) {
+                    typeMult *= 1.25;
+                }
+            }
+            
+            // Modificadores por objetos del DEFENSOR
+            if (defender.rl && defender.rl.item) {
+                const item = defender.rl.item.toLowerCase().trim();
+                
+                // Air Balloon -> Inmune a Tierra
+                if (atkType === 'ground' && (item.includes("balloon") || item.includes("globo"))) {
+                    typeMult = 0;
+                }
+            }
+            
+            // Modificadores por Clima de Batalla
+            if (currentWeather === 'sun') {
+                if (atkType === 'fire') typeMult *= 1.5;
+                else if (atkType === 'water') typeMult *= 0.5;
+            } else if (currentWeather === 'rain') {
+                if (atkType === 'water') typeMult *= 1.5;
+                else if (atkType === 'fire') typeMult *= 0.5;
+            }
             
             // Filtro y Roca Sólida reducen un 25% el daño súper efectivo
             if (defender.rl && defender.rl.ability) {
                 const ability = defender.rl.ability.toLowerCase().trim();
-                if (totalMult > 1 && (ability.includes("filter") || ability.includes("filtro") || ability.includes("solid rock") || ability.includes("roca sólida"))) {
-                    totalMult *= 0.75;
+                if (typeMult > 1 && (ability.includes("filter") || ability.includes("filtro") || ability.includes("solid rock") || ability.includes("roca sólida"))) {
+                    typeMult *= 0.75;
                 }
                 
                 // Wonder Guard -> Inmune a daño no súper efectivo
                 if (ability.includes("wonder guard") || ability.includes("superguarda")) {
-                    if (totalMult <= 1) {
-                        totalMult = 0;
+                    if (typeMult <= 1) {
+                        typeMult = 0;
                     }
                 }
             }
             
-            return Math.round(totalMult * 100) / 100;
+            return Math.round(typeMult * 100) / 100;
+        }
+
+        function getMatchupEffectiveness(attacker, defender) {
+            let totalMult = null;
+            attacker.types.forEach(atkType => {
+                let typeMult = getSingleTypeEffectiveness(atkType, defender);
+                if (totalMult === null || typeMult > totalMult) {
+                    totalMult = typeMult;
+                }
+            });
+            return totalMult === null ? 1 : totalMult;
         }
 
         // Renderizado premium del widget de estadísticas
@@ -5472,6 +5805,9 @@
             // Renderizado reactivo instantáneo de tablas y análisis
             renderRandomlockeTable();
             renderRandomlockeRivalTable();
+            renderTeam();
+            renderRivalTeam();
+            renderRival();
             analyzeMatchups();
             if (currentBattleMode === '6vs6') renderMatrix();
         }
@@ -5489,6 +5825,9 @@
             // Renderizado reactivo instantáneo de tablas y análisis
             renderRandomlockeTable();
             renderRandomlockeRivalTable();
+            renderTeam();
+            renderRivalTeam();
+            renderRival();
             analyzeMatchups();
             if (currentBattleMode === '6vs6') renderMatrix();
         }
@@ -5580,7 +5919,7 @@
                 allPokemon = data.results
                     .map(p => ({ name: p.name, id: getPokemonIdFromUrl(p.url) }))
                     .filter(p => p.id && isSearchablePokemon(p));
-                localStorage.setItem('pokeswitch_pokemon_list_v2', JSON.stringify(allPokemon));
+                safeSetItem('pokeswitch_pokemon_list_v2', JSON.stringify(allPokemon));
             } catch (e) {
                 console.error('Error:', e);
             }
@@ -5597,7 +5936,7 @@
                 const res = await fetch('https://pokeapi.co/api/v2/move?limit=1000');
                 const data = await res.json();
                 allMoves = data.results.map(m => m.name);
-                localStorage.setItem('pokeswitch_move_list', JSON.stringify(allMoves));
+                safeSetItem('pokeswitch_move_list', JSON.stringify(allMoves));
             } catch (e) {
                 console.error('Error cargando movimientos:', e);
             }
@@ -5614,7 +5953,7 @@
                 const res = await fetch('https://pokeapi.co/api/v2/item?limit=1600');
                 const data = await res.json();
                 allItems = data.results.map(i => i.name);
-                localStorage.setItem('pokeswitch_item_list', JSON.stringify(allItems));
+                safeSetItem('pokeswitch_item_list', JSON.stringify(allItems));
             } catch (e) {
                 console.error('Error cargando objetos:', e);
             }
@@ -5647,7 +5986,7 @@
                 };
                 
                 cache[key] = pokemon;
-                localStorage.setItem('pokeswitch_api_cache', JSON.stringify(cache));
+                safeSetItem('pokeswitch_api_cache', JSON.stringify(cache));
                 return pokemon;
             } catch (e) {
                 return null;
@@ -5657,7 +5996,14 @@
         // URL Sharing Functions
         function generateShareUrl() {
             const params = new URLSearchParams();
-            if (rivalData) params.set('rival', rivalData.name);
+            params.set('mode', currentBattleMode);
+            if (currentBattleMode === '6vs6') {
+                if (rivalTeamData.length > 0) {
+                    params.set('rivalTeam', rivalTeamData.map(p => p.name).join(','));
+                }
+            } else {
+                if (rivalData) params.set('rival', rivalData.name);
+            }
             if (teamData.length > 0) {
                 params.set('team', teamData.map(p => p.name).join(','));
             }
@@ -5669,7 +6015,7 @@
             const section = document.getElementById('shareSection');
             const urlInput = document.getElementById('shareUrl');
             
-            if (rivalData || teamData.length > 0) {
+            if (rivalData || teamData.length > 0 || rivalTeamData.length > 0) {
                 const url = generateShareUrl();
                 urlInput.value = url;
                 section.classList.add('show');
@@ -5694,20 +6040,57 @@
         function loadFromUrl() {
             const params = new URLSearchParams(window.location.search);
             const rivalParam = params.get('rival');
+            const rivalTeamParam = params.get('rivalTeam');
             const teamParam = params.get('team');
+            const modeParam = params.get('mode');
 
-            if (rivalParam) {
-                selectPokemon(rivalParam, true);
-            }
+            if (rivalParam || rivalTeamParam || teamParam) {
+                // Hay parámetros en la URL: limpiar estado local actual para cargar limpio el compartido
+                rivalData = null;
+                teamData = [];
+                rivalTeamData = [];
+                activeRivalIndex = 0;
+                
+                if (modeParam === '6vs6') {
+                    currentBattleMode = '6vs6';
+                } else if (modeParam === '1vsTeam') {
+                    currentBattleMode = '1vsTeam';
+                }
 
-            if (teamParam) {
-                const teamNames = teamParam.split(',');
-                teamNames.forEach(async (name, index) => {
-                    if (index < 6) {
-                        setTimeout(() => selectPokemon(name, false), index * 200);
-                    }
-                });
+                if (rivalParam && !rivalTeamParam) {
+                    selectPokemon(rivalParam, true);
+                }
+
+                if (rivalTeamParam) {
+                    const rivalNames = rivalTeamParam.split(',');
+                    rivalNames.forEach((name, index) => {
+                        if (index < 6) {
+                            setTimeout(() => selectPokemon(name, true), index * 200);
+                        }
+                    });
+                }
+
+                if (teamParam) {
+                    const teamNames = teamParam.split(',');
+                    teamNames.forEach((name, index) => {
+                        if (index < 6) {
+                            setTimeout(() => selectPokemon(name, false), index * 200);
+                        }
+                    });
+                }
+                
+                // Actualizar interfaz tras la carga
+                const maxLen = Math.max(
+                    teamParam ? teamParam.split(',').length : 0, 
+                    rivalTeamParam ? rivalTeamParam.split(',').length : 0
+                );
+                setTimeout(() => {
+                    changeBattleMode(currentBattleMode);
+                }, maxLen * 200 + 100);
+                
+                return true; // Se cargó desde URL
             }
+            return false; // No había parámetros
         }
 
         // Show suggestions
@@ -5753,7 +6136,7 @@
                 currentWeather: currentWeather,
                 currentGeneration: currentGeneration
             };
-            localStorage.setItem('pokeswitch_battle_state', JSON.stringify(state));
+            safeSetItem('pokeswitch_battle_state', JSON.stringify(state));
         }
 
         // Detector visual premium de errores en caliente para diagnostico instantaneo
@@ -5908,6 +6291,9 @@
                 
                 if (rivalTeamData.length > 0) {
                     rivalData = rivalTeamData[activeRivalIndex] || rivalTeamData[0];
+                } else if (rivalData) {
+                    rivalTeamData = [rivalData];
+                    activeRivalIndex = 0;
                 } else {
                     rivalData = null;
                 }
@@ -5921,8 +6307,11 @@
 
         // Select Pokemon
         async function selectPokemon(name, isRival) {
-            const pokemon = await fetchPokemon(name);
-            if (!pokemon) return;
+            const fetched = await fetchPokemon(name);
+            if (!fetched) return;
+
+            // Deep clone para evitar reference sharing en memoria
+            const pokemon = JSON.parse(JSON.stringify(fetched));
 
             // Inicializar datos extendidos de Randomlocke de forma universal
             if (!pokemon.rl) {
@@ -6369,6 +6758,12 @@
             showToast(`🎮 Generación de batalla cambiada: ${genNames[val] || val}`);
         }
 
+        function changeZoom(val) {
+            document.documentElement.style.setProperty('--app-zoom', val);
+            safeSetItem('pokeswitch_zoom', val);
+            showToast(`🔍 Escala de visualización adaptada al ${Math.round(val * 100)}%`);
+        }
+
         // Analyze matchups
         function analyzeMatchups() {
             const analysisTabs = document.getElementById('analysisTabs');
@@ -6549,10 +6944,7 @@
                         if (myPoke.rl && myPoke.rl.moves) {
                             myPoke.rl.moves.forEach(m => {
                                 if (m.name && m.type) {
-                                    let moveMult = 1;
-                                    rivalPoke.types.forEach(tRiv => {
-                                        moveMult *= (TYPE_CHART[m.type]?.[tRiv] || 1);
-                                    });
+                                    let moveMult = getSingleTypeEffectiveness(m.type, rivalPoke);
                                     if (moveMult > 1) hasSuperEffectiveMove = true;
                                 }
                             });
@@ -7438,6 +7830,9 @@
             closeRlModal();
             renderRandomlockeTable();
             renderRandomlockeRivalTable();
+            renderTeam();
+            renderRivalTeam();
+            renderRival();
             analyzeMatchups();
             if (currentBattleMode === '6vs6') renderMatrix();
             saveStateToLocalStorage();
@@ -8040,16 +8435,257 @@
             }
         }
 
+        // ==========================================================================
+        // PARSER COMPETITIVO E IMPORTADOR INTEGRAL DE POKÉMON SHOWDOWN
+        // ==========================================================================
+        function openShowdownImportModal() {
+            document.getElementById('showdownImportText').value = '';
+            document.getElementById('showdownImportModal').classList.add('open');
+        }
+
+        function closeShowdownImportModal() {
+            document.getElementById('showdownImportModal').classList.remove('open');
+        }
+
+        async function processShowdownImport() {
+            const text = document.getElementById('showdownImportText').value.trim();
+            if (!text) {
+                alert('Por favor, pega un set de Showdown primero.');
+                return;
+            }
+
+            const target = document.querySelector('input[name="importTarget"]:checked').value;
+            closeShowdownImportModal();
+            showToast("🔮 Parseando formato Showdown...");
+
+            // Dividir por bloques de Pokémon (líneas dobles de salto)
+            const blocks = text.split(/\n\s*\n/).map(b => b.trim()).filter(b => b.length > 0);
+            if (blocks.length === 0) {
+                showToast("⚠️ Formato de Showdown no reconocido.");
+                return;
+            }
+
+            const importedPokes = [];
+            const maxImportCount = Math.min(blocks.length, 6);
+
+            for (let i = 0; i < maxImportCount; i++) {
+                const block = blocks[i];
+                const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                if (lines.length === 0) continue;
+
+                // 1. Primera línea: Nombre [Gente] @ Objeto
+                let firstLine = lines[0];
+                let pokeName = "";
+                let item = "";
+
+                // Remover género si existe: (M), (F), (M/F)
+                firstLine = firstLine.replace(/\([M|F|m|f]\)/g, "").trim();
+
+                if (firstLine.includes('@')) {
+                    const parts = firstLine.split('@');
+                    pokeName = parts[0].trim();
+                    item = parts[1].trim();
+                } else {
+                    pokeName = firstLine.trim();
+                }
+
+                // Normalizar nombre de pokémon para PokéAPI (ej. Landorus-T -> landorus-therian)
+                let apiPokeName = pokeName.toLowerCase().replace(/\s+/g, '-');
+                if (apiPokeName === 'landorus-t' || apiPokeName === 'landorus-therian') apiPokeName = 'landorus-therian';
+                if (apiPokeName === 'rotom-w' || apiPokeName === 'rotom-wash') apiPokeName = 'rotom-wash';
+                if (apiPokeName === 'rotom-h' || apiPokeName === 'rotom-heat') apiPokeName = 'rotom-heat';
+                if (apiPokeName === 'rotom-c' || apiPokeName === 'rotom-mow') apiPokeName = 'rotom-mow';
+                if (apiPokeName === 'rotom-f' || apiPokeName === 'rotom-frost') apiPokeName = 'rotom-frost';
+                if (apiPokeName === 'rotom-s' || apiPokeName === 'rotom-fan') apiPokeName = 'rotom-fan';
+                if (apiPokeName === 'thundurus-t' || apiPokeName === 'thundurus-therian') apiPokeName = 'thundurus-therian';
+                if (apiPokeName === 'tornadus-t' || apiPokeName === 'tornadus-therian') apiPokeName = 'tornadus-therian';
+
+                // Buscar Pokémon
+                showToast(`🔍 Buscando datos de ${formatPokemonName(apiPokeName)}...`);
+                const fetched = await fetchPokemon(apiPokeName);
+                if (!fetched) {
+                    console.warn(`No se pudo cargar a ${pokeName} desde la API.`);
+                    continue;
+                }
+
+                // Clonar profundamente para evitar reference sharing
+                const pokemon = JSON.parse(JSON.stringify(fetched));
+
+                // 2. Parsear el resto de las líneas
+                let ability = "";
+                let nature = "";
+                const moves = [];
+
+                lines.slice(1).forEach(line => {
+                    const lowerLine = line.toLowerCase();
+                    if (lowerLine.startsWith('ability:')) {
+                        ability = line.substring(8).trim();
+                    } else if (lowerLine.startsWith('habilidad:')) {
+                        ability = line.substring(10).trim();
+                    } else if (lowerLine.includes('nature') || lowerLine.includes('naturaleza')) {
+                        const parts = line.split(/\s+/);
+                        let natName = "";
+                        parts.forEach(p => {
+                            const word = p.trim().replace(/nature|naturaleza/gi, "").toLowerCase();
+                            if (word && word !== ":") {
+                                natName = word;
+                            }
+                        });
+                        nature = natName;
+                    } else if (line.startsWith('-') || line.startsWith('•')) {
+                        const mName = line.replace(/^[-•]\s*/, "").trim();
+                        if (mName) moves.push(mName);
+                    }
+                });
+
+                // Traducir objeto si está en español
+                let finalItem = item;
+                if (item) {
+                    const matchEn = Object.keys(ITEM_TRANSLATIONS).find(k => k.toLowerCase() === item.toLowerCase());
+                    if (matchEn) {
+                        finalItem = ITEM_TRANSLATIONS[matchEn];
+                    }
+                }
+
+                // Habilidad
+                let finalAbility = ability.toLowerCase().replace(/\s+/g, '-');
+                const abilityMatch = ALL_ABILITIES.find(a => a.es.toLowerCase() === ability.toLowerCase() || a.en.toLowerCase() === ability.toLowerCase());
+                if (abilityMatch) {
+                    finalAbility = abilityMatch.en;
+                }
+
+                // Naturaleza
+                let finalNature = "";
+                Object.keys(POKEMON_NATURES).forEach(k => {
+                    const natObj = POKEMON_NATURES[k];
+                    if (natObj.name.toLowerCase() === nature.toLowerCase() || k.toLowerCase() === nature.toLowerCase()) {
+                        finalNature = k;
+                    }
+                });
+
+                // Movimientos
+                const finalMoves = [
+                    { name: '', type: '', category: 'physical', power: '', accuracy: '' },
+                    { name: '', type: '', category: 'physical', power: '', accuracy: '' },
+                    { name: '', type: '', category: 'physical', power: '', accuracy: '' },
+                    { name: '', type: '', category: 'physical', power: '', accuracy: '' }
+                ];
+
+                for (let m = 0; m < Math.min(moves.length, 4); m++) {
+                    const rawMove = moves[m];
+                    let apiMoveName = rawMove.toLowerCase().replace(/\s+/g, '-');
+                    
+                    const matchSpanish = Object.keys(MOVE_TRANSLATIONS).find(k => k.toLowerCase() === rawMove.toLowerCase());
+                    if (matchSpanish) {
+                        apiMoveName = MOVE_TRANSLATIONS[matchSpanish].toLowerCase().replace(/\s+/g, '-');
+                    }
+
+                    try {
+                        const res = await fetch(`https://pokeapi.co/api/v2/move/${apiMoveName}`);
+                        if (res.ok) {
+                            const data = await res.json();
+                            const esNameObj = data.names?.find(n => n.language.name === 'es');
+                            
+                            finalMoves[m] = {
+                                name: esNameObj ? esNameObj.name.toLowerCase() : data.name.toLowerCase(),
+                                type: data.type.name.toLowerCase(),
+                                category: data.damage_class ? data.damage_class.name.toLowerCase() : 'physical',
+                                power: data.power !== null ? data.power : '-',
+                                accuracy: data.accuracy !== null ? data.accuracy : '-'
+                            };
+                        } else {
+                            finalMoves[m] = {
+                                name: rawMove.toLowerCase(),
+                                type: pokemon.types[0],
+                                category: 'physical',
+                                power: '-',
+                                accuracy: '-'
+                            };
+                        }
+                    } catch (err) {
+                        finalMoves[m] = {
+                            name: rawMove.toLowerCase(),
+                            type: pokemon.types[0],
+                            category: 'physical',
+                            power: '-',
+                            accuracy: '-'
+                        };
+                    }
+                }
+
+                pokemon.rl = {
+                    item: finalItem ? formatPokemonName(finalItem) : '',
+                    ability: finalAbility,
+                    nature: finalNature,
+                    status: 'none',
+                    boosts: { attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 },
+                    moves: finalMoves
+                };
+
+                importedPokes.push(pokemon);
+            }
+
+            if (importedPokes.length === 0) {
+                showToast("⚠️ No se pudo importar ningún Pokémon.");
+                return;
+            }
+
+            // Integrar en el destino
+            if (target === 'team') {
+                if (teamData.length + importedPokes.length > 6) {
+                    teamData = importedPokes.slice(0, 6);
+                } else {
+                    teamData = [...teamData, ...importedPokes].slice(0, 6);
+                }
+                renderTeam();
+                renderRandomlockeTable();
+            } else {
+                if (currentBattleMode === '6vs6') {
+                    if (rivalTeamData.length + importedPokes.length > 6) {
+                        rivalTeamData = importedPokes.slice(0, 6);
+                    } else {
+                        rivalTeamData = [...rivalTeamData, ...importedPokes].slice(0, 6);
+                    }
+                    if (rivalTeamData.length > 0) {
+                        activeRivalIndex = 0;
+                        rivalData = rivalTeamData[0];
+                    }
+                    renderRivalTeam();
+                    renderRandomlockeRivalTable();
+                } else {
+                    rivalData = importedPokes[0];
+                    renderRival();
+                }
+            }
+
+            renderRival();
+            analyzeMatchups();
+            if (currentBattleMode === '6vs6') renderMatrix();
+            saveStateToLocalStorage();
+            updateShareSection();
+
+            showToast(`✨ ¡Importación exitosa de ${importedPokes.length} Pokémon de Showdown!`);
+        }
+
         // Initialize
 
         Promise.all([loadPokemonList(), loadMoveList(), loadItemList()]).then(() => {
-            renderTeam();
-            renderRivalTeam();
-            renderRandomlockeTable();
-            renderRandomlockeRivalTable();
-            loadFromUrl(); // Load from URL params
+            // Sincronizar zoom guardado
+            const savedZoom = localStorage.getItem('pokeswitch_zoom') || '1';
+            const zoomSelect = document.getElementById('zoomSelect');
+            if (zoomSelect) zoomSelect.value = savedZoom;
+            document.documentElement.style.setProperty('--app-zoom', savedZoom);
+
+            const loadedFromUrl = loadFromUrl(); // Cargar desde URL
+            if (!loadedFromUrl) {
+                loadStateFromLocalStorage(); // Carga de estado Randomlocke / Combate
+            } else {
+                renderTeam();
+                renderRivalTeam();
+                renderRandomlockeTable();
+                renderRandomlockeRivalTable();
+            }
             initTypeChart(); // Inicializar tabla de tipos
-            loadStateFromLocalStorage(); // Carga de estado Randomlocke / Combate
             switchAppView('combat'); // Sincronizar vista activa inicial
         });
 
