@@ -6480,7 +6480,7 @@
         ]);
 
         function isSearchablePokemon(pokemon) {
-            if (pokemon.id <= 721) return true;
+            if (pokemon.id <= 1025) return true;
             if (ALLOWED_MEGA_FORMS.has(pokemon.name)) return true;
             if (ALLOWED_ALTERNATE_FORMS.has(pokemon.name)) return true;
             return false;
@@ -6702,7 +6702,16 @@
                 return;
             }
 
-            let filtered = allPokemon.filter(p => p.name.startsWith(query));
+            const maxIdByGen = {
+                '5': 649,
+                '6': 721,
+                '7': 809,
+                '8': 898,
+                '9': 1025
+            };
+            const maxId = maxIdByGen[currentGeneration] || 721;
+
+            let filtered = allPokemon.filter(p => p.name.startsWith(query) && p.id <= maxId);
             if (isTeam) {
                 filtered = filtered.filter(p => !teamData.some(t => t.name === p.name));
             }
@@ -6874,13 +6883,17 @@
                 rivalSingleView.style.display = 'block';
                 rivalTeamView.style.display = 'none';
                 matrixSection.classList.remove('show');
-                if (rlRivalSection) rlRivalSection.style.display = 'none';
+                if (rlRivalSection) {
+                    rlRivalSection.style.display = 'block';
+                    renderRandomlockeRivalTable();
+                }
                 
                 // Cargar el rival de la vista simple
                 if (!rivalData && rivalTeamData.length > 0) {
                     rivalData = rivalTeamData[activeRivalIndex] || rivalTeamData[0];
                 }
                 renderRival();
+                if (isDoubleBattle) renderRival2();
             } else {
                 rivalSingleView.style.display = 'none';
                 rivalTeamView.style.display = 'block';
@@ -8909,18 +8922,26 @@
             const tbody = document.getElementById('rlRivalTableBody');
             if (!tbody) return;
             
-            if (rivalTeamData.length === 0) {
+            let activeRivalsForRL = [];
+            if (currentBattleMode === '6vs6') {
+                activeRivalsForRL = rivalTeamData;
+            } else {
+                if (rivalData) activeRivalsForRL.push(rivalData);
+                if (isDoubleBattle && rivalData2) activeRivalsForRL.push(rivalData2);
+            }
+
+            if (activeRivalsForRL.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="7" style="text-align: center; padding: 30px; color: #64748b; font-weight: 600;">
-                            Añade Pokémon al equipo rival para configurar sus fichas de Randomlocke
+                            Añade Pokémon rivales para configurar sus fichas de Randomlocke
                         </td>
                     </tr>
                 `;
                 return;
             }
             
-            tbody.innerHTML = rivalTeamData.map((p, idx) => {
+            tbody.innerHTML = activeRivalsForRL.map((p, idx) => {
                 const typesHtml = p.types.map(t => 
                     `<span class="type-badge" style="background:${TYPE_COLORS[t]}">${TYPE_ICONS[t]} ${TYPE_NAMES[t]}</span>`
                 ).join(' ');
@@ -9050,7 +9071,16 @@
             console.log("Iniciando openEditModal para:", pokemonIndex, fieldType, moveIndex, "isRival:", isRival);
             currentEditState = { pokemonIndex, fieldType, moveIndex, isRival };
             
-            const p = isRival ? rivalTeamData[pokemonIndex] : teamData[pokemonIndex];
+            let p;
+            if (isRival) {
+                if (currentBattleMode === '6vs6') {
+                    p = rivalTeamData[pokemonIndex];
+                } else {
+                    p = (pokemonIndex === 0) ? rivalData : rivalData2;
+                }
+            } else {
+                p = teamData[pokemonIndex];
+            }
             if (!p.rl) {
                 p.rl = {
                     item: '',
@@ -9398,8 +9428,16 @@
 
         function saveRlData(type) {
             const { pokemonIndex, moveIndex, isRival } = currentEditState;
-            const p = isRival ? rivalTeamData[pokemonIndex] : teamData[pokemonIndex];
-            
+            let p;
+            if (isRival) {
+                if (currentBattleMode === '6vs6') {
+                    p = rivalTeamData[pokemonIndex];
+                } else {
+                    p = (pokemonIndex === 0) ? rivalData : rivalData2;
+                }
+            } else {
+                p = teamData[pokemonIndex];
+            }
             if (!p.rl) {
                 p.rl = {
                     item: '',
@@ -9440,6 +9478,7 @@
             renderTeam();
             renderRivalTeam();
             renderRival();
+            if (isDoubleBattle) renderRival2();
             analyzeMatchups();
             if (currentBattleMode === '6vs6') renderMatrix();
             saveStateToLocalStorage();
