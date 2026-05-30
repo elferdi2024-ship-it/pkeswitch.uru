@@ -6773,21 +6773,25 @@
         // Load Pokemon list
         async function loadPokemonList() {
             try {
-                const cached = localStorage.getItem('pokeswitch_pokemon_list_v2');
+                const cached = localStorage.getItem('pokeswitch_pokemon_list_v4');
                 if (cached) {
                     allPokemon = JSON.parse(cached);
                     return;
                 }
-                // Limpiar caché viejo
+                // Limpiar cachés antiguos para forzar refresco total
                 localStorage.removeItem('pokeswitch_pokemon_list');
-                const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1302');
+                localStorage.removeItem('pokeswitch_pokemon_list_v2');
+                localStorage.removeItem('pokeswitch_pokemon_list_v3');
+                
+                // Consultamos con límite de 1500 para capturar absolutamente todas las variantes y megas
+                const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1500');
                 const data = await res.json();
                 allPokemon = data.results
                     .map(p => ({ name: p.name, id: getPokemonIdFromUrl(p.url) }))
                     .filter(p => p.id && isSearchablePokemon(p));
-                safeSetItem('pokeswitch_pokemon_list_v2', JSON.stringify(allPokemon));
+                safeSetItem('pokeswitch_pokemon_list_v4', JSON.stringify(allPokemon));
             } catch (e) {
-                console.error('Error:', e);
+                console.error('Error cargando lista de Pokémon:', e);
             }
         }
 
@@ -6976,7 +6980,26 @@
             };
             const maxId = maxIdByGen[currentGeneration] || 721;
 
-            let filtered = allPokemon.filter(p => p.name.startsWith(query) && p.id <= maxId);
+            // Filtro dinámico inteligente compatible con Megas y Formas Alternas
+            let filtered = allPokemon.filter(p => {
+                // Habilitamos búsqueda por subcadenas completas para mayor agilidad (gengar -> gengar y gengar-mega)
+                const nameMatches = p.name.toLowerCase().includes(query);
+                if (!nameMatches) return false;
+                
+                let targetId = p.id;
+                // Si es un Mega o variante (ID mayor a 10000), resolvemos su generación en base a su forma base
+                if (p.id > 10000) {
+                    const parts = p.name.split('-');
+                    const baseName = parts[0];
+                    // Buscamos el ID de la especie base
+                    const basePoke = allPokemon.find(bp => bp.name === baseName && bp.id <= 1025);
+                    if (basePoke) {
+                        targetId = basePoke.id;
+                    }
+                }
+                return targetId <= maxId;
+            });
+
             if (isTeam) {
                 filtered = filtered.filter(p => !teamData.some(t => t.name === p.name));
             }
@@ -10389,6 +10412,23 @@
             // Selección aleatoria
             const randomCombat = EXTRAS_COMBATS[Math.floor(Math.random() * EXTRAS_COMBATS.length)];
             showToast("🎮 Cargando: " + randomCombat.name);
+
+            // Sincronizar automáticamente la generación adecuada en base al combate seleccionado
+            let targetGen = '6';
+            if (randomCombat.name.includes("Gen 9") || randomCombat.name.includes("Tormenta Solar")) {
+                targetGen = '9';
+            }
+            const genSelect = document.getElementById('genSelect');
+            if (genSelect) {
+                genSelect.value = targetGen;
+            }
+            // Cambiar generación en caliente de forma reactiva
+            currentGeneration = targetGen;
+            const genNames = {
+                '6': 'Gen 6 (Modo Kalos XY) 🛡️',
+                '9': 'Gen 9 (Paldea Active Mode) 🔮'
+            };
+            showToast(`🎮 Generación de combate sincronizada automáticamente a: ${genNames[targetGen] || targetGen}`);
 
             // 1. Cargar Pokémon del Equipo Propio
             const myTeam = [];
