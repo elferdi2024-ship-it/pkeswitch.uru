@@ -43,6 +43,48 @@
             --danger: #FF4757;
         }
 
+        /* ==========================================================================
+           HARDWARE ACCELERATION ENGINE (144 FPS / 144Hz ULTRA FLUIDITY)
+           ========================================================================== */
+        /* Force GPU Layer Promotion on animated or frequently repainted components */
+        .pokeswitch-3d-logo,
+        .pokeball-logo,
+        .recommendation-banner,
+        .kalos-stage,
+        .team-slot,
+        .mode-btn,
+        .nav-drawer,
+        .contact-widget,
+        .type-badge,
+        .guide-item,
+        .pro-card {
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+            will-change: transform, opacity;
+        }
+
+        /* Use high-efficiency cubic-bezier transitions for ultra-responsiveness */
+        .mode-btn,
+        .team-slot,
+        .nav-link,
+        .btn,
+        .guide-item,
+        .rl-move-name-box {
+            transition: transform 0.12s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                        background-color 0.12s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                        border-color 0.12s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                        box-shadow 0.12s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+        }
+
+        /* Optimize rendering pipeline options */
+        body {
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
         * {
             margin: 0;
             padding: 0;
