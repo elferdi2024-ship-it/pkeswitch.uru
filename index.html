@@ -2946,155 +2946,347 @@
             box-shadow: 0 2px 5px rgba(220, 38, 38, 0.2);
         }
 
-        /* --- TABLA RANDOMLOCKE PREMIUM (ESTILO LA REFERENCIA) --- */
+        /* --- GRID DE CARDS PREMIUM RANDOMLOCKE (ESTILO SHOWDOWN MODERNIZADO) --- */
         .randomlocke-section {
             margin-top: 25px;
             margin-bottom: 25px;
         }
 
-        .rl-table-container {
-            overflow-x: auto;
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(10px);
+        .rl-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(430px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-top: 15px;
+        }
+        @media (max-width: 900px) {
+            .rl-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .rl-pokemon-card-premium {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
             border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 18px;
+            box-shadow: 0 10px 40px rgba(31, 41, 55, 0.05);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .rl-pokemon-card-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--poke-blue), #3b82f6);
+            border-radius: 20px 0 0 20px;
+        }
+        .rl-pokemon-card-premium.rival-card::before {
+            background: linear-gradient(to bottom, #ef4444, #dc2626);
+        }
+        .rl-pokemon-card-premium:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 45px rgba(31, 41, 55, 0.1);
+            border-color: rgba(59, 76, 202, 0.25);
+        }
+        .rl-pokemon-card-premium.rival-card:hover {
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .rl-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed rgba(226, 232, 240, 0.8);
+        }
+        .rl-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 850;
+            font-size: 0.85rem;
+            color: var(--ink);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .rl-card-badge {
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .rl-card-badge.team {
+            background: rgba(59, 76, 202, 0.08);
+            color: var(--poke-blue);
+        }
+        .rl-card-badge.rival {
+            background: rgba(239, 68, 68, 0.08);
+            color: #ef4444;
+        }
+
+        .rl-card-top-row {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .rl-card-sprite-sec {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            min-width: 85px;
+        }
+        .rl-card-sprite {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.06));
+            transition: transform 0.3s ease;
+        }
+        .rl-pokemon-card-premium:hover .rl-card-sprite {
+            transform: scale(1.06) rotate(1deg);
+        }
+        .rl-card-poke-name-badge {
+            font-size: 0.72rem;
+            font-weight: 900;
+            color: var(--ink);
+            text-transform: uppercase;
+            text-align: center;
+            background: #f1f5f9;
+            padding: 4px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.02);
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rl-card-details-sec {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .rl-card-mini-attributes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .rl-mini-badge {
+            font-size: 0.58rem;
+            font-weight: 800;
+            padding: 2px 5px;
+            border-radius: 5px;
+            background: #f8fafc;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .rl-card-field-box {
+            padding: 7px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+        .rl-card-field-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+        }
+        .rl-card-field-box.item-box {
+            background: #fff1f2;
+            color: #e11d48;
+            border-color: #ffe4e6;
+        }
+        .rl-card-field-box.item-box.empty {
+            background: #f8fafc;
+            color: #94a3b8;
+            border-style: dashed;
+            border-color: #cbd5e1;
+        }
+        .rl-card-field-box.ability-box {
+            background: #fef3c7;
+            color: #d97706;
+            border-color: #fde68a;
+        }
+        .rl-card-field-box.ability-box.empty {
+            background: #f8fafc;
+            color: #94a3b8;
+            border-style: dashed;
+            border-color: #cbd5e1;
+        }
+        .rl-card-field-box.nature-box {
+            background: #f0fdf4;
+            color: #16a34a;
+            border-color: #bbf7d0;
+        }
+        .rl-card-field-box.nature-box.empty {
+            background: #f8fafc;
+            color: #94a3b8;
+            border-style: dashed;
+            border-color: #cbd5e1;
+        }
+
+        .rl-card-bottom-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 14px;
+            border-top: 1px solid rgba(226, 232, 240, 0.5);
+            padding-top: 12px;
+        }
+        @media (max-width: 600px) {
+            .rl-card-bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .rl-card-moves-sec {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .rl-card-move-slot {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 6px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .rl-card-move-slot:hover {
+            background: #ffffff;
+            border-color: var(--poke-blue);
+            box-shadow: 0 4px 10px rgba(59, 76, 202, 0.06);
+            transform: translateX(3px);
+        }
+        .rl-card-move-slot.empty {
+            border-style: dashed;
+            background: transparent;
+            justify-content: center;
+            align-items: center;
             padding: 10px;
+        }
+        .rl-card-move-slot.empty:hover {
+            border-color: var(--poke-blue);
+            background: rgba(59, 76, 202, 0.02);
+        }
+        .rl-card-move-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rl-card-move-name {
+            font-weight: 850;
+            font-size: 0.72rem;
+            color: var(--ink);
+            text-transform: capitalize;
+        }
+        .rl-card-move-slot.empty .rl-card-move-name {
+            color: #94a3b8;
+            font-style: italic;
+            font-weight: 600;
+        }
+        .rl-card-move-stats {
+            display: flex;
+            gap: 6px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #64748b;
+        }
+        .rl-card-move-stat-badge {
+            background: rgba(0, 0, 0, 0.03);
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+
+        .rl-card-stats-sec {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         /* --- STATS WIDGET & WRAPPER --- */
         .rl-info-stats-wrapper {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            align-items: stretch;
-            min-width: 260px;
-            width: 100%;
-        }
-        
-        .rl-meta-stack {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
             gap: 8px;
-            justify-content: center;
+            align-items: stretch;
+            width: 100%;
         }
 
         .rl-stats-column {
             width: 100%;
             background: rgba(255, 255, 255, 0.65);
-            border-radius: 14px;
-            padding: 8px 10px;
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        /* --- ACORDEÓN DE ESTADÍSTICAS PREMIUM --- */
-        .rl-stats-details {
-            background: rgba(255, 255, 255, 0.75);
-            border-radius: 14px;
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%;
-        }
-
-        .rl-stats-details[open] {
-            box-shadow: 0 10px 25px rgba(59, 76, 202, 0.06);
-            border-color: rgba(59, 76, 202, 0.12);
-        }
-
-        .rl-stats-summary {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            font-size: 0.72rem;
-            color: #475569;
-            cursor: pointer;
-            list-style: none;
-            user-select: none;
-            background: #f8fafc;
-            border-bottom: 1px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .rl-stats-details[open] .rl-stats-summary {
-            border-bottom-color: rgba(0, 0, 0, 0.04);
-            background: rgba(59, 76, 202, 0.03);
-            color: var(--poke-blue);
-        }
-
-        .rl-stats-summary::-webkit-details-marker {
-            display: none; /* Ocultar marcador nativo */
-        }
-
-        .rl-stats-chevron {
-            font-size: 0.62rem;
-            color: #94a3b8;
-            transition: transform 0.3s ease;
-        }
-
-        .rl-stats-details[open] .rl-stats-chevron {
-            transform: rotate(180deg);
-            color: var(--poke-blue);
-        }
-
-        .rl-stats-content {
-            padding: 10px 12px;
-            animation: rlFoldDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes rlFoldDown {
-            from { opacity: 0; transform: translateY(-8px); }
-            to { opacity: 1; transform: translateY(0); }
+            border-radius: 12px;
+            padding: 6px 8px;
+            border: 1px solid rgba(0, 0, 0, 0.03);
         }
 
         .rl-stats-widget {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
         }
 
         .rl-stat-bar-row {
             display: flex;
             align-items: center;
-            font-size: 0.7rem;
-            height: 14px;
+            font-size: 0.68rem;
+            height: 12px;
         }
 
         .rl-stat-bar-label {
-            width: 28px;
-            font-weight: 800;
+            width: 24px;
+            font-weight: 850;
             color: #64748b;
         }
 
         .rl-stat-bar-value {
-            width: 70px;
+            width: 60px;
             text-align: right;
-            font-weight: 700;
-            margin-right: 6px;
+            font-weight: 800;
+            margin-right: 4px;
             font-variant-numeric: tabular-nums;
+            font-size: 0.65rem;
         }
 
         .rl-stat-bar-bg {
             flex: 1;
-            height: 5px;
+            height: 4px;
             background: #e2e8f0;
-            border-radius: 2.5px;
+            border-radius: 2px;
             overflow: hidden;
         }
 
         .rl-stat-bar-fill {
             height: 100%;
-            border-radius: 2.5px;
+            border-radius: 2px;
             transition: width 0.3s ease;
         }
 
-        /* Modifiers style indicators */
         .stat-buffed {
             color: #10b981 !important; /* Emerald Nature Buff */
         }
@@ -3108,216 +3300,82 @@
             font-weight: 900;
         }
 
-        .rl-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 10px;
-            min-width: 880px;
+        .stat-boosted-ability {
+            color: #8b5cf6 !important;
+            font-weight: 900;
         }
 
-        .rl-table th {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            font-size: 0.75rem;
-            color: #566173;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 8px 12px;
-            text-align: center;
-        }
-
-        .rl-row {
-            background: rgba(248, 250, 252, 0.85);
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
-        }
-
-        .rl-row:hover {
-            transform: translateX(4px);
-            background: #ffffff;
-            box-shadow: 0 10px 25px rgba(24, 32, 47, 0.08);
-        }
-
-        .rl-row td {
-            padding: 10px;
-            vertical-align: middle;
-            border-top: 1px solid rgba(24, 32, 47, 0.04);
-            border-bottom: 1px solid rgba(24, 32, 47, 0.04);
-        }
-
-        .rl-row td:first-child {
-            border-left: 5px solid var(--poke-blue);
-            border-top-left-radius: 12px;
-            border-bottom-left-radius: 12px;
-            text-align: center;
-        }
-
-        .rl-row td:last-child {
-            border-top-right-radius: 12px;
-            border-bottom-right-radius: 12px;
-        }
-
-        .rl-poke-card {
+        /* Boost controls */
+        .rl-boost-controls {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 4px;
-            width: 90px;
+            gap: 2px;
+            margin-right: 6px;
         }
-
-        .rl-poke-img {
-            width: 55px;
-            height: 55px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+        .rl-boost-controls.empty {
+            width: 32px;
+            margin-right: 6px;
         }
-
-        .rl-poke-name {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            font-size: 0.8rem;
-            color: var(--ink);
-            text-transform: capitalize;
-            text-align: center;
-        }
-
-        /* Columna de Metadata (Tipos, Objeto, Habilidad, Naturaleza) */
-        .rl-meta-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            width: 175px;
-        }
-
-        .rl-badge-row {
-            display: flex;
-            gap: 4px;
-            justify-content: center;
-        }
-
-        .rl-meta-box {
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-size: 0.72rem;
-            font-weight: 800;
+        .rl-boost-btn {
+            width: 10px;
+            height: 10px;
+            font-size: 0.55rem;
+            line-height: 1;
+            border: none;
+            border-radius: 3px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-            border: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-        }
-
-        .rl-meta-box:hover {
-            transform: scale(1.03);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-        }
-
-        .rl-item-box {
-            background: #fdf2f8;
-            color: #be185d;
-            border-color: #fbcfe8;
-        }
-
-        .rl-item-box.empty {
-            background: #f8fafc;
-            color: #94a3b8;
-            border-style: dashed;
-            border-color: #cbd5e1;
-        }
-
-        .rl-ability-box {
-            background: #fffbeb;
-            color: #b45309;
-            border-color: #fde68a;
-        }
-
-        .rl-ability-box.empty {
-            background: #f8fafc;
-            color: #94a3b8;
-            border-style: dashed;
-            border-color: #cbd5e1;
-        }
-
-        .rl-nature-box {
-            background: #f0fdf4;
-            color: #15803d;
-            border-color: #bbf7d0;
-        }
-
-        .rl-nature-box.empty {
-            background: #f8fafc;
-            color: #94a3b8;
-            border-style: dashed;
-            border-color: #cbd5e1;
-        }
-
-        /* Columna de Movimientos */
-        .rl-moves-column {
-            padding: 0 !important;
-        }
-
-        .rl-moves-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .rl-move-row {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-        }
-
-        .rl-move-row:last-child {
-            border-bottom: none;
-        }
-
-        .rl-move-row td {
-            padding: 5px 8px !important;
-            border: none !important;
-        }
-
-        .rl-move-name-box {
-            font-weight: 800;
-            font-size: 0.78rem;
-            color: var(--ink);
-            cursor: pointer;
-            transition: color 0.2s;
-            width: 150px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .rl-move-name-box:hover {
-            color: var(--poke-blue);
-        }
-
-        .rl-move-name-box.empty {
-            color: #94a3b8;
-            font-style: italic;
-            font-weight: 600;
-        }
-
-        .rl-move-type {
-            width: 85px;
-            text-align: center;
-        }
-
-        .rl-move-cat {
-            width: 50px;
-            text-align: center;
-            font-size: 1.1rem;
-        }
-
-        .rl-move-stat {
-            width: 50px;
-            font-weight: 800;
-            font-size: 0.78rem;
+            background: #e2e8f0;
             color: #475569;
+            font-weight: 900;
+        }
+        .rl-boost-btn:hover {
+            background: #cbd5e1;
+        }
+        .rl-boost-value {
+            font-size: 0.58rem;
+            font-weight: 900;
+            min-width: 12px;
             text-align: center;
         }
+        .boost-positive {
+            color: #10b981;
+        }
+        .boost-negative {
+            color: #ef4444;
+        }
+        .boost-zero {
+            color: #94a3b8;
+        }
+
+        .rl-status-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-bottom: 5px;
+        }
+        .rl-status-badge {
+            font-size: 0.52rem;
+            font-weight: 900;
+            padding: 1px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--st-color);
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .rl-status-badge.inactive:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+        .rl-status-badge.active-none { background: #64748b; color: white !important; border-color: #64748b; }
+        .rl-status-badge.active-par { background: #d97706; color: white !important; border-color: #d97706; }
+        .rl-status-badge.active-brn { background: #ea580c; color: white !important; border-color: #ea580c; }
+        .rl-status-badge.active-psn { background: #9333ea; color: white !important; border-color: #9333ea; }
+        .rl-status-badge.active-slp { background: #475569; color: white !important; border-color: #475569; }
+        .rl-status-badge.active-frz { background: #0891b2; color: white !important; border-color: #0891b2; }
+
 
         /* --- EDIT MODAL (FORMULARIO PREMIUM) --- */
         .rl-modal {
@@ -4777,23 +4835,10 @@
             <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 15px; font-weight: 600;">
                 Toca cualquier campo (Objeto, Habilidad, Naturaleza, Movimiento) para personalizar los datos estratégicos de tu equipo de Nuzlocke.
             </p>
-            <div class="rl-table-container">
-                <table class="rl-table">
-                    <thead>
-                        <tr>
-                            <th>Pokémon</th>
-                            <th>Info / Randomlocke</th>
-                            <th>Movimientos (Poderes)</th>
-                            <th>Tipo</th>
-                            <th>Cat.</th>
-                            <th>Pot.</th>
-                            <th>Prec.</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rlTableBody">
-                        <!-- Se llena dinámicamente -->
-                    </tbody>
-                </table>
+            <div class="rl-table-container" style="background: transparent; box-shadow: none; border: none; padding: 0;">
+                <div id="rlTableBody" class="rl-cards-grid">
+                    <!-- Se llena dinámicamente con tarjetas premium -->
+                </div>
             </div>
         </div>
 
@@ -4829,23 +4874,10 @@
             <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 15px; font-weight: 600;">
                 Toca cualquier campo del equipo rival (Objeto, Habilidad, Naturaleza, Movimiento) para registrar sus datos conocidos y simular matchups.
             </p>
-            <div class="rl-table-container" style="border: 1px solid rgba(221, 26, 26, 0.2); box-shadow: 0 20px 50px rgba(221, 26, 26, 0.15);">
-                <table class="rl-table">
-                    <thead>
-                        <tr>
-                            <th>Pokémon</th>
-                            <th>Info / Randomlocke</th>
-                            <th>Movimientos (Poderes)</th>
-                            <th>Tipo</th>
-                            <th>Cat.</th>
-                            <th>Pot.</th>
-                            <th>Prec.</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rlRivalTableBody">
-                        <!-- Se llena dinámicamente -->
-                    </tbody>
-                </table>
+            <div class="rl-table-container" style="background: transparent; box-shadow: none; border: none; padding: 0;">
+                <div id="rlRivalTableBody" class="rl-cards-grid">
+                    <!-- Se llena dinámicamente con tarjetas premium -->
+                </div>
             </div>
         </div>
 
@@ -9713,11 +9745,9 @@
             
             if (teamData.length === 0) {
                 tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px; color: #64748b; font-weight: 600;">
-                            Añade Pokémon a tu equipo para configurar sus fichas de Randomlocke
-                        </td>
-                    </tr>
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #64748b; font-weight: 600; background: rgba(255,255,255,0.5); border-radius: 16px; border: 1px dashed #cbd5e1; width: 100%;">
+                        Añade Pokémon a tu equipo para configurar sus fichas de Randomlocke
+                    </div>
                 `;
                 return;
             }
@@ -9746,98 +9776,100 @@
                 }
                 const natureClass = p.rl?.nature ? '' : 'empty';
 
-                // Renderizar las filas de los 4 movimientos
+                // Renderizar los 4 movimientos
                 let movesHtml = '';
                 for (let m = 0; m < 4; m++) {
                     const move = p.rl?.moves?.[m];
                     const hasMove = move && move.name;
                     
-                    const moveName = hasMove ? formatPokemonName(move.name) : `Movimiento ${m + 1}`;
-                    const moveNameClass = hasMove ? '' : 'empty';
-                    const moveType = hasMove && move.type ? `<span class="type-badge" style="background:${TYPE_COLORS[move.type]}">${TYPE_ICONS[move.type]} ${TYPE_NAMES[move.type]}</span>` : '-';
-                    
-                    let catSymbol = '-';
                     if (hasMove) {
-                        if (move.category === 'physical') catSymbol = '💥';
-                        else if (move.category === 'special') catSymbol = '🌀';
-                        else if (move.category === 'status') catSymbol = '🛡️';
-                    }
-                    
-                    const powerVal = hasMove && move.power !== '' ? move.power : '-';
-                    const accVal = hasMove && move.accuracy !== '' ? move.accuracy : '-';
+                        const moveName = formatPokemonName(move.name);
+                        const moveType = move.type ? `<span class="type-badge" style="background:${TYPE_COLORS[move.type]}; padding: 2px 6px; font-size: 0.6rem;">${TYPE_ICONS[move.type]} ${TYPE_NAMES[move.type]}</span>` : '';
+                        
+                        let catSymbol = '-';
+                        if (move.category === 'physical') catSymbol = '💥 Físico';
+                        else if (move.category === 'special') catSymbol = '🌀 Especial';
+                        else if (move.category === 'status') catSymbol = '🛡️ Estado';
+                        
+                        const powerVal = move.power !== '' ? move.power : '-';
+                        const accVal = move.accuracy !== '' ? move.accuracy : '-';
 
-                    movesHtml += `
-                        <tr class="rl-move-row">
-                            <td>
-                                <div class="rl-move-name-box ${moveNameClass}" onclick="openEditModal(${idx}, 'move', ${m})">
-                                    ${moveName}
+                        movesHtml += `
+                            <div class="rl-card-move-slot" onclick="openEditModal(${idx}, 'move', ${m})">
+                                <div class="rl-card-move-info-row">
+                                    <span class="rl-card-move-name">${moveName}</span>
+                                    ${moveType}
                                 </div>
-                            </td>
-                            <td class="rl-move-type">${moveType}</td>
-                            <td class="rl-move-cat">${catSymbol}</td>
-                            <td class="rl-move-stat">${powerVal}</td>
-                            <td class="rl-move-stat">${accVal}</td>
-                        </tr>
-                    `;
+                                <div class="rl-card-move-info-row" style="margin-top: 2px;">
+                                    <span style="font-size: 0.65rem; color:#64748b; font-weight:800; display:flex; align-items:center; gap:2px;">
+                                        ${catSymbol}
+                                    </span>
+                                    <div class="rl-card-move-stats">
+                                        <span class="rl-card-move-stat-badge">Pot: <strong>${powerVal}</strong></span>
+                                        <span class="rl-card-move-stat-badge">Prec: <strong>${accVal}%</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        movesHtml += `
+                            <div class="rl-card-move-slot empty" onclick="openEditModal(${idx}, 'move', ${m})">
+                                <span class="rl-card-move-name">+ Añadir Movimiento ${m + 1}</span>
+                            </div>
+                        `;
+                    }
                 }
 
-                const calc = calculateRealStats(p);
-                const isExpanded = expandedTeamRows.has(idx) ? 'expanded' : '';
-                const detailsOpen = openDetailsTeam.has(idx) ? 'open' : '';
-
-
                 return `
-                    <tr class="rl-row ${isExpanded}">
-                        <!-- Columna 1: Sprite y Nombre -->
-                        <td>
-                            <div class="rl-poke-card">
-                                <img src="${p.animatedSprite}" alt="${p.name}" class="rl-poke-img" onerror="this.onerror=null; this.src='${p.sprite}';">
-                                <div class="rl-poke-name">${formatPokemonName(p.name)}</div>
+                    <div class="rl-pokemon-card-premium">
+                        <!-- Cabecera de la tarjeta -->
+                        <div class="rl-card-header">
+                            <div class="rl-card-title">
+                                🛡️ Ficha de Combate
                             </div>
-                        </td>
+                            <span class="rl-card-badge team">Slot #${idx + 1}</span>
+                        </div>
                         
-                        <!-- Columna 2: Estadísticas Desplegables ARRIBA + Metadata ABAJO -->
-                        <td>
-                            <div class="rl-info-stats-wrapper">
-                                <!-- Acordeón de estadísticas dinámicas reales -->
-                                <details class="rl-stats-details" ${detailsOpen} ontoggle="handleDetailsToggle(${idx}, false, this)">
-
-                                    <summary class="rl-stats-summary">
-                                        <span>📊 Estadísticas Reales (Total: ${calc.realTotal})</span>
-                                        <span class="rl-stats-chevron">▼</span>
-                                    </summary>
-                                    <div class="rl-stats-content">
-                                        <div class="rl-stats-column">
-                                            ${renderPokeStatsHtml(p, idx, false)}
-                                        </div>
-                                    </div>
-                                </details>
-
-                                <!-- Metadata extendida -->
-                                <div class="rl-meta-stack">
-                                    <div class="rl-badge-row">${typesHtml}</div>
-                                    <div class="rl-meta-box rl-item-box ${itemClass}" onclick="openEditModal(${idx}, 'item')">
-                                        👜 ${itemText}
-                                    </div>
-                                    <div class="rl-meta-box rl-ability-box ${abilityClass}" onclick="openEditModal(${idx}, 'ability')">
-                                        🔮 ${abilityText}
-                                    </div>
-                                    <div class="rl-meta-box rl-nature-box ${natureClass}" onclick="openEditModal(${idx}, 'nature')">
-                                        🍃 ${natureText}
-                                    </div>
+                        <!-- Bloque Superior: Info principal -->
+                        <div class="rl-card-top-row">
+                            <div class="rl-card-sprite-sec">
+                                <img src="${p.animatedSprite}" alt="${p.name}" class="rl-card-sprite" onerror="this.onerror=null; this.src='${p.sprite}';">
+                                <div class="rl-card-poke-name-badge">${formatPokemonName(p.name)}</div>
+                            </div>
+                            
+                            <div class="rl-card-details-sec">
+                                <div class="rl-card-mini-attributes">
+                                    <span class="rl-mini-badge">⚡ Nvl ${p.rl?.level || 50}</span>
+                                    <span class="rl-mini-badge">${p.gender === 'female' ? '♀️ Femenino' : p.gender === 'male' ? '♂️ Masculino' : '🔘 Sin género'}</span>
+                                    <span class="rl-mini-badge">${p.shiny ? '✨ Shiny' : 'Normal'}</span>
+                                </div>
+                                <div class="rl-badge-row" style="justify-content: flex-start; margin: 2px 0;">${typesHtml}</div>
+                                
+                                <div class="rl-card-field-box item-box ${itemClass}" onclick="openEditModal(${idx}, 'item')">
+                                    Objeto: <strong>${itemText}</strong>
+                                </div>
+                                <div class="rl-card-field-box ability-box ${abilityClass}" onclick="openEditModal(${idx}, 'ability')">
+                                    Hab: <strong>${abilityText}</strong>
+                                </div>
+                                <div class="rl-card-field-box nature-box ${natureClass}" onclick="openEditModal(${idx}, 'nature')">
+                                    Nat: <strong>${natureText}</strong>
                                 </div>
                             </div>
-                        </td>
+                        </div>
                         
-                        <!-- Columnas de los 4 movimientos agrupadas -->
-                        <td colspan="5" class="rl-moves-column">
-                            <table class="rl-moves-table">
-                                <tbody>
-                                    ${movesHtml}
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
+                        <!-- Bloque Inferior: Movimientos y Estadísticas -->
+                        <div class="rl-card-bottom-grid">
+                            <div class="rl-card-moves-sec">
+                                <div style="font-size:0.65rem; font-weight:850; color:#64748b; text-transform:uppercase; margin-bottom: 2px; letter-spacing:0.03em;">Set de Movimientos</div>
+                                ${movesHtml}
+                            </div>
+                            
+                            <div class="rl-card-stats-sec">
+                                <div style="font-size:0.65rem; font-weight:850; color:#64748b; text-transform:uppercase; margin-bottom: 2px; letter-spacing:0.03em;">Estadísticas Reales</div>
+                                ${renderPokeStatsHtml(p, idx, false)}
+                            </div>
+                        </div>
+                    </div>
                 `;
             }).join('');
         }
@@ -9856,11 +9888,9 @@
 
             if (activeRivalsForRL.length === 0) {
                 tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px; color: #64748b; font-weight: 600;">
-                            Añade Pokémon rivales para configurar sus fichas de Randomlocke
-                        </td>
-                    </tr>
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #64748b; font-weight: 600; background: rgba(255,255,255,0.5); border-radius: 16px; border: 1px dashed #cbd5e1; width: 100%;">
+                        Añade Pokémon rivales para configurar sus fichas de Randomlocke
+                    </div>
                 `;
                 return;
             }
@@ -9889,97 +9919,100 @@
                 }
                 const natureClass = p.rl?.nature ? '' : 'empty';
 
-                // Renderizar las filas de los 4 movimientos
+                // Renderizar los 4 movimientos
                 let movesHtml = '';
                 for (let m = 0; m < 4; m++) {
                     const move = p.rl?.moves?.[m];
                     const hasMove = move && move.name;
                     
-                    const moveName = hasMove ? formatPokemonName(move.name) : `Movimiento ${m + 1}`;
-                    const moveNameClass = hasMove ? '' : 'empty';
-                    const moveType = hasMove && move.type ? `<span class="type-badge" style="background:${TYPE_COLORS[move.type]}">${TYPE_ICONS[move.type]} ${TYPE_NAMES[move.type]}</span>` : '-';
-                    
-                    let catSymbol = '-';
                     if (hasMove) {
-                        if (move.category === 'physical') catSymbol = '💥';
-                        else if (move.category === 'special') catSymbol = '🌀';
-                        else if (move.category === 'status') catSymbol = '🛡️';
-                    }
-                    
-                    const powerVal = hasMove && move.power !== '' ? move.power : '-';
-                    const accVal = hasMove && move.accuracy !== '' ? move.accuracy : '-';
+                        const moveName = formatPokemonName(move.name);
+                        const moveType = move.type ? `<span class="type-badge" style="background:${TYPE_COLORS[move.type]}; padding: 2px 6px; font-size: 0.6rem;">${TYPE_ICONS[move.type]} ${TYPE_NAMES[move.type]}</span>` : '';
+                        
+                        let catSymbol = '-';
+                        if (move.category === 'physical') catSymbol = '💥 Físico';
+                        else if (move.category === 'special') catSymbol = '🌀 Especial';
+                        else if (move.category === 'status') catSymbol = '🛡️ Estado';
+                        
+                        const powerVal = move.power !== '' ? move.power : '-';
+                        const accVal = move.accuracy !== '' ? move.accuracy : '-';
 
-                    movesHtml += `
-                        <tr class="rl-move-row">
-                            <td>
-                                <div class="rl-move-name-box ${moveNameClass}" onclick="openEditModal(${idx}, 'move', ${m}, true)">
-                                    ${moveName}
+                        movesHtml += `
+                            <div class="rl-card-move-slot" onclick="openEditModal(${idx}, 'move', ${m}, true)">
+                                <div class="rl-card-move-info-row">
+                                    <span class="rl-card-move-name">${moveName}</span>
+                                    ${moveType}
                                 </div>
-                            </td>
-                            <td class="rl-move-type">${moveType}</td>
-                            <td class="rl-move-cat">${catSymbol}</td>
-                            <td class="rl-move-stat">${powerVal}</td>
-                            <td class="rl-move-stat">${accVal}</td>
-                        </tr>
-                    `;
+                                <div class="rl-card-move-info-row" style="margin-top: 2px;">
+                                    <span style="font-size: 0.65rem; color:#64748b; font-weight:800; display:flex; align-items:center; gap:2px;">
+                                        ${catSymbol}
+                                    </span>
+                                    <div class="rl-card-move-stats">
+                                        <span class="rl-card-move-stat-badge">Pot: <strong>${powerVal}</strong></span>
+                                        <span class="rl-card-move-stat-badge">Prec: <strong>${accVal}%</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        movesHtml += `
+                            <div class="rl-card-move-slot empty" onclick="openEditModal(${idx}, 'move', ${m}, true)">
+                                <span class="rl-card-move-name">+ Registrar Movimiento ${m + 1}</span>
+                            </div>
+                        `;
+                    }
                 }
 
-                const calc = calculateRealStats(p);
-                const isExpanded = expandedRivalRows.has(idx) ? 'expanded' : '';
-                const detailsOpen = openDetailsRival.has(idx) ? 'open' : '';
-
                 return `
-                    <tr class="rl-row ${isExpanded}">
-                        <!-- Columna 1: Sprite y Nombre -->
-                        <td>
-                            <div class="rl-poke-card">
-                                <img src="${p.animatedSprite}" alt="${p.name}" class="rl-poke-img" onerror="this.onerror=null; this.src='${p.sprite}';">
-                                <div class="rl-poke-name">${formatPokemonName(p.name)}</div>
+                    <div class="rl-pokemon-card-premium rival-card">
+                        <!-- Cabecera de la tarjeta -->
+                        <div class="rl-card-header">
+                            <div class="rl-card-title" style="color: #991b1b;">
+                                ⚠️ Ficha de Amenaza Rival
                             </div>
-                        </td>
+                            <span class="rl-card-badge rival">Rival #${idx + 1}</span>
+                        </div>
                         
-                        <!-- Columna 2: Estadísticas Desplegables ARRIBA + Metadata ABAJO -->
-                        <td>
-                            <div class="rl-info-stats-wrapper">
-                                <!-- Acordeón de estadísticas dinámicas reales -->
-                                <details class="rl-stats-details" ${detailsOpen} ontoggle="handleDetailsToggle(${idx}, true, this)">
-
-                                    <summary class="rl-stats-summary">
-                                        <span>📊 Estadísticas Reales (Total: ${calc.realTotal})</span>
-                                        <span class="rl-stats-chevron">▼</span>
-                                    </summary>
-                                    <div class="rl-stats-content">
-                                        <div class="rl-stats-column">
-                                            ${renderPokeStatsHtml(p, idx, true)}
-                                        </div>
-                                    </div>
-                                </details>
-
-                                <!-- Metadata extendida -->
-                                <div class="rl-meta-stack">
-                                    <div class="rl-badge-row">${typesHtml}</div>
-                                    <div class="rl-meta-box rl-item-box ${itemClass}" onclick="openEditModal(${idx}, 'item', null, true)">
-                                        👜 ${itemText}
-                                    </div>
-                                    <div class="rl-meta-box rl-ability-box ${abilityClass}" onclick="openEditModal(${idx}, 'ability', null, true)">
-                                        🔮 ${abilityText}
-                                    </div>
-                                    <div class="rl-meta-box rl-nature-box ${natureClass}" onclick="openEditModal(${idx}, 'nature', null, true)">
-                                        🍃 ${natureText}
-                                    </div>
+                        <!-- Bloque Superior: Info principal -->
+                        <div class="rl-card-top-row">
+                            <div class="rl-card-sprite-sec">
+                                <img src="${p.animatedSprite}" alt="${p.name}" class="rl-card-sprite" onerror="this.onerror=null; this.src='${p.sprite}';">
+                                <div class="rl-card-poke-name-badge" style="background:#fef2f2; border-color:#fee2e2; color:#991b1b;">${formatPokemonName(p.name)}</div>
+                            </div>
+                            
+                            <div class="rl-card-details-sec">
+                                <div class="rl-card-mini-attributes">
+                                    <span class="rl-mini-badge" style="background:#fff5f5; color:#c53030;">⚡ Nvl ${p.rl?.level || 50}</span>
+                                    <span class="rl-mini-badge">${p.gender === 'female' ? '♀️ Femenino' : p.gender === 'male' ? '♂️ Masculino' : '🔘 Sin género'}</span>
+                                    <span class="rl-mini-badge">${p.shiny ? '✨ Shiny' : 'Normal'}</span>
+                                </div>
+                                <div class="rl-badge-row" style="justify-content: flex-start; margin: 2px 0;">${typesHtml}</div>
+                                
+                                <div class="rl-card-field-box item-box ${itemClass}" onclick="openEditModal(${idx}, 'item', null, true)">
+                                    Objeto: <strong>${itemText}</strong>
+                                </div>
+                                <div class="rl-card-field-box ability-box ${abilityClass}" onclick="openEditModal(${idx}, 'ability', null, true)">
+                                    Hab: <strong>${abilityText}</strong>
+                                </div>
+                                <div class="rl-card-field-box nature-box ${natureClass}" onclick="openEditModal(${idx}, 'nature', null, true)">
+                                    Nat: <strong>${natureText}</strong>
                                 </div>
                             </div>
-                        </td>
+                        </div>
                         
-                        <!-- Columnas de los 4 movimientos agrupadas -->
-                        <td colspan="5" class="rl-moves-column">
-                            <table class="rl-moves-table">
-                                <tbody>
-                                    ${movesHtml}
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
+                        <!-- Bloque Inferior: Movimientos y Estadísticas -->
+                        <div class="rl-card-bottom-grid">
+                            <div class="rl-card-moves-sec">
+                                <div style="font-size:0.65rem; font-weight:850; color:#64748b; text-transform:uppercase; margin-bottom: 2px; letter-spacing:0.03em;">Set de Movimientos</div>
+                                ${movesHtml}
+                            </div>
+                            
+                            <div class="rl-card-stats-sec">
+                                <div style="font-size:0.65rem; font-weight:850; color:#64748b; text-transform:uppercase; margin-bottom: 2px; letter-spacing:0.03em;">Estadísticas Reales</div>
+                                ${renderPokeStatsHtml(p, idx, true)}
+                            </div>
+                        </div>
+                    </div>
                 `;
             }).join('');
         }
