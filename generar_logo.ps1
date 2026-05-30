@@ -123,7 +123,7 @@ $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
 $textDestWidth = 950    # <-- ANCHO DE LAS LETRAS (por defecto: 950 píxeles)
 $textDestHeight = [int]($textBmp.Height * ($textDestWidth / $textBmp.Width)) # (Calcula el alto proporcional automáticamente)
 $textX = 125            # <-- POSICIÓN HORIZONTAL (X): Aumenta para mover a la derecha, reduce para mover a la izquierda.
-$textY = 60             # <-- POSICIÓN VERTICAL (Y): Aumenta para bajar las letras, reduce para subirlas.
+$textY = 10             # <-- POSICIÓN VERTICAL (Y): Aumenta para bajar las letras, reduce para subirlas.
 $textRotationAngle = -15 # <-- ÁNGULO DE ROTACIÓN EN GRADOS (Ej: -4 para rotar a la izquierda, 4 para rotar a la derecha, 0 para recto)
 $textRect = New-Object System.Drawing.Rectangle($textX, $textY, $textDestWidth, $textDestHeight)
 
@@ -132,7 +132,7 @@ $textRect = New-Object System.Drawing.Rectangle($textX, $textY, $textDestWidth, 
 $charDestWidth = 1100   # <-- ANCHO DEL ENTRENADOR Y CHARIZARD (por defecto: 1100 píxeles)
 $charDestHeight = [int]($charBmp.Height * ($charDestWidth / $charBmp.Width)) # (Calcula el alto proporcional automáticamente)
 $charX = [int](($canvasWidth - $charDestWidth) / 2) # <-- CENTRADO AUTOMÁTICO (No tocar a menos que quieras descentrarlo)
-$charY = 380            # <-- POSICIÓN VERTICAL (Y): Aumenta para bajar al personaje, reduce para subirlo y superponerlo más.
+$charY = 440            # <-- POSICIÓN VERTICAL (Y): Aumenta para bajar al personaje, reduce para subirlo y superponerlo más.
 $charRect = New-Object System.Drawing.Rectangle($charX, $charY, $charDestWidth, $charDestHeight)
 
 # 🎨 RENDERIZADO DE LAS CAPAS EN ORDEN DE PROFUNDIDAD
