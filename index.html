@@ -4700,6 +4700,26 @@
                     <input type="text" class="search-input" id="teamSearch" placeholder="Añade Pokémon de Gen 1-6 o Mega..." autocomplete="off">
                     <div class="suggestions" id="teamSuggestions"></div>
                 </div>
+                
+                <!-- PANEL DE SINERGIA DE EQUIPO VGC PRO -->
+                <div id="vgcSynergyPanel" style="margin-top: 15px; background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.07) 100%); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); backdrop-filter: blur(12px); display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 0.8rem; color: #fff200; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                            🏆 ANALIZADOR DE SINERGIA VGC
+                        </span>
+                        <span id="vgcSynergyScoreBadge" style="font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 0.85rem; color: #10b981; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); padding: 2px 8px; border-radius: 20px;">
+                            0%
+                        </span>
+                    </div>
+                    <!-- Barra de Progreso de Sinergia -->
+                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-bottom: 10px; position: relative;">
+                        <div id="vgcSynergyProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%); border-radius: 10px; transition: width 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);"></div>
+                    </div>
+                    <!-- Explicación de Cores y Sinergia -->
+                    <div id="vgcSynergyDetails" style="font-size: 0.68rem; color: #e2e8f0; font-weight: 600; line-height: 1.4; display: flex; flex-direction: column; gap: 6px; text-align: left;">
+                        <!-- Cargado dinámicamente -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -5457,6 +5477,192 @@
         let rivalData2 = null;
         let isDoubleBattle = false;
         let teamData = [];
+
+        let lastSpokenAdvice = '';
+        
+        function toggleRotomVoice() {
+            const current = localStorage.getItem('pokeswitch_rotom_voice') === 'true';
+            const newValue = !current;
+            safeSetItem('pokeswitch_rotom_voice', newValue ? 'true' : 'false');
+            const btn = document.getElementById('rotomVoiceToggle');
+            const icon = document.getElementById('rotomVoiceIcon');
+            const txt = document.getElementById('rotomVoiceText');
+            if (btn && icon && txt) {
+                if (newValue) {
+                    btn.style.color = '#fff200';
+                    btn.style.borderColor = '#fff200';
+                    icon.textContent = '🔊';
+                    txt.textContent = 'Voz: ON';
+                    showToast('🎙️ Voz de Rotom ACTIVADA - ¡Escucha consejos tácticos!');
+                    speakRotomAdvice("¡Bzzzt! ¡Voz táctica de Rotom activada! Estoy listo para guiar tu combate, entrenador.");
+                } else {
+                    btn.style.color = '#cbd5e1';
+                    btn.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    icon.textContent = '🔇';
+                    txt.textContent = 'Voz: OFF';
+                    showToast('🔇 Voz de Rotom deshabilitada.');
+                    if (window.speechSynthesis) window.speechSynthesis.cancel();
+                }
+            }
+        }
+
+        function speakRotomAdvice(text) {
+            if (localStorage.getItem('pokeswitch_rotom_voice') !== 'true') return;
+            if (!window.speechSynthesis) return;
+            
+            window.speechSynthesis.cancel();
+            
+            let cleanText = text.replace(/<[^>]*>/g, '');
+            cleanText = cleanText.replace(/&nbsp;/g, ' ');
+            cleanText = cleanText.replace(/&[a-z]+;/g, '');
+            cleanText = cleanText.replace(/[⚠️🔥⚔️🛡️🔄⚡▲▼💡]/g, '');
+            
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'es-ES';
+            utterance.pitch = 1.6;
+            utterance.rate = 1.15;
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function updateTeamSynergy() {
+            const panel = document.getElementById('vgcSynergyPanel');
+            const scoreBadge = document.getElementById('vgcSynergyScoreBadge');
+            const bar = document.getElementById('vgcSynergyProgressBar');
+            const details = document.getElementById('vgcSynergyDetails');
+            
+            if (!panel || !scoreBadge || !bar || !details) return;
+            
+            if (teamData.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+            
+            panel.style.display = 'block';
+            
+            let baseScore = 20;
+            let bonusReasons = [];
+            
+            const types = new Set();
+            let hasFire = false;
+            let hasWater = false;
+            let hasGrass = false;
+            let hasDragon = false;
+            let hasFairy = false;
+            let hasSteel = false;
+            
+            let hasWeatherSetter = false;
+            let hasWeatherAbuser = false;
+            let weatherType = '';
+            
+            let hasTrickRoomSetter = false;
+            let hasSlowSweeper = false;
+            
+            teamData.forEach(p => {
+                p.types.forEach(t => {
+                    types.add(t);
+                    if (t === 'fire') hasFire = true;
+                    if (t === 'water') hasWater = true;
+                    if (t === 'grass') hasGrass = true;
+                    if (t === 'dragon') hasDragon = true;
+                    if (t === 'fairy') hasFairy = true;
+                    if (t === 'steel') hasSteel = true;
+                });
+                
+                const ability = (p.rl?.ability || '').toLowerCase().trim();
+                if (['drizzle', 'drought', 'sand stream', 'snow warning', 'llovizna', 'sequía', 'chorro arena', 'alerta nevada'].some(a => ability.includes(a))) {
+                    hasWeatherSetter = true;
+                    if (ability.includes('drizzle') || ability.includes('llovizna')) weatherType = 'Lluvia 🌧️';
+                    else if (ability.includes('drought') || ability.includes('sequía')) weatherType = 'Día Soleado ☀️';
+                    else if (ability.includes('sand') || ability.includes('chorro')) weatherType = 'Tormenta de Arena 🌪️';
+                    else weatherType = 'Nieve/Granizo ❄️';
+                }
+                
+                if (['swift swim', 'chlorophyll', 'sand rush', 'slush rush', 'nado rápido', 'clorofila', 'ímpetu arena', 'quitanieve'].some(a => ability.includes(a))) {
+                    hasWeatherAbuser = true;
+                }
+                
+                if (p.rl && p.rl.moves) {
+                    p.rl.moves.forEach(m => {
+                        const lowerM = (m.name || '').toLowerCase();
+                        if (lowerM.includes('trick room') || lowerM.includes('espacio raro')) {
+                            hasTrickRoomSetter = true;
+                        }
+                    });
+                }
+                
+                const stats = p.stats || {};
+                const baseSpeed = stats.speed || 50;
+                if (baseSpeed <= 50 && ((stats.attack || 0) >= 90 || (stats.spa || 0) >= 90)) {
+                    hasSlowSweeper = true;
+                }
+            });
+            
+            if (hasFire && hasWater && hasGrass) {
+                baseScore += 30;
+                bonusReasons.push("🔥💧🌿 <strong>Core Fuego-Agua-Planta (FWG) Activo:</strong> Tu equipo posee el triángulo defensivo y ofensivo perfecto de la historia de VGC. ¡Excelente cobertura mutua!");
+            } else {
+                let missing = [];
+                if (!hasFire) missing.push("Fuego");
+                if (!hasWater) missing.push("Agua");
+                if (!hasGrass) missing.push("Planta");
+                if (missing.length <= 2) {
+                    bonusReasons.push(`💡 <em>Tip Core FWG:</em> Te falta tipo <strong>${missing.join(' y ')}</strong> para completar la clásica rotación Fuego-Agua-Planta.`);
+                }
+            }
+            
+            if (hasDragon && hasFairy && hasSteel) {
+                baseScore += 30;
+                bonusReasons.push("🐉✨🛡️ <strong>Core Dragón-Hada-Acero (DFS) Activo:</strong> Tienes la combinación táctica moderna más sólida. Inmunidades clave y resistencias masivas.");
+            } else {
+                let missing = [];
+                if (!hasDragon) missing.push("Dragón");
+                if (!hasFairy) missing.push("Hada");
+                if (!hasSteel) missing.push("Acero");
+                if (missing.length <= 2) {
+                    bonusReasons.push(`💡 <em>Tip Core DFS:</em> Añade tipo <strong>${missing.join(' o ')}</strong> para armar el bloque de contención Hada-Dragón-Acero.`);
+                }
+            }
+            
+            if (hasWeatherSetter && hasWeatherAbuser) {
+                baseScore += 20;
+                bonusReasons.push(`🌧️🔥 <strong>Estrategia de Clima Activa (${weatherType}):</strong> Cuentas con un invocador y un abusador de velocidad en clima. ¡Ventaja táctica inmediata en turnos!`);
+            }
+            
+            if (hasTrickRoomSetter && hasSlowSweeper) {
+                baseScore += 20;
+                bonusReasons.push("🔮⏱️ <strong>Bloque Espacio Raro (Trick Room):</strong> Tienes un invocador y atacantes lentos ideales para dominar bajo velocidad invertida. ¡Control posicional de élite!");
+            }
+            
+            if (types.size >= 5) {
+                baseScore += 10;
+            }
+            
+            const finalScore = Math.min(100, baseScore);
+            
+            scoreBadge.textContent = `${finalScore}%`;
+            bar.style.width = `${finalScore}%`;
+            
+            if (finalScore >= 80) {
+                scoreBadge.style.color = '#10b981';
+                scoreBadge.style.background = 'rgba(16,185,129,0.15)';
+                scoreBadge.style.borderColor = 'rgba(16,185,129,0.3)';
+            } else if (finalScore >= 50) {
+                scoreBadge.style.color = '#f59e0b';
+                scoreBadge.style.background = 'rgba(245,158,11,0.15)';
+                scoreBadge.style.borderColor = 'rgba(245,158,11,0.3)';
+            } else {
+                scoreBadge.style.color = '#ef4444';
+                scoreBadge.style.background = 'rgba(239,68,68,0.15)';
+                scoreBadge.style.borderColor = 'rgba(239,68,68,0.3)';
+            }
+            
+            if (bonusReasons.length === 0) {
+                details.innerHTML = `<div>⚠️ Tu equipo es un lienzo en blanco. Agrega Pokémon estratégicos para desbloquear cores competitivos profesionales (FWG, DFS, Climas).</div>`;
+            } else {
+                details.innerHTML = bonusReasons.map(r => `<div style="display:flex; align-items:flex-start; gap:6px;"><span>🔸</span><span>${r}</span></div>`).join('');
+            }
+        }
 
         // Diccionario de sets competitivos oficiales de Showdown para autocompletado en caliente
         const COMPETITIVE_USAGE_STATS = {
@@ -7451,6 +7657,7 @@
                 
                 grid.appendChild(slot);
             }
+            updateTeamSynergy();
         }
 
         // Renderizar el equipo Rival en modo 6vs6
@@ -8267,7 +8474,13 @@
                             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/479.gif" alt="Rotom" style="width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(255, 222, 0, 0.5)); flex-shrink: 0; margin-top: -2px; image-rendering: pixelated;">
                             <span style="font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 0.85rem; color: #fff200; letter-spacing: 0.8px; display: flex; align-items: center;">ASISTENTE ROTOM DE TURNOS PRO</span>
                         </div>
-                        <span style="font-size: 0.65rem; background: ${adviceBadgeColor}; color: #ffffff; padding: 3px 8px; border-radius: 6px; font-weight: 900; text-transform: uppercase; font-family: 'Outfit', sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">${adviceBadge}</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button id="rotomVoiceToggle" onclick="toggleRotomVoice()" style="background: rgba(255,255,255,0.06); border: 1.5px dashed ${localStorage.getItem('pokeswitch_rotom_voice') === 'true' ? '#fff200' : 'rgba(255,255,255,0.15)'}; border-radius: 20px; padding: 4px 10px; font-size: 0.65rem; font-weight: 800; color: ${localStorage.getItem('pokeswitch_rotom_voice') === 'true' ? '#fff200' : '#cbd5e1'}; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease; outline: none; margin-right: 6px;">
+                                <span id="rotomVoiceIcon">${localStorage.getItem('pokeswitch_rotom_voice') === 'true' ? '🔊' : '🔇'}</span>
+                                <span id="rotomVoiceText">Voz: ${localStorage.getItem('pokeswitch_rotom_voice') === 'true' ? 'ON' : 'OFF'}</span>
+                            </button>
+                            <span style="font-size: 0.65rem; background: ${adviceBadgeColor}; color: #ffffff; padding: 3px 8px; border-radius: 6px; font-weight: 900; text-transform: uppercase; font-family: 'Outfit', sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">${adviceBadge}</span>
+                        </div>
                     </div>
                     
                     <div class="rec-content" style="padding: 18px; width: 100%; box-sizing: border-box; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; position: relative; z-index: 2;">
@@ -8334,6 +8547,11 @@
 
                     </div>
                 `;
+
+                if (localStorage.getItem('pokeswitch_rotom_voice') === 'true' && adviceText !== lastSpokenAdvice) {
+                    speakRotomAdvice(adviceText);
+                    lastSpokenAdvice = adviceText;
+                }
 
                 // Resaltar slot en la interfaz del equipo
                 document.querySelectorAll('.team-slot').forEach((slot, idx) => {
