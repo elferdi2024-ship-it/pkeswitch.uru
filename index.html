@@ -2953,16 +2953,11 @@
         }
 
         .rl-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(430px, 1fr));
+            display: flex;
+            flex-direction: column;
             gap: 20px;
             width: 100%;
             margin-top: 15px;
-        }
-        @media (max-width: 900px) {
-            .rl-cards-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         .rl-pokemon-card-premium {
@@ -2981,6 +2976,9 @@
         }
         .rl-pokemon-card-premium.active-card {
             display: flex !important;
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
         }
         .rl-pokemon-card-premium::before {
             content: '';

@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.3.1] - 2026-05-30
+
+### Fixed
+- **PC Layout Alignment**: Fixed a CSS grid stretch bug on PC desktop resolutions. Changed the card grid container (`rl-cards-grid`) to a vertical flex structure:
+  - Tab buttons now render as an horizontal row spanning the full width of the section.
+  - Active cards now scale and center beautifully under the selector bar, avoiding any vertical scaling anomalies.
+
+---
+
 ## [1.3.0] - 2026-05-30
 
 ### Added
