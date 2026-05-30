@@ -2966,6 +2966,7 @@
         }
 
         .rl-pokemon-card-premium {
+            display: none !important;
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(16px);
             border-radius: 20px;
@@ -2975,9 +2976,11 @@
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
-            display: flex;
             flex-direction: column;
             gap: 14px;
+        }
+        .rl-pokemon-card-premium.active-card {
+            display: flex !important;
         }
         .rl-pokemon-card-premium::before {
             content: '';
@@ -3376,6 +3379,93 @@
         .rl-status-badge.active-slp { background: #475569; color: white !important; border-color: #475569; }
         .rl-status-badge.active-frz { background: #0891b2; color: white !important; border-color: #0891b2; }
 
+        /* --- BARRA DE PESTAÑAS HORIZONTAL (ESTILO SHOWDOWN PREMIUM) --- */
+        .rl-tabs-bar {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 8px 6px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(226, 232, 240, 0.7);
+            scrollbar-width: none;
+            width: 100%;
+        }
+        .rl-tabs-bar::-webkit-scrollbar {
+            display: none;
+        }
+        .rl-tab-button {
+            flex: 1;
+            min-width: 100px;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 14px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            user-select: none;
+        }
+        .rl-tab-button:hover {
+            background: #ffffff;
+            border-color: rgba(59, 76, 202, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(31, 41, 55, 0.04);
+        }
+        .rl-tab-button.active {
+            background: #ffffff;
+            border-color: var(--poke-blue);
+            box-shadow: 0 8px 20px rgba(59, 76, 202, 0.12);
+            transform: translateY(-2px);
+        }
+        .rl-tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 3px;
+            background: var(--poke-blue);
+            border-radius: 2px;
+        }
+        .rl-tab-button.rival-tab:hover {
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+        .rl-tab-button.rival-tab.active {
+            border-color: #ef4444;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.12);
+            transform: translateY(-2px);
+        }
+        .rl-tab-button.rival-tab.active::after {
+            background: #ef4444;
+        }
+        .rl-tab-sprite {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
+        }
+        .rl-tab-name {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: capitalize;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rl-tab-button.active .rl-tab-name {
+            color: var(--ink);
+            font-weight: 900;
+        }
+        .rl-tab-button.rival-tab.active .rl-tab-name {
+            color: #991b1b;
+        }
 
         /* --- EDIT MODAL (FORMULARIO PREMIUM) --- */
         .rl-modal {
@@ -5583,6 +5673,8 @@
         let rivalData2 = null;
         let isDoubleBattle = false;
         let teamData = [];
+        let activeRlTabIdx = 0;
+        let activeRlRivalTabIdx = 0;
 
         let lastSpokenAdvice = '';
         
@@ -9739,6 +9831,16 @@
                 // ==========================================================================
         // LOGICA DE RENDERIZADO DE FICHAS RANDOMLOCKE & MODALES INTERACTIVOS
         // ==========================================================================
+        function selectRlTab(idx, isRival = false) {
+            if (isRival) {
+                activeRlRivalTabIdx = idx;
+                renderRandomlockeRivalTable();
+            } else {
+                activeRlTabIdx = idx;
+                renderRandomlockeTable();
+            }
+        }
+
         function renderRandomlockeTable() {
             const tbody = document.getElementById('rlTableBody');
             if (!tbody) return;
@@ -9751,8 +9853,26 @@
                 `;
                 return;
             }
-            
-            tbody.innerHTML = teamData.map((p, idx) => {
+
+            // Asegurar índice correcto
+            if (activeRlTabIdx >= teamData.length) {
+                activeRlTabIdx = 0;
+            }
+
+            // Construir barra de pestañas
+            let tabsHtml = '<div class="rl-tabs-bar">';
+            teamData.forEach((p, idx) => {
+                const isActive = idx === activeRlTabIdx ? 'active' : '';
+                tabsHtml += `
+                    <div class="rl-tab-button ${isActive}" onclick="selectRlTab(${idx}, false)">
+                        <img src="${p.sprite}" alt="${p.name}" class="rl-tab-sprite" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id || 1}.png';">
+                        <span class="rl-tab-name">${formatPokemonName(p.name)}</span>
+                    </div>
+                `;
+            });
+            tabsHtml += '</div>';
+
+            const cardsHtml = teamData.map((p, idx) => {
                 const typesHtml = p.types.map(t => 
                     `<span class="type-badge" style="background:${TYPE_COLORS[t]}">${TYPE_ICONS[t]} ${TYPE_NAMES[t]}</span>`
                 ).join(' ');
@@ -9820,8 +9940,10 @@
                     }
                 }
 
+                const isActiveCard = idx === activeRlTabIdx ? 'active-card' : '';
+
                 return `
-                    <div class="rl-pokemon-card-premium">
+                    <div class="rl-pokemon-card-premium ${isActiveCard}">
                         <!-- Cabecera de la tarjeta -->
                         <div class="rl-card-header">
                             <div class="rl-card-title">
@@ -9872,6 +9994,8 @@
                     </div>
                 `;
             }).join('');
+
+            tbody.innerHTML = tabsHtml + cardsHtml;
         }
 
         function renderRandomlockeRivalTable() {
@@ -9894,8 +10018,26 @@
                 `;
                 return;
             }
+
+            // Asegurar índice correcto
+            if (activeRlRivalTabIdx >= activeRivalsForRL.length) {
+                activeRlRivalTabIdx = 0;
+            }
+
+            // Construir barra de pestañas del rival
+            let tabsHtml = '<div class="rl-tabs-bar">';
+            activeRivalsForRL.forEach((p, idx) => {
+                const isActive = idx === activeRlRivalTabIdx ? 'active' : '';
+                tabsHtml += `
+                    <div class="rl-tab-button rival-tab ${isActive}" onclick="selectRlTab(${idx}, true)">
+                        <img src="${p.sprite}" alt="${p.name}" class="rl-tab-sprite" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id || 1}.png';">
+                        <span class="rl-tab-name">${formatPokemonName(p.name)}</span>
+                    </div>
+                `;
+            });
+            tabsHtml += '</div>';
             
-            tbody.innerHTML = activeRivalsForRL.map((p, idx) => {
+            const cardsHtml = activeRivalsForRL.map((p, idx) => {
                 const typesHtml = p.types.map(t => 
                     `<span class="type-badge" style="background:${TYPE_COLORS[t]}">${TYPE_ICONS[t]} ${TYPE_NAMES[t]}</span>`
                 ).join(' ');
@@ -9963,8 +10105,10 @@
                     }
                 }
 
+                const isActiveCard = idx === activeRlRivalTabIdx ? 'active-card' : '';
+
                 return `
-                    <div class="rl-pokemon-card-premium rival-card">
+                    <div class="rl-pokemon-card-premium rival-card ${isActiveCard}">
                         <!-- Cabecera de la tarjeta -->
                         <div class="rl-card-header">
                             <div class="rl-card-title" style="color: #991b1b;">
@@ -10015,6 +10159,8 @@
                     </div>
                 `;
             }).join('');
+
+            tbody.innerHTML = tabsHtml + cardsHtml;
         }
 
         let currentEditState = {

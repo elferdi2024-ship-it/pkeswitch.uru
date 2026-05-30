@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.3.0] - 2026-05-30
+
+### Added
+- **Horizontal Pokémon Tabs System (Showdown Style)**: Implemented an horizontal selector bar (`rl-tabs-bar`) displaying mini-sprites and compact names for player team slots and rival threat slots.
+- **Tab-Based Switchable Card Engine**: Upgraded rendering dynamics to only display a single active card at a time based on selected tab:
+  - Drastically minimized page scroll depth on **Mobile-First viewports**.
+  - Persists active selected indexes (`activeRlTabIdx` and `activeRlRivalTabIdx`) seamlessly across edits, stats adjustments, and live matchups calculations.
+
+---
+
 ## [1.2.0] - 2026-05-30
 
 ### Added
