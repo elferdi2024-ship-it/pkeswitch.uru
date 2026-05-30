@@ -6773,25 +6773,36 @@
         // Load Pokemon list
         async function loadPokemonList() {
             try {
-                const cached = localStorage.getItem('pokeswitch_pokemon_list_v4');
-                if (cached) {
-                    allPokemon = JSON.parse(cached);
-                    return;
-                }
-                // Limpiar cachés antiguos para forzar refresco total
+                // Limpieza de claves anteriores corruptas para asegurar estado limpio
                 localStorage.removeItem('pokeswitch_pokemon_list');
                 localStorage.removeItem('pokeswitch_pokemon_list_v2');
                 localStorage.removeItem('pokeswitch_pokemon_list_v3');
+                localStorage.removeItem('pokeswitch_pokemon_list_v4');
+
+                const cached = localStorage.getItem('pokeswitch_pokemon_list_v5');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    // Defensa de quotas: Validamos que no sea nulo, que sea array y no esté vacío
+                    if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+                        allPokemon = parsed;
+                        return;
+                    }
+                }
                 
-                // Consultamos con límite de 1500 para capturar absolutamente todas las variantes y megas
+                // Consultamos con límite de 1500 para capturar variantes y megas de forma masiva
                 const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1500');
                 const data = await res.json();
-                allPokemon = data.results
+                const freshList = data.results
                     .map(p => ({ name: p.name, id: getPokemonIdFromUrl(p.url) }))
                     .filter(p => p.id && isSearchablePokemon(p));
-                safeSetItem('pokeswitch_pokemon_list_v4', JSON.stringify(allPokemon));
+                
+                // Solo guardamos si se obtuvieron resultados reales para no persistir listas vacías
+                if (freshList && freshList.length > 0) {
+                    allPokemon = freshList;
+                    safeSetItem('pokeswitch_pokemon_list_v5', JSON.stringify(allPokemon));
+                }
             } catch (e) {
-                console.error('Error cargando lista de Pokémon:', e);
+                console.error('Error cargando lista de Pokémon de PokéAPI:', e);
             }
         }
 
@@ -6968,6 +6979,16 @@
             const query = input.value.toLowerCase().trim();
             if (query.length < 2) {
                 dropdown.style.display = 'none';
+                return;
+            }
+
+            // Si el catálogo aún no ha cargado en memoria, mostramos feedback dinámico
+            if (!allPokemon || allPokemon.length === 0) {
+                dropdown.innerHTML = `
+                    <div style="padding: 12px; color: #475569; font-size: 0.72rem; text-align: center; font-weight: 700; font-family: 'Outfit', sans-serif;">
+                        ⏳ Cargando catálogo Rotom... Por favor espera un instante.
+                    </div>`;
+                dropdown.style.display = 'block';
                 return;
             }
 
