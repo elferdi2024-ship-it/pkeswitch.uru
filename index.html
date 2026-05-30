@@ -5580,51 +5580,41 @@
             }
         }
 
-        function speakRotomAdvice(text, badge) {
+        function speakRotomAdvice(text, badge, safestPivotName, bestOurMoveName) {
             if (localStorage.getItem('pokeswitch_rotom_voice') !== 'true') return;
             if (!window.speechSynthesis) return;
             
             window.speechSynthesis.cancel();
             
-            let cleanText = text.replace(/<[^>]*>/g, '');
-            cleanText = cleanText.replace(/&nbsp;/g, ' ');
-            cleanText = cleanText.replace(/&[a-z]+;/g, '');
-            cleanText = cleanText.replace(/[⚠️🔥⚔️🛡️🔄⚡▲▼💡]/g, '');
-            
-            let customFriendlySpoken = "";
             let pitch = 1.6;
             let rate = 1.15;
+            let spokenSentence = "";
             
             const badgeUpper = (badge || '').toUpperCase();
+            const pivotFriendly = safestPivotName ? formatPokemonName(safestPivotName) : "un compañero";
+            const moveFriendly = bestOurMoveName ? formatPokemonName(bestOurMoveName) : "un ataque fuerte";
             
             if (badgeUpper.includes('CAMBIO URGENTE')) {
-                // Peligro inminente: Tono preocupado y advertencia
-                pitch = 1.9; // Más agudo por pánico
-                rate = 1.35; // Más rápido por urgencia
-                customFriendlySpoken = "¡Peligro, peligro, bzzzt! ¡Cuidado entrenador, nos van a noquear si nos quedamos quietos! Haz un cambio de inmediato, ¡no arriesgues a tu compañero!";
+                pitch = 1.9; // Worried tone
+                rate = 1.35; // Fast warning rate
+                spokenSentence = `¡Peligro, cambio urgente! ¡Saca a ${pivotFriendly} ya, nos van a noquear!`;
             } else if (badgeUpper.includes('MANTENER Y ATACAR')) {
-                // Lo tenemos contra las cuerdas
-                pitch = 1.45; // Más seguro y triunfante
-                rate = 1.05; // Pausado, disfrutando la victoria
-                customFriendlySpoken = "¡Eso es, amigo! ¡Lo tenemos completamente contra las cuerdas! ¡Ataca sin piedad y asegura el nocaut de un solo golpe! ¡Bzzzt!";
+                pitch = 1.45; // Safe confident tone
+                rate = 1.05;
+                spokenSentence = `¡Dale con todo, bzzzt! ¡Usa ${moveFriendly} y asegura el nocaut!`;
             } else if (badgeUpper.includes('VENTANA DE SETUP')) {
-                // Ventana libre para potenciarse
-                pitch = 1.55; // Alegre y motivante
+                pitch = 1.55;
                 rate = 1.1;
-                customFriendlySpoken = "¡Atención! ¡El oponente no puede tocarnos, bzzzt! Es la ventana perfecta para cargarnos de poder. ¡Danza Espada o Paz Mental y a barrer!";
+                spokenSentence = "¡Ventana libre, bzzzt! Cárgate de poder o cambia gratis.";
             } else if (badgeUpper.includes('PIVOTAR')) {
-                // Pivotar / Retirada
-                pitch = 1.65; // Analítico y astuto
-                rate = 1.2;
-                customFriendlySpoken = "¡Bzzzt! El enemigo tiene la ventaja ahora mismo. Hay que jugar con cabeza fría, amigo. Cambia o usa un movimiento de pivot para conservar el ritmo.";
+                pitch = 1.65;
+                rate = 1.25;
+                spokenSentence = `¡Haz pivot táctico! Rotar hacia ${pivotFriendly} es la mejor jugada.`;
             } else {
-                // Duelo neutral
                 pitch = 1.6;
                 rate = 1.15;
-                customFriendlySpoken = "¡Bzzzt! Duelo parejo, compañero. Usa tus coberturas de tipo o rota para mantener la ventaja posicional.";
+                spokenSentence = "¡Duelo parejo! Ataca con coberturas o cambia de ritmo.";
             }
-            
-            const spokenSentence = `${customFriendlySpoken} ${cleanText}`;
             
             const utterance = new SpeechSynthesisUtterance(spokenSentence);
             utterance.lang = 'es-ES';
@@ -8433,8 +8423,8 @@
                 recBanner.classList.remove('no-advantage');
                 recBanner.classList.add('show');
                 
-                // Determinación del Pokémon activo propio (el primer slot)
-                const activeAliado = teamData[0];
+                // Determinación del Pokémon activo propio (dinámico según selección en 6vs6)
+                const activeAliado = (currentBattleMode === '6vs6' && teamData[activeAllyIndex]) ? teamData[activeAllyIndex] : teamData[0];
                 const activeReal = calculateRealStats(activeAliado);
                 const rivalReal = calculateRealStats(rivalData);
                 const activeSpeedDiff = activeReal.real.speed - rivalReal.real.speed;
@@ -8749,7 +8739,7 @@
                 `;
 
                 if (localStorage.getItem('pokeswitch_rotom_voice') === 'true' && adviceText !== lastSpokenAdvice) {
-                    speakRotomAdvice(adviceText, adviceBadge);
+                    speakRotomAdvice(adviceText, adviceBadge, safestPivot ? safestPivot.name : '', bestOurMove);
                     lastSpokenAdvice = adviceText;
                 }
 
