@@ -5580,7 +5580,7 @@
             }
         }
 
-        function speakRotomAdvice(text) {
+        function speakRotomAdvice(text, badge) {
             if (localStorage.getItem('pokeswitch_rotom_voice') !== 'true') return;
             if (!window.speechSynthesis) return;
             
@@ -5591,10 +5591,45 @@
             cleanText = cleanText.replace(/&[a-z]+;/g, '');
             cleanText = cleanText.replace(/[⚠️🔥⚔️🛡️🔄⚡▲▼💡]/g, '');
             
-            const utterance = new SpeechSynthesisUtterance(cleanText);
+            let customFriendlySpoken = "";
+            let pitch = 1.6;
+            let rate = 1.15;
+            
+            const badgeUpper = (badge || '').toUpperCase();
+            
+            if (badgeUpper.includes('CAMBIO URGENTE')) {
+                // Peligro inminente: Tono preocupado y advertencia
+                pitch = 1.9; // Más agudo por pánico
+                rate = 1.35; // Más rápido por urgencia
+                customFriendlySpoken = "¡Peligro, peligro, bzzzt! ¡Cuidado entrenador, nos van a noquear si nos quedamos quietos! Haz un cambio de inmediato, ¡no arriesgues a tu compañero!";
+            } else if (badgeUpper.includes('MANTENER Y ATACAR')) {
+                // Lo tenemos contra las cuerdas
+                pitch = 1.45; // Más seguro y triunfante
+                rate = 1.05; // Pausado, disfrutando la victoria
+                customFriendlySpoken = "¡Eso es, amigo! ¡Lo tenemos completamente contra las cuerdas! ¡Ataca sin piedad y asegura el nocaut de un solo golpe! ¡Bzzzt!";
+            } else if (badgeUpper.includes('VENTANA DE SETUP')) {
+                // Ventana libre para potenciarse
+                pitch = 1.55; // Alegre y motivante
+                rate = 1.1;
+                customFriendlySpoken = "¡Atención! ¡El oponente no puede tocarnos, bzzzt! Es la ventana perfecta para cargarnos de poder. ¡Danza Espada o Paz Mental y a barrer!";
+            } else if (badgeUpper.includes('PIVOTAR')) {
+                // Pivotar / Retirada
+                pitch = 1.65; // Analítico y astuto
+                rate = 1.2;
+                customFriendlySpoken = "¡Bzzzt! El enemigo tiene la ventaja ahora mismo. Hay que jugar con cabeza fría, amigo. Cambia o usa un movimiento de pivot para conservar el ritmo.";
+            } else {
+                // Duelo neutral
+                pitch = 1.6;
+                rate = 1.15;
+                customFriendlySpoken = "¡Bzzzt! Duelo parejo, compañero. Usa tus coberturas de tipo o rota para mantener la ventaja posicional.";
+            }
+            
+            const spokenSentence = `${customFriendlySpoken} ${cleanText}`;
+            
+            const utterance = new SpeechSynthesisUtterance(spokenSentence);
             utterance.lang = 'es-ES';
-            utterance.pitch = 1.6;
-            utterance.rate = 1.15;
+            utterance.pitch = pitch;
+            utterance.rate = rate;
             
             window.speechSynthesis.speak(utterance);
         }
@@ -5887,6 +5922,7 @@
 
         let rivalTeamData = []; // Array de hasta 6 Pokémon enemigos para el modo 6vs6
         let activeRivalIndex = 0; // Índice del oponente activo en el combate
+        let activeAllyIndex = 0; // Índice de nuestro Pokémon activo en el combate
         let currentBattleMode = '1vsTeam'; // '1vsTeam' o '6vs6'
         let allPokemon = [];
         let allMoves = []; // Listado global de nombres de movimientos de PokeAPI para predictivo
@@ -7331,6 +7367,7 @@
                 rivalTeamData: rivalTeamData,
                 rivalData: rivalData,
                 activeRivalIndex: activeRivalIndex,
+                activeAllyIndex: activeAllyIndex,
                 currentBattleMode: currentBattleMode,
                 currentWeather: currentWeather,
                 currentGeneration: currentGeneration
@@ -7363,6 +7400,7 @@
                     if (state.teamData) teamData = state.teamData;
                     if (state.rivalTeamData) rivalTeamData = state.rivalTeamData;
                     if (state.activeRivalIndex !== undefined) activeRivalIndex = state.activeRivalIndex;
+                    if (state.activeAllyIndex !== undefined) activeAllyIndex = state.activeAllyIndex;
                     
                     // Normalizar y curar teamData y rivalTeamData antiguos de forma preventiva
                     if (teamData) {
@@ -7693,6 +7731,9 @@
                 if (i < teamData.length) {
                     const p = teamData[i];
                     slot.classList.add('filled');
+                    if (i === activeAllyIndex) {
+                        slot.classList.add('active');
+                    }
                     
                     const calc = calculateRealStats(p);
                     const realSpeed = calc.real.speed;
@@ -7711,7 +7752,7 @@
                     
                     slot.innerHTML = `
                         <div class="slot-number">${i + 1}</div>
-                        <button class="remove-btn" onclick="removeFromTeam(${i})">×</button>
+                        <button class="remove-btn" onclick="event.stopPropagation(); removeFromTeam(${i})">×</button>
                         <div class="pokemon-name-small">${formatPokemonName(p.name)}</div>
                         <img src="${p.animatedSprite}" alt="${p.name}" onerror="this.onerror=null; this.src='${p.sprite}';">
                         <div style="display:flex; gap:4px; margin-top:2px;">
@@ -7721,6 +7762,7 @@
                             <div class="speed-indicator" style="position:relative; bottom:auto; right:auto; font-size:0.6rem; padding:2px 6px;">${speedBadgeIcon}${realSpeed}</div>
                         </div>
                     `;
+                    slot.onclick = () => selectActiveAlly(i);
                 } else {
                     slot.innerHTML = `
                         <div style="font-size:2rem;opacity:0.3">+</div>
@@ -8010,6 +8052,13 @@
             saveStateToLocalStorage();
         }
 
+        function selectActiveAlly(index) {
+            activeAllyIndex = index;
+            renderTeam();
+            analyzeMatchups();
+            saveStateToLocalStorage();
+        }
+
         function removeFromRivalTeam(index) {
             rivalTeamData.splice(index, 1);
             if (activeRivalIndex >= rivalTeamData.length) {
@@ -8027,6 +8076,9 @@
 
         function removeFromTeam(index) {
             teamData.splice(index, 1);
+            if (activeAllyIndex >= teamData.length) {
+                activeAllyIndex = Math.max(0, teamData.length - 1);
+            }
             renderTeam();
             renderRandomlockeTable();
             updateShareSection();
@@ -8697,13 +8749,13 @@
                 `;
 
                 if (localStorage.getItem('pokeswitch_rotom_voice') === 'true' && adviceText !== lastSpokenAdvice) {
-                    speakRotomAdvice(adviceText);
+                    speakRotomAdvice(adviceText, adviceBadge);
                     lastSpokenAdvice = adviceText;
                 }
 
                 // Resaltar slot en la interfaz del equipo
                 document.querySelectorAll('.team-slot').forEach((slot, idx) => {
-                    slot.classList.toggle('active', teamData[idx]?.name === bestLeadPoke.name);
+                    slot.classList.toggle('active', idx === activeAllyIndex);
                 });
             }
 
