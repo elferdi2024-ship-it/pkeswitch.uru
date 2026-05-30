@@ -4463,11 +4463,17 @@
                 <p style="font-size: 0.68rem; color: #2d3436; font-weight: 700; line-height: 1.35; margin-bottom: 8px;">
                     ¡Hola, entrenador! 👋 Seguimos programando con toda para que arrases en Kalos. Mira las últimas joyitas de nuestro laboratorio de desarrollo:
                 </p>
-                <div style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin;">
+                <div style="display: flex; flex-direction: column; gap: 8px; max-height: 190px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin;">
                     <div style="border-left: 2px solid #a855f7; padding-left: 8px; margin-bottom: 2px;">
-                        <div style="font-size: 0.65rem; font-weight: 900; color: #7e22ce;">v2.6 - Asistente de Voz & Sinergias VGC</div>
+                        <div style="font-size: 0.65rem; font-weight: 900; color: #7e22ce;">v2.7 - Estrategias de Contexto & Duelo Visual</div>
                         <p style="font-size: 0.62rem; color: #1e293b; font-weight: 700; line-height: 1.35; margin-top: 1px;">
-                            ¡Bzzzt! Agregamos la voz de nuestro laboratorio Rotom para cantarte las jugadas clave y un analizador dinámico de sinergia de cores (FWG, DFS).
+                            ¡Bzzzt! Sumamos turnos secuenciales en 6vs6, protección defensiva vital para Randomlocke y la representación gráfica del enfrentamiento activo VS.
+                        </p>
+                    </div>
+                    <div style="border-left: 2px solid #c084fc; padding-left: 8px; margin-bottom: 2px;">
+                        <div style="font-size: 0.65rem; font-weight: 900; color: #9333ea;">v2.6 - Asistente de Voz & Sinergias VGC</div>
+                        <p style="font-size: 0.62rem; color: #1e293b; font-weight: 700; line-height: 1.35; margin-top: 1px;">
+                            ¡Bzzzt! Sumamos la voz interactiva Rotom y el analizador de cores competitivos (FWG, DFS) en tiempo real con barra de progreso.
                         </p>
                     </div>
                     <div style="border-left: 2px solid #2563eb; padding-left: 8px; margin-bottom: 2px;">
@@ -4476,15 +4482,12 @@
                             Implementamos el Asistente Rotom táctico de turnos en tiempo real, reducción de daño de área (VGC 75%), combos de velocidad y combates de campeonato aleatorios.
                         </p>
                     </div>
-                    <div style="border-left: 2px solid #16a34a; padding-left: 8px;">
-                        <div style="font-size: 0.65rem; font-weight: 900; color: #047857;">v2.4 - Sets Predictivos Showdown</div>
-                        <p style="font-size: 0.62rem; color: #1e293b; font-weight: 700; line-height: 1.35; margin-top: 1px;">
-                            Al buscar un Pokémon insignia (ej. Greninja, Talonflame), el sistema carga en caliente sus mejores 4 ataques competitivos, objeto y habilidad oficial de Showdown.
-                        </p>
-                    </div>
                 </div>
-                <div style="margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 6px; text-align: center;">
+                <div style="margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 6px; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 0.58rem; font-weight: 800; color: #94a3b8;">Hecho con ❤️ para ti</span>
+                    <a href="#" onclick="openChangelogModal(); event.preventDefault();" style="font-size: 0.58rem; font-weight: 900; color: var(--poke-red); text-decoration: none; display: flex; align-items: center; gap: 2px; cursor: pointer;">
+                        Ver Historial ➔
+                    </a>
                 </div>
             </div>
         </div>
@@ -5206,11 +5209,11 @@
                     </div>
                 </div>
 
-                <div class="guide-item" style="display: flex; gap: 14px; background: rgba(165, 180, 252, 0.08); padding: 16px; border-radius: 12px; border: 1.5px dashed rgba(79, 70, 229, 0.35); transition: transform 0.2s;">
+                <div class="guide-item" style="display: flex; gap: 14px; background: rgba(165, 180, 252, 0.09); padding: 16px; border-radius: 12px; border: 1.5px dashed rgba(79, 70, 229, 0.45); transition: transform 0.2s;">
                     <div class="guide-icon" style="font-size: 1.8rem; line-height: 1;">🎯</div>
                     <div class="guide-info">
-                        <h3 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem; color: #4338ca; margin-bottom: 6px;">NUEVO: Asistente Rotom de Turnos</h3>
-                        <p style="font-size: 0.76rem; color: #334155; line-height: 1.45; font-weight: 600;">Un recomendador atómico en el plan de batalla superior que te dirá la mejor acción táctica del turno actual. Si eres más rápido y tienes un ataque letal, te indicará <strong>¡OPORTUNIDAD DE OHKO!</strong>. Si el rival te supera y puede noquearte, sugerirá cambiar al pivot seguro.</p>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem; color: #4338ca; margin-bottom: 6px;">NUEVO: Asistente de Voz, Duelo VS & Cores VGC</h3>
+                        <p style="font-size: 0.76rem; color: #1e293b; line-height: 1.45; font-weight: 700;">¡El copiloto definitivo! El Asistente Rotom cuenta con <strong>Sintetizador de Voz</strong> (emula la voz real del laboratorio) y un <strong>Analizador de Sinergia VGC</strong> en vivo (barras dinámicas de cores FWG, DFS, Climas y Trick Room). Muestra gráficamente el duelo activo en pantalla con sprites cara a cara y proporciona lecturas secuenciales de turnos completos (hazards, pivots, e inercia ofensiva) diferenciando tácticas pro en 6vs6 de alertas vitales de supervivencia en Randomlocke.</p>
                     </div>
                 </div>
                 
@@ -5364,6 +5367,71 @@
             <div class="rl-modal-footer">
                 <button class="btn btn-secondary" onclick="closeShowdownImportModal()">Cancelar</button>
                 <button class="btn btn-primary" onclick="processShowdownImport()" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-color: #1d4ed8; font-weight: 800; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);">⚡ Importar e Integrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Historial Completo de Changelogs -->
+    <div class="rl-modal" id="changelogHistoryModal">
+        <div class="rl-modal-content" style="max-width: 600px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1.5px solid rgba(255, 255, 255, 0.15); box-shadow: 0 10px 40px rgba(0,0,0,0.4); border-radius: 16px; color: #f1f5f9;">
+            <div class="rl-modal-header" style="background: linear-gradient(135deg, rgba(255,27,78,0.2) 0%, rgba(59,76,202,0.2) 100%); border-bottom: 1.5px solid rgba(255,255,255,0.1);">
+                <h3 style="font-family:'Outfit',sans-serif;font-weight:900;font-size:1.15rem;color:#fff200;margin:0;display:flex;align-items:center;gap:8px;">🚀 HISTORIAL COMPLETO DE DESARROLLO</h3>
+                <button class="rl-modal-close" onclick="closeChangelogModal()" style="color: #cbd5e1; outline:none;">×</button>
+            </div>
+            <div class="rl-modal-body" style="padding: 20px; max-height: 400px; overflow-y: auto; scrollbar-width: thin; display: flex; flex-direction: column; gap: 14px; text-align: left;">
+                
+                <div style="border-left: 3px solid #a855f7; padding-left: 10px;">
+                    <div style="font-size: 0.8rem; font-weight: 900; color: #a855f7; font-family: 'Outfit', sans-serif;">v2.7 - Estrategias de Contexto & Duelo Visual (Actual)</div>
+                    <p style="font-size: 0.72rem; color: #cbd5e1; font-weight: 600; line-height: 1.4; margin-top: 4px;">
+                        ¡Bzzzt! Agregamos lectura secuencial de turnos (hazards/pivots) para 6vs6, protección defensiva vital para Randomlocke y la representación gráfica del enfrentamiento activo VS con sprites e indicadores de combate.
+                    </p>
+                </div>
+
+                <div style="border-left: 3px solid #8b5cf6; padding-left: 10px;">
+                    <div style="font-size: 0.8rem; font-weight: 900; color: #8b5cf6; font-family: 'Outfit', sans-serif;">v2.6 - Asistente de Voz & Sinergias VGC</div>
+                    <p style="font-size: 0.72rem; color: #cbd5e1; font-weight: 600; line-height: 1.4; margin-top: 4px;">
+                        ¡Bzzzt! Sumamos la voz interactiva Rotom (Web Speech API) y el escáner analítico de cores competitivos (FWG, DFS, Climas, Espacio Raro) con barra animada de progreso.
+                    </p>
+                </div>
+
+                <div style="border-left: 3px solid #3b82f6; padding-left: 10px;">
+                    <div style="font-size: 0.8rem; font-weight: 900; color: #3b82f6; font-family: 'Outfit', sans-serif;">v2.5 - Tácticas Rotom & VGC Pro</div>
+                    <p style="font-size: 0.72rem; color: #cbd5e1; font-weight: 600; line-height: 1.4; margin-top: 4px;">
+                        Implementamos el Asistente Rotom táctico de turnos en tiempo real, reducción de daño de área (VGC 75%), combos de velocidad por clima y combates de campeonato aleatorios.
+                    </p>
+                </div>
+
+                <div style="border-left: 3px solid #10b981; padding-left: 10px;">
+                    <div style="font-size: 0.8rem; font-weight: 900; color: #10b981; font-family: 'Outfit', sans-serif;">v2.4 - Sets Predictivos de Showdown</div>
+                    <p style="font-size: 0.72rem; color: #cbd5e1; font-weight: 600; line-height: 1.4; margin-top: 4px;">
+                        Al buscar un Pokémon insignia (ej. Greninja, Talonflame), el sistema carga en caliente sus mejores 4 ataques competitivos, objeto y habilidad oficial de Showdown de forma totalmente automatizada.
+                    </p>
+                </div>
+
+                <div style="border-left: 3px solid #f59e0b; padding-left: 10px;">
+                    <div style="font-size: 0.8rem; font-weight: 900; color: #f59e0b; font-family: 'Outfit', sans-serif;">v2.0 - Motor de Cálculo de Daño VGC</div>
+                    <p style="font-size: 0.72rem; color: #cbd5e1; font-weight: 600; line-height: 1.4; margin-top: 4px;">
+                        Lanzamiento de nuestra calculadora de daño integrada con soporte para modificadores de stats (+/- 6), efectos de climas y debilidades elementales complejas.
+                    </p>
+                </div>
+
+                <div style="border-left: 3px solid #ef4444; padding-left: 10px;">
+                    <div style="font-size: 0.8rem; font-weight: 900; color: #ef4444; font-family: 'Outfit', sans-serif;">v1.5 - Interfaz Kalos 3D</div>
+                    <p style="font-size: 0.72rem; color: #cbd5e1; font-weight: 600; line-height: 1.4; margin-top: 4px;">
+                        Rediseño estético premium con halos y prismas inspirados en la Megacore de Kalos y optimizaciones responsive para smartphones.
+                    </p>
+                </div>
+
+                <div style="border-left: 3px solid #64748b; padding-left: 10px;">
+                    <div style="font-size: 0.8rem; font-weight: 900; color: #64748b; font-family: 'Outfit', sans-serif;">v1.0 - Alfa de PokéSwitch</div>
+                    <p style="font-size: 0.72rem; color: #cbd5e1; font-weight: 600; line-height: 1.4; margin-top: 4px;">
+                        Carga inicial de base de datos de especies, listado de tipos elementales y primer prototipo del analizador de debilidades de equipo de hasta 6 miembros.
+                    </p>
+                </div>
+
+            </div>
+            <div class="rl-modal-footer" style="border-top: 1.5px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.15);">
+                <button class="btn btn-secondary" onclick="closeChangelogModal()" style="border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; background: transparent; font-weight:800;">Entendido</button>
             </div>
         </div>
     </div>
@@ -10853,6 +10921,14 @@
             if (drawer && drawer.classList.contains('open')) {
                 toggleNavMenu();
             }
+        }
+
+        function openChangelogModal() {
+            document.getElementById('changelogHistoryModal').classList.add('open');
+        }
+
+        function closeChangelogModal() {
+            document.getElementById('changelogHistoryModal').classList.remove('open');
         }
 
         // ==========================================================================
