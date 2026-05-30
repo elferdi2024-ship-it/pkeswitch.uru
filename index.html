@@ -2745,6 +2745,13 @@
             box-shadow: 0 4px 15px rgba(255, 27, 78, 0.4);
         }
 
+        .landing-guide-link:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 242, 0, 0.7) !important;
+            box-shadow: 0 8px 30px rgba(255, 242, 0, 0.2) !important;
+            background: linear-gradient(135deg, rgba(255,222,0,0.12) 0%, rgba(59,76,202,0.12) 100%) !important;
+        }
+
         /* --- PREMIUM DOUBLE BATTLE SWITCH --- */
         .premium-switch input:checked + .premium-slider {
             background: linear-gradient(135deg, #FFF200 0%, #FFAA00 100%);
@@ -4325,6 +4332,8 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            flex: 1;
+            overflow-y: auto;
         }
 
         .nav-link {
@@ -4402,6 +4411,34 @@
             <a href="#" class="nav-link" onclick="toggleNavMenu(); toggleContactCard(); event.preventDefault();">
                 <span class="nav-icon">💬</span> Soporte & Aportar
             </a>
+
+            <!-- TARJETA DE CHANGELOGS (NUESTRO DESARROLLO Y CERCANÍA) -->
+            <div style="margin-top: auto; padding: 14px; background: linear-gradient(135deg, rgba(255,27,78,0.06) 0%, rgba(59,76,202,0.06) 100%); border: 1px solid rgba(255,27,78,0.18); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: left; backdrop-filter: blur(10px);">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <span style="font-size: 1.1rem; animation: pulse 2s infinite;">🚀</span>
+                    <span style="font-size: 0.76rem; font-weight: 900; color: var(--poke-red); font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">POKÉSWITCH LABS</span>
+                </div>
+                <p style="font-size: 0.68rem; color: #2d3436; font-weight: 700; line-height: 1.35; margin-bottom: 8px;">
+                    ¡Hola, entrenador! 👋 Seguimos programando con toda para que arrases en Kalos. Mira las últimas joyitas de nuestro laboratorio de desarrollo:
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 8px; max-height: 140px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin;">
+                    <div style="border-left: 2px solid var(--poke-blue); padding-left: 8px; margin-bottom: 2px;">
+                        <div style="font-size: 0.65rem; font-weight: 900; color: var(--poke-blue);">v2.5 - Minimax & VGC Pro</div>
+                        <p style="font-size: 0.62rem; color: #64748b; font-weight: 600; line-height: 1.3; margin-top: 1px;">
+                            Implementamos el Asistente Minimax de turnos en tiempo real, reducción de daño de área (VGC 75%), combos de velocidad por climas y combates de campeonato aleatorios.
+                        </p>
+                    </div>
+                    <div style="border-left: 2px solid var(--poke-green); padding-left: 8px;">
+                        <div style="font-size: 0.65rem; font-weight: 900; color: var(--poke-green);">v2.4 - Sets Predictivos</div>
+                        <p style="font-size: 0.62rem; color: #64748b; font-weight: 600; line-height: 1.3; margin-top: 1px;">
+                            Al buscar un Pokémon insignia (ej. Greninja, Talonflame), el sistema carga en caliente sus mejores 4 ataques competitivos, objeto y habilidad oficial de Showdown.
+                        </p>
+                    </div>
+                </div>
+                <div style="margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 6px; text-align: center;">
+                    <span style="font-size: 0.58rem; font-weight: 800; color: #94a3b8;">Hecho con ❤️ para ti</span>
+                </div>
+            </div>
         </div>
     </div>
     <div class="nav-overlay" id="navOverlay" onclick="toggleNavMenu()"></div>
@@ -4430,6 +4467,20 @@
         <div class="mode-toggle-container">
             <button class="mode-btn active" id="mode1vsTeam" onclick="changeBattleMode('1vsTeam')">🎮 Asistente 1 vs Equipo</button>
             <button class="mode-btn mode-6vs6" id="mode6vs6" onclick="changeBattleMode('6vs6')">⚔️ Combate Global 6 vs 6</button>
+        </div>
+
+        <!-- Tarjeta de Acceso Rápido a Guía de Funciones Premium -->
+        <div style="display:flex; justify-content:center; margin-bottom:15px; width:100%; max-width:800px; margin-left:auto; margin-right:auto; box-sizing:border-box; padding:0 15px;">
+            <div class="landing-guide-link" onclick="document.querySelector('.card-guide').scrollIntoView({ behavior: 'smooth' })" style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; background:linear-gradient(135deg, rgba(255,222,0,0.06) 0%, rgba(59,76,202,0.06) 100%); border:1.5px solid rgba(255,222,0,0.25); border-radius:14px; padding:10px 18px; cursor:pointer; transition:all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.08); backdrop-filter: blur(10px);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.4rem;">📘</span>
+                    <div style="text-align:left;">
+                        <div style="font-size:0.8rem; font-weight:900; color:#ffffff; font-family:'Outfit',sans-serif; letter-spacing:0.3px;">MANUAL TÁCTICO COMPETITIVO PRO</div>
+                        <div style="font-size:0.65rem; font-weight:700; color:#cbd5e1; margin-top:2px;">Conoce los algoritmos Minimax, combates dobles VGC, sets predictivos de Showdown y modificadores en vivo.</div>
+                    </div>
+                </div>
+                <span style="font-size:0.9rem; color:#fff200; font-weight:900; display:flex; align-items:center; gap:2px; font-family:'Outfit',sans-serif;">VER GUÍA ➔</span>
+            </div>
         </div>
 
         <!-- Controls -->
@@ -5071,6 +5122,30 @@
             
             <div class="guide-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; padding: 4px 0;">
                 
+                <div class="guide-item" style="display: flex; gap: 14px; background: rgba(255, 242, 0, 0.03); padding: 16px; border-radius: 12px; border: 1.5px dashed rgba(255,242,0,0.3); transition: transform 0.2s;">
+                    <div class="guide-icon" style="font-size: 1.8rem; line-height: 1;">⚡</div>
+                    <div class="guide-info">
+                        <h3 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem; color: #fff200; margin-bottom: 6px;">NUEVO: Sets Predictivos de Showdown</h3>
+                        <p style="font-size: 0.76rem; color: #e2e8f0; line-height: 1.4; font-weight: 600;">Olvídate de configurar a mano. Al buscar y agregar cualquier Pokémon de una amplia lista competitiva (ej. Greninja, Kingambit, Landorus-T), el sistema cargará de forma automática sus <strong>4 mejores movimientos, objeto, naturaleza y habilidad de Showdown</strong> en su ficha de batalla en caliente.</p>
+                    </div>
+                </div>
+
+                <div class="guide-item" style="display: flex; gap: 14px; background: rgba(59, 76, 202, 0.05); padding: 16px; border-radius: 12px; border: 1.5px dashed rgba(59,76,202,0.3); transition: transform 0.2s;">
+                    <div class="guide-icon" style="font-size: 1.8rem; line-height: 1;">👥</div>
+                    <div class="guide-info">
+                        <h3 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem; color: #60a5fa; margin-bottom: 6px;">NUEVO: Combate Doble VGC & Daño de Área</h3>
+                        <p style="font-size: 0.76rem; color: #e2e8f0; line-height: 1.4; font-weight: 600;">Activa el formato dobles (Dúo) para simular combates contra dos enemigos al mismo tiempo. El motor de daño aplicará la <strong>reducción del 75% por ataques de área</strong> (ej. Terremoto, Avalancha) y calculará duplicadores de velocidad por clima (*Swift Swim* en lluvia, *Chlorophyll* en sol).</p>
+                    </div>
+                </div>
+
+                <div class="guide-item" style="display: flex; gap: 14px; background: rgba(165, 180, 252, 0.05); padding: 16px; border-radius: 12px; border: 1.5px dashed rgba(165, 180, 252, 0.3); transition: transform 0.2s;">
+                    <div class="guide-icon" style="font-size: 1.8rem; line-height: 1;">🎯</div>
+                    <div class="guide-info">
+                        <h3 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem; color: #a5b4fc; margin-bottom: 6px;">NUEVO: Asistente Minimax de Turnos</h3>
+                        <p style="font-size: 0.76rem; color: #e2e8f0; line-height: 1.4; font-weight: 600;">Un recomendador atómico en el plan de batalla superior que te dirá la mejor acción táctica del turno actual. Si eres más rápido y tienes un ataque letal, te indicará <strong>¡OPORTUNIDAD DE OHKO!</strong>. Si el rival te supera y puede noquearte, sugerirá cambiar al pivot seguro.</p>
+                    </div>
+                </div>
+                
                 <div class="guide-item" style="display: flex; gap: 14px; background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.02); transition: transform 0.2s;">
                     <div class="guide-icon" style="font-size: 1.8rem; line-height: 1;">🛡️</div>
                     <div class="guide-info">
@@ -5340,6 +5415,154 @@
         let rivalData2 = null;
         let isDoubleBattle = false;
         let teamData = [];
+
+        // Diccionario de sets competitivos oficiales de Showdown para autocompletado en caliente
+        const COMPETITIVE_USAGE_STATS = {
+            'greninja': {
+                item: 'life-orb',
+                ability: 'protean',
+                nature: 'timid',
+                moves: [
+                    { name: 'water-shuriken', type: 'water', category: 'physical', power: '15', accuracy: '100' },
+                    { name: 'dark-pulse', type: 'dark', category: 'special', power: '80', accuracy: '100' },
+                    { name: 'ice-beam', type: 'ice', category: 'special', power: '90', accuracy: '100' },
+                    { name: 'gunk-shot', type: 'poison', category: 'physical', power: '120', accuracy: '80' }
+                ]
+            },
+            'lucario': {
+                item: 'life-orb',
+                ability: 'inner-focus',
+                nature: 'adamant',
+                moves: [
+                    { name: 'close-combat', type: 'fighting', category: 'physical', power: '120', accuracy: '100' },
+                    { name: 'bullet-punch', type: 'steel', category: 'physical', power: '40', accuracy: '100' },
+                    { name: 'extreme-speed', type: 'normal', category: 'physical', power: '80', accuracy: '100' },
+                    { name: 'swords-dance', type: 'normal', category: 'status', power: '', accuracy: '' }
+                ]
+            },
+            'garchomp': {
+                item: 'rocky-helmet',
+                ability: 'rough-skin',
+                nature: 'jolly',
+                moves: [
+                    { name: 'earthquake', type: 'ground', category: 'physical', power: '100', accuracy: '100' },
+                    { name: 'dragon-claw', type: 'dragon', category: 'physical', power: '80', accuracy: '100' },
+                    { name: 'rock-slide', type: 'rock', category: 'physical', power: '75', accuracy: '90' },
+                    { name: 'swords-dance', type: 'normal', category: 'status', power: '', accuracy: '' }
+                ]
+            },
+            'charizard': {
+                item: 'charizardite-y',
+                ability: 'solar-power',
+                nature: 'timid',
+                moves: [
+                    { name: 'flamethrower', type: 'fire', category: 'special', power: '90', accuracy: '100' },
+                    { name: 'solar-beam', type: 'grass', category: 'special', power: '120', accuracy: '100' },
+                    { name: 'heat-wave', type: 'fire', category: 'special', power: '95', accuracy: '90' },
+                    { name: 'roost', type: 'flying', category: 'status', power: '', accuracy: '' }
+                ]
+            },
+            'talonflame': {
+                item: 'choice-band',
+                ability: 'gale-wings',
+                nature: 'adamant',
+                moves: [
+                    { name: 'brave-bird', type: 'flying', category: 'physical', power: '120', accuracy: '100' },
+                    { name: 'flare-blitz', type: 'fire', category: 'physical', power: '120', accuracy: '100' },
+                    { name: 'u-turn', type: 'bug', category: 'physical', power: '70', accuracy: '100' },
+                    { name: 'roost', type: 'flying', category: 'status', power: '', accuracy: '' }
+                ]
+            },
+            'rotom-wash': {
+                item: 'sitrus-berry',
+                ability: 'levitate',
+                nature: 'bold',
+                moves: [
+                    { name: 'hydro-pump', type: 'water', category: 'special', power: '110', accuracy: '80' },
+                    { name: 'volt-switch', type: 'electric', category: 'special', power: '70', accuracy: '100' },
+                    { name: 'will-o-wisp', type: 'fire', category: 'status', power: '', accuracy: '85' },
+                    { name: 'pain-split', type: 'normal', category: 'status', power: '', accuracy: '' }
+                ]
+            },
+            'flutter-mane': {
+                item: 'booster-energy',
+                ability: 'protosynthesis',
+                nature: 'timid',
+                moves: [
+                    { name: 'moonblast', type: 'fairy', category: 'special', power: '95', accuracy: '100' },
+                    { name: 'shadow-ball', type: 'ghost', category: 'special', power: '80', accuracy: '100' },
+                    { name: 'dazzling-gleam', type: 'fairy', category: 'special', power: '80', accuracy: '100' },
+                    { name: 'protect', type: 'normal', category: 'status', power: '', accuracy: '' }
+                ]
+            },
+            'kingambit': {
+                item: 'leftovers',
+                ability: 'supreme-overlord',
+                nature: 'adamant',
+                moves: [
+                    { name: 'kowtow-cleave', type: 'dark', category: 'physical', power: '85', accuracy: '100' },
+                    { name: 'sucker-punch', type: 'dark', category: 'physical', power: '70', accuracy: '100' },
+                    { name: 'iron-head', type: 'steel', category: 'physical', power: '80', accuracy: '100' },
+                    { name: 'swords-dance', type: 'normal', category: 'status', power: '', accuracy: '' }
+                ]
+            },
+            'tyranitar': {
+                item: 'assault-vest',
+                ability: 'sand-stream',
+                nature: 'adamant',
+                moves: [
+                    { name: 'stone-edge', type: 'rock', category: 'physical', power: '100', accuracy: '80' },
+                    { name: 'crunch', type: 'dark', category: 'physical', power: '80', accuracy: '100' },
+                    { name: 'earthquake', type: 'ground', category: 'physical', power: '100', accuracy: '100' },
+                    { name: 'ice-punch', type: 'ice', category: 'physical', power: '75', accuracy: '100' }
+                ]
+            },
+            'scizor': {
+                item: 'choice-band',
+                ability: 'technician',
+                nature: 'adamant',
+                moves: [
+                    { name: 'bullet-punch', type: 'steel', category: 'physical', power: '40', accuracy: '100' },
+                    { name: 'u-turn', type: 'bug', category: 'physical', power: '70', accuracy: '100' },
+                    { name: 'superpower', type: 'fighting', category: 'physical', power: '120', accuracy: '100' },
+                    { name: 'swords-dance', type: 'normal', category: 'status', power: '', accuracy: '' }
+                ]
+            },
+            'dragonite': {
+                item: 'weakness-policy',
+                ability: 'multiscale',
+                nature: 'adamant',
+                moves: [
+                    { name: 'dragon-dance', type: 'normal', category: 'status', power: '', accuracy: '' },
+                    { name: 'extreme-speed', type: 'normal', category: 'physical', power: '80', accuracy: '100' },
+                    { name: 'earthquake', type: 'ground', category: 'physical', power: '100', accuracy: '100' },
+                    { name: 'outrage', type: 'dragon', category: 'physical', power: '120', accuracy: '100' }
+                ]
+            },
+            'aegislash': {
+                item: 'weakness-policy',
+                ability: 'stance-change',
+                nature: 'quiet',
+                moves: [
+                    { name: 'kings-shield', type: 'steel', category: 'status', power: '', accuracy: '' },
+                    { name: 'shadow-ball', type: 'ghost', category: 'special', power: '80', accuracy: '100' },
+                    { name: 'flash-cannon', type: 'steel', category: 'special', power: '80', accuracy: '100' },
+                    { name: 'shadow-sneak', type: 'ghost', category: 'physical', power: '40', accuracy: '100' }
+                ]
+            },
+            'landorus-therian': {
+                item: 'assault-vest',
+                ability: 'intimidate',
+                nature: 'adamant',
+                moves: [
+                    { name: 'earthquake', type: 'ground', category: 'physical', power: '100', accuracy: '100' },
+                    { name: 'u-turn', type: 'bug', category: 'physical', power: '70', accuracy: '100' },
+                    { name: 'stone-edge', type: 'rock', category: 'physical', power: '100', accuracy: '80' },
+                    { name: 'knock-off', type: 'dark', category: 'physical', power: '65', accuracy: '100' }
+                ]
+            }
+        };
+
         let rivalTeamData = []; // Array de hasta 6 Pokémon enemigos para el modo 6vs6
         let activeRivalIndex = 0; // Índice del oponente activo en el combate
         let currentBattleMode = '1vsTeam'; // '1vsTeam' o '6vs6'
@@ -6988,8 +7211,13 @@
             // Deep clone para evitar reference sharing en memoria
             const pokemon = JSON.parse(JSON.stringify(fetched));
 
-            // Inicializar datos extendidos de Randomlocke de forma universal
-            if (!pokemon.rl) {
+            // Inicializar datos competitivos de Showdown predeterminados si existen
+            const lowerName = pokemon.name.toLowerCase();
+            if (COMPETITIVE_USAGE_STATS[lowerName]) {
+                pokemon.rl = JSON.parse(JSON.stringify(COMPETITIVE_USAGE_STATS[lowerName]));
+                pokemon.rl.status = 'none';
+                pokemon.rl.boosts = { attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
+            } else if (!pokemon.rl) {
                 pokemon.rl = {
                     item: '',
                     ability: '',
@@ -9888,149 +10116,85 @@
         // CARGA DE SIMULACIÓN COMPETITIVA DE ÉLITE DE PRUEBA
         // ==========================================================================
         async function loadPremiumSimulation() {
-            showToast("🧪 Iniciando carga de simulación competitiva de élite...");
-            
-            // 1. Cargar Pokémon de Mi Equipo (Propios)
-            const teamPokes = ['arcanine', 'garchomp', 'shedinja', 'azumarill'];
+            showToast("🎲 Seleccionando combate de campeonato aleatorio...");
+
+            // 4 Combates de Élite Competitivos Premium 6vs6
+            const EXTRAS_COMBATS = [
+                {
+                    name: "🏆 Final del Campeonato Mundial VGC (Kalos Legacy)",
+                    team: ['garchomp', 'charizard', 'talonflame', 'rotom-wash', 'lucario', 'greninja'],
+                    rival: ['aegislash', 'landorus-therian', 'tyranitar', 'dragonite', 'scizor', 'flutter-mane']
+                },
+                {
+                    name: "☀️ Tormenta Solar vs 🏜️ Clima de Arena (VGC Pro Matchup)",
+                    team: ['charizard', 'arcanine', 'talonflame', 'rotom-wash', 'kingambit', 'greninja'],
+                    rival: ['tyranitar', 'garchomp', 'landorus-therian', 'scizor', 'dragonite', 'aegislash']
+                },
+                {
+                    name: "💀 Final de Nuzlocke Extremo Pro (Estrategia Limítrofe)",
+                    team: ['shedinja', 'azumarill', 'garchomp', 'arcanine', 'scizor', 'greninja'],
+                    rival: ['gengar', 'rotom-wash', 'talonflame', 'aegislash', 'kingambit', 'dragonite']
+                },
+                {
+                    name: "✨ Duelo de Élite Gen 9 Paldea (Meta Showdown)",
+                    team: ['flutter-mane', 'kingambit', 'dragonite', 'garchomp', 'rotom-wash', 'lucario'],
+                    rival: ['landorus-therian', 'aegislash', 'charizard', 'greninja', 'talonflame', 'tyranitar']
+                }
+            ];
+
+            // Selección aleatoria
+            const randomCombat = EXTRAS_COMBATS[Math.floor(Math.random() * EXTRAS_COMBATS.length)];
+            showToast("🎮 Cargando: " + randomCombat.name);
+
+            // 1. Cargar Pokémon del Equipo Propio
             const myTeam = [];
-            for (let name of teamPokes) {
+            for (let name of randomCombat.team) {
                 const p = await fetchPokemon(name);
-                if (p) myTeam.push(p);
+                if (p) {
+                    const lowerName = p.name.toLowerCase();
+                    if (COMPETITIVE_USAGE_STATS[lowerName]) {
+                        p.rl = JSON.parse(JSON.stringify(COMPETITIVE_USAGE_STATS[lowerName]));
+                        p.rl.status = 'none';
+                        p.rl.boosts = { attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
+                    }
+                    myTeam.push(p);
+                }
             }
-            
-            // Configurar items, habilidades, naturalezas y ataques del equipo
-            if (myTeam[0]) { // Arcanine
-                myTeam[0].rl = {
-                    item: 'baya-sidra',
-                    ability: 'water absorb', // Absorbe agua (¡Inmune a Agua!)
-                    nature: 'adamant',
-                    moves: [
-                        { name: 'flare-blitz', type: 'fire', category: 'physical', power: '120', accuracy: '100' },
-                        { name: 'earthquake', type: 'ground', category: 'physical', power: '100', accuracy: '100' },
-                        { name: 'wild-charge', type: 'electric', category: 'physical', power: '90', accuracy: '100' },
-                        { name: 'morning-sun', type: 'normal', category: 'status', power: '', accuracy: '' }
-                    ]
-                };
-            }
-            if (myTeam[1]) { // Garchomp
-                myTeam[1].rl = {
-                    item: 'life-orb',
-                    ability: 'rough skin',
-                    nature: 'jolly',
-                    moves: [
-                        { name: 'earthquake', type: 'ground', category: 'physical', power: '100', accuracy: '100' },
-                        { name: 'dragon-claw', type: 'dragon', category: 'physical', power: '80', accuracy: '100' },
-                        { name: 'swords-dance', type: 'normal', category: 'status', power: '', accuracy: '' },
-                        { name: 'rock-slide', type: 'rock', category: 'physical', power: '75', accuracy: '90' }
-                    ]
-                };
-            }
-            if (myTeam[2]) { // Shedinja
-                myTeam[2].rl = {
-                    item: 'focus-sash',
-                    ability: 'wonder guard', // Superguarda (¡SÓLO RECIBE DAÑO SUPER EFECTIVO!)
-                    nature: 'adamant',
-                    moves: [
-                        { name: 'shadow-sneak', type: 'ghost', category: 'physical', power: '40', accuracy: '100' },
-                        { name: 'x-scissor', type: 'bug', category: 'physical', power: '80', accuracy: '100' },
-                        { name: 'will-o-wisp', type: 'fire', category: 'status', power: '', accuracy: '85' },
-                        { name: 'swords-dance', type: 'normal', category: 'status', power: '', accuracy: '' }
-                    ]
-                };
-            }
-            if (myTeam[3]) { // Azumarill
-                myTeam[3].rl = {
-                    item: 'choice-band', // Cinta Elegida (Atk x1.5)
-                    ability: 'huge power', // Potencia (Atk x2 real!)
-                    nature: 'adamant',
-                    moves: [
-                        { name: 'aqua-jet', type: 'water', category: 'physical', power: '40', accuracy: '100' },
-                        { name: 'play-rough', type: 'fairy', category: 'physical', power: '90', accuracy: '90' },
-                        { name: 'waterfall', type: 'water', category: 'physical', power: '80', accuracy: '100' },
-                        { name: 'superpower', type: 'fighting', category: 'physical', power: '120', accuracy: '100' }
-                    ]
-                };
-            }
-            
+
             // 2. Cargar Pokémon del Equipo Rival
-            const rivalPokes = ['vaporeon', 'rotom-wash', 'gengar', 'talonflame'];
             const rivalTeam = [];
-            for (let name of rivalPokes) {
+            for (let name of randomCombat.rival) {
                 const p = await fetchPokemon(name);
-                if (p) rivalTeam.push(p);
+                if (p) {
+                    const lowerName = p.name.toLowerCase();
+                    if (COMPETITIVE_USAGE_STATS[lowerName]) {
+                        p.rl = JSON.parse(JSON.stringify(COMPETITIVE_USAGE_STATS[lowerName]));
+                        p.rl.status = 'none';
+                        p.rl.boosts = { attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
+                    }
+                    rivalTeam.push(p);
+                }
             }
-            
-            if (rivalTeam[0]) { // Vaporeon
-                rivalTeam[0].rl = {
-                    item: 'leftovers',
-                    ability: 'water absorb',
-                    nature: 'bold',
-                    moves: [
-                        { name: 'surf', type: 'water', category: 'special', power: '90', accuracy: '100' },
-                        { name: 'ice-beam', type: 'ice', category: 'special', power: '90', accuracy: '100' },
-                        { name: 'acid-armor', type: 'poison', category: 'status', power: '', accuracy: '' },
-                        { name: 'wish', type: 'normal', category: 'status', power: '', accuracy: '' }
-                    ]
-                };
-            }
-            if (rivalTeam[1]) { // Rotom-Wash
-                rivalTeam[1].rl = {
-                    item: 'sitrus-berry',
-                    ability: 'levitate', // Levitación (Inmune a Tierra)
-                    nature: 'mild',
-                    moves: [
-                        { name: 'hydro-pump', type: 'water', category: 'special', power: '110', accuracy: '80' },
-                        { name: 'volt-switch', type: 'electric', category: 'special', power: '70', accuracy: '100' },
-                        { name: 'will-o-wisp', type: 'fire', category: 'status', power: '', accuracy: '85' },
-                        { name: 'pain-split', type: 'normal', category: 'status', power: '', accuracy: '' }
-                    ]
-                };
-            }
-            if (rivalTeam[2]) { // Gengar
-                rivalTeam[2].rl = {
-                    item: 'air-balloon', // Globo Helio (Inmune a Tierra)
-                    ability: 'levitate', // Levitación (Inmune a Tierra)
-                    nature: 'timid',
-                    moves: [
-                        { name: 'shadow-ball', type: 'ghost', category: 'special', power: '80', accuracy: '100' },
-                        { name: 'sludge-bomb', type: 'poison', category: 'special', power: '90', accuracy: '100' },
-                        { name: 'focus-blast', type: 'fighting', category: 'special', power: '120', accuracy: '70' },
-                        { name: 'substitute', type: 'normal', category: 'status', power: '', accuracy: '' }
-                    ]
-                };
-            }
-            if (rivalTeam[3]) { // Talonflame
-                rivalTeam[3].rl = {
-                    item: 'choice-band',
-                    ability: 'gale wings',
-                    nature: 'jolly',
-                    moves: [
-                        { name: 'flare-blitz', type: 'fire', category: 'physical', power: '120', accuracy: '100' },
-                        { name: 'brave-bird', type: 'flying', category: 'physical', power: '120', accuracy: '100' },
-                        { name: 'u-turn', type: 'bug', category: 'physical', power: '70', accuracy: '100' },
-                        { name: 'roost', type: 'flying', category: 'status', power: '', accuracy: '' }
-                    ]
-                };
-            }
-            
+
             // Asignar al estado global
             teamData = myTeam;
             rivalTeamData = rivalTeam;
             activeRivalIndex = 0;
             rivalData = rivalTeam[0] || null;
-            
+            rivalData2 = rivalTeam[1] || null;
+
             // Forzar modo 6vs6 para activar la Matriz Global
             currentBattleMode = '6vs6';
-            
-            // Renderizar y sincronizar todo
+
+            // Sincronizar UI
             renderTeam();
             renderRivalTeam();
             renderRival();
             renderRandomlockeTable();
             renderRandomlockeRivalTable();
             changeBattleMode('6vs6');
-            
-            showToast("⚡ ¡Simulación Pro de Campeonato Mundial Cargada Exitosamente!");
+
+            showToast("⚡ ¡Combate de Campeonato cargado exitosamente!");
         }
 
         // ==========================================================================
