@@ -8423,35 +8423,99 @@
                     }
                 });
                 
-                // Decisiones Tácticas Imersivas (Asistente Rotom)
-                let adviceBadge = 'ASISTENCIA ROTOM';
-                let adviceBadgeColor = '#3b4cca';
+                // Decisiones Tácticas Inmersivas (Asistente Rotom con contexto de Modos de Juego)
+                let adviceBadge = 'PIVOTAR';
+                let adviceBadgeColor = '#f59e0b';
                 let adviceText = '';
-                
-                if (activeIsFaster && maxOurDmgPercent >= 100) {
-                    adviceBadge = 'MANTENER Y ATACAR';
-                    adviceBadgeColor = '#10b981';
-                    adviceText = `🔥 <strong>¡OPORTUNIDAD DE K.O.!</strong> Eres más rápido. Tu movimiento <strong>${formatPokemonName(bestOurMove)}</strong> (${bestOurMoveType.toUpperCase()}) noquea al oponente de un golpe (hasta ${Math.round(maxOurDmgPercent)}% máx). ¡ATACA DIRECTAMENTE!`;
-                } else if (!activeIsFaster && maxRivalDmgPercent >= 100) {
-                    adviceBadge = 'CAMBIO URGENTE';
-                    adviceBadgeColor = '#ef4444';
-                    adviceText = `⚠️ <strong>¡PELIGRO DE K.O.!</strong> El oponente es más rápido y puede noquearte con <strong>${formatPokemonName(bestRivalMove)}</strong> (${Math.round(maxRivalDmgPercent)}% máx). ${safestPivot ? `Cambia de inmediato a tu pivot seguro: <strong>${formatPokemonName(safestPivot.name)}</strong> (absorbe el impacto recibiendo solo ~\<strong>${Math.round(safestPivotDmg)}%</strong> máx).` : '¡Usa Protección o pantallas defensivas!'}`;
-                } else if (activeIsFaster && maxOurDmgPercent >= 50) {
-                    adviceBadge = 'MANTENER / ATACAR';
-                    adviceBadgeColor = '#10b981';
-                    adviceText = `⚔️ <strong>Ventaja Ofensiva:</strong> Superas en velocidad y causas daño masivo (${Math.round(maxOurDmgPercent)}% máx) con <strong>${formatPokemonName(bestOurMove)}</strong>. Mantente en combate y asegura el KO en 2 turnos.`;
-                } else if (!activeIsFaster && maxRivalDmgPercent >= 50) {
-                    adviceBadge = 'PIVOTAR / RETIRADA';
-                    adviceBadgeColor = '#f59e0b';
-                    adviceText = `🔄 <strong>Matchup Desfavorable:</strong> El oponente ataca primero y te causa desgaste crítico (${Math.round(maxRivalDmgPercent)}% máx). ${safestPivot ? `Se aconseja cambiar a <strong>${formatPokemonName(safestPivot.name)}</strong> para amortiguar el golpe.` : 'Usa Reflejo/Pantalla Luz para mitigar el impacto.'}`;
-                } else if (maxRivalDmgPercent < 30) {
-                    adviceBadge = 'VENTANA DE SETUP';
-                    adviceBadgeColor = '#a855f7';
-                    adviceText = `🛡️ <strong>Oportunidad de Boost:</strong> El oponente apenas te daña (${Math.round(maxRivalDmgPercent)}% máx). Usa un movimiento de boost (Danza Espada/Paz Mental) o cambia libremente.`;
+
+                // Detección de tipos de movimientos tácticos en el set de nuestro Pokémon activo (Hazards & Pivots)
+                let hasPivotMove = false;
+                let pivotMoveName = '';
+                let hasHazardMove = false;
+                let hazardMoveName = '';
+                let hasBoostSetupMove = false;
+                let boostSetupMoveName = '';
+
+                if (activeAliado.rl && activeAliado.rl.moves) {
+                    activeAliado.rl.moves.forEach(m => {
+                        if (m.name) {
+                            const nameLower = m.name.toLowerCase();
+                            if (['u-turn', 'volt-switch', 'flip-turn', 'ida-y-vuelta', 'voltiocambio', 'vira-viraje', 'partida'].some(x => nameLower.includes(x))) {
+                                hasPivotMove = true;
+                                pivotMoveName = m.name;
+                            }
+                            if (['stealth-rock', 'spikes', 'toxic-spikes', 'sticky-web', 'trampa-rocas', 'púas', 'red-viscosa'].some(x => nameLower.includes(x))) {
+                                hasHazardMove = true;
+                                hazardMoveName = m.name;
+                            }
+                            if (['dance', 'mind', 'swords', 'espad', 'calm', 'dragon', 'drum', 'curse', 'maldici', 'maquinacion', 'nasty'].some(x => nameLower.includes(x))) {
+                                hasBoostSetupMove = true;
+                                boostSetupMoveName = m.name;
+                            }
+                        }
+                    });
+                }
+
+                if (currentBattleMode === '1vsTeam') {
+                    // MODO RANDOMBLOCKE (Prioridad: SUPERVIVENCIA ABSOLUTA)
+                    if (maxRivalDmgPercent >= 50) {
+                        adviceBadge = 'CAMBIO URGENTE';
+                        adviceBadgeColor = '#ef4444';
+                        adviceText = `⚠️ <strong>¡PELIGRO EN RANDOMBLOCKE!</strong> El rival te causa daño crítico (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>) con <strong>${formatPokemonName(bestRivalMove)}</strong>. Perder un Pokémon es definitivo. ¡No arriesgues! ${safestPivot ? `Retírate inmediatamente al pivot seguro: <strong>${formatPokemonName(safestPivot.name)}</strong> (recibe solo ~${Math.round(safestPivotDmg)}% máx).` : '¡Usa Protección o Pantallas para mitigar el golpe!'}`;
+                    } else if (activeIsFaster && maxOurDmgPercent >= 100) {
+                        adviceBadge = 'MANTENER Y ATACAR';
+                        adviceBadgeColor = '#10b981';
+                        adviceText = `🔥 <strong>¡ASEGURA EL K.O. SIN RIESGO!</strong> Superas en velocidad al rival y lo noqueas de un golpe directo con <strong>${formatPokemonName(bestOurMove)}</strong> (<strong>${Math.round(maxOurDmgPercent)}% máx</strong>). El enemigo caerá antes de poder tocarte. ¡Ataca ya!`;
+                    } else if (maxRivalDmgPercent < 30 && (hasBoostSetupMove || setupCandidates.some(c => c.poke.name === activeAliado.name))) {
+                        adviceBadge = 'VENTANA DE SETUP';
+                        adviceBadgeColor = '#a855f7';
+                        const mName = boostSetupMoveName || 'boost';
+                        adviceText = `🛡️ <strong>Ventana de Setup Segura:</strong> El rival te hace cosquillas (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>). Aprovecha este turno libre para potenciarte con <strong>${formatPokemonName(mName)}</strong> y barrer su equipo con total seguridad.`;
+                    } else if (activeIsFaster && maxOurDmgPercent >= 50) {
+                        adviceBadge = 'MANTENER Y ATACAR';
+                        adviceBadgeColor = '#10b981';
+                        adviceText = `⚔️ <strong>Ventaja Ofensiva Segura:</strong> Eres más rápido y causas daño masivo (<strong>${Math.round(maxOurDmgPercent)}% máx</strong>) con <strong>${formatPokemonName(bestOurMove)}</strong>. Mantente firme para finiquitar el duelo en dos turnos, cuidando que su desgaste no te ponga en rango de crítico.`;
+                    } else {
+                        adviceBadge = 'PIVOTAR';
+                        adviceBadgeColor = '#f59e0b';
+                        adviceText = `🔄 <strong>Pivot de Conservación:</strong> El duelo es incierto y arriesgas desgaste valioso. ${safestPivot ? `Es preferible pivotar hacia <strong>${formatPokemonName(safestPivot.name)}</strong> (amortigua recibiendo solo ~${Math.round(safestPivotDmg)}% máx) para conservar la vida al 100%.` : 'Utiliza movimientos de estado o coberturas elementales con precaución.'}`;
+                    }
                 } else {
-                    adviceBadge = 'INTERCAMBIAR';
-                    adviceBadgeColor = '#64748b';
-                    adviceText = `⚖️ <strong>Duelo Táctico:</strong> Intercambio de golpes equilibrado. Aplica coberturas elementales súper efectivas o mantén el control posicional.`;
+                    // MODO 6vs6 COMPETITIVO GLOBAL (Prioridad: ESTRATEGIA, MOMENTUM & PRESION)
+                    if (activeIsFaster && maxOurDmgPercent >= 100) {
+                        adviceBadge = 'MANTENER Y ATACAR';
+                        adviceBadgeColor = '#10b981';
+                        adviceText = `🔥 <strong>¡OPORTUNIDAD DE K.O. TÁCTICO!</strong> Eres más rápido. Tu movimiento <strong>${formatPokemonName(bestOurMove)}</strong> noquea al rival de un golpe (<strong>${Math.round(maxOurDmgPercent)}% máx</strong>). ¡ATACA DIRECTAMENTE! <em>Consejo:</em> Si el rival prevé tu ataque y cambia a un counter (ej. saca a Tyranitar contra tu atacante especial), tu siguiente jugada idónea será rotar inmediatamente a <strong>Lucario</strong> o a tu atacante físico.`;
+                    } else if (maxRivalDmgPercent >= 80) {
+                        adviceBadge = 'CAMBIO URGENTE';
+                        adviceBadgeColor = '#ef4444';
+                        adviceText = `⚠️ <strong>¡PELIGRO DE K.O. RIVAL!</strong> El rival te tiene acorralado y es más rápido o te noquea con <strong>${formatPokemonName(bestRivalMove)}</strong> (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>). <strong>Evita este matchup a toda costa</strong>. ${safestPivot ? `Cambia en el acto a tu pivot seguro: <strong>${formatPokemonName(safestPivot.name)}</strong> (recibe solo ~${Math.round(safestPivotDmg)}% máx) para conservar tu momentum.` : '¡Usa pantallas, Protección o un señuelo!'}`;
+                    } else if (hasHazardMove && maxRivalDmgPercent < 35) {
+                        adviceBadge = 'VENTANA DE SETUP';
+                        adviceBadgeColor = '#a855f7';
+                        adviceText = `🛡️ <strong>Ventana de Hazards (Turno 1 / Apertura)</strong>: El oponente te causa muy poco daño (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>). <strong>¡Es el momento perfecto para usar ${formatPokemonName(hazardMoveName)}!</strong> Siembra el campo para desgastar sus futuros cambios. Si responde rotando a un counter, tu respuesta en el Turno 2 será pivotar hacia <strong>${safestPivot ? formatPokemonName(safestPivot.name) : 'un pivot seguro'}</strong>.`;
+                    } else if (hasPivotMove && activeIsFaster && maxOurDmgPercent < 50) {
+                        adviceBadge = 'PIVOTAR';
+                        adviceBadgeColor = '#f59e0b';
+                        adviceText = `🔄 <strong>Secuencia de Pivot Ofensivo</strong>: Superas en velocidad al oponente pero tu daño directo no asegura el K.O. <strong>¡Usa tu movimiento de pivot: ${formatPokemonName(pivotMoveName)}!</strong> Ataca primero rompiendo su Banda Focus/Robustez y cambia en el mismo acto hacia <strong>${safestPivot ? formatPokemonName(safestPivot.name) : 'un counter directo'}</strong> para conservar el control ofensivo.`;
+                    } else if (activeIsFaster && maxOurDmgPercent >= 50) {
+                        adviceBadge = 'MANTENER Y ATACAR';
+                        adviceBadgeColor = '#10b981';
+                        adviceText = `⚔️ <strong>Ventaja Ofensiva Activa:</strong> Superas en velocidad y causas daño masivo (<strong>${Math.round(maxOurDmgPercent)}% máx</strong>) con <strong>${formatPokemonName(bestOurMove)}</strong>. Mantente en combate para asegurar el KO en 2 turnos. Si el rival responde cambiando a un contraataque de tipo resistente (ej. saca a Tyranitar contra tu Greninja), el plan de juego pro es rotar de inmediato a <strong>Lucario</strong> para explotar su debilidad cuádruple.`;
+                    } else if (!activeIsFaster && maxRivalDmgPercent >= 45) {
+                        adviceBadge = 'PIVOTAR';
+                        adviceBadgeColor = '#f59e0b';
+                        adviceText = `🔄 <strong>Desventaja de Matchup</strong>: El rival es más rápido y causa desgaste crítico (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>) con <strong>${formatPokemonName(bestRivalMove)}</strong>. <strong>No absorbas daño gratuito</strong>. Pivota de inmediato hacia tu pivot defensivo <strong>${safestPivot ? formatPokemonName(safestPivot.name) : 'principal'}</strong> para resistir el golpe y recuperar el posicionamiento de campo.`;
+                    } else if (maxRivalDmgPercent < 30 && (hasBoostSetupMove || setupCandidates.some(c => c.poke.name === activeAliado.name))) {
+                        adviceBadge = 'VENTANA DE SETUP';
+                        adviceBadgeColor = '#a855f7';
+                        const mName = boostSetupMoveName || 'boost';
+                        adviceText = `🛡️ <strong>Oportunidad de Boost</strong>: El oponente apenas te daña (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>). Aprovecha este turno libre para potenciarte con <strong>${formatPokemonName(mName)}</strong> y convertir a <strong>${formatPokemonName(activeAliado.name)}</strong> en un sweeper imparable en esta ventana libre.`;
+                    } else {
+                        adviceBadge = 'PIVOTAR';
+                        adviceBadgeColor = '#f59e0b';
+                        adviceText = `⚖️ <strong>Duelo de Cobertura Elemental:</strong> Matchup equilibrado. Si el rival responde cambiando a un contraataque, aprovecha tu red de inmunidades o pivota a <strong>${safestPivot ? formatPokemonName(safestPivot.name) : 'tu pivot defensivo'}</strong> para mantener el control posicional.`;
+                    }
                 }
 
                 // Sinergias Especiales & Habilidades
@@ -8491,21 +8555,31 @@
                     
                     <div class="rec-content" style="padding: 18px; width: 100%; box-sizing: border-box; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; position: relative; z-index: 2;">
                         
-                        <!-- Bloque 1: Apertura & Estado de Velocidad -->
-                        <div style="background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; display: flex; gap: 14px; align-items: center; text-align: left;">
-                            <img src="${bestLeadPoke.animatedSprite}" alt="${bestLeadPoke.name}" style="width: 58px; height: 58px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));" onerror="this.onerror=null; this.src='${bestLeadPoke.sprite}';">
-                            <div style="display: flex; flex-direction: column; gap: 2px;">
-                                <span style="font-size: 0.65rem; color: #fff200; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase;">Alineación de Apertura</span>
-                                <div style="font-size: 1.15rem; font-weight: 900; color: #ffffff; font-family: 'Outfit', sans-serif; text-transform: capitalize; display: flex; align-items: center; gap: 6px;">
-                                    ${formatPokemonName(bestLeadPoke.name)}
+                        <!-- Bloque 1: Duelo Activo en Pista -->
+                        <div style="background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; text-align: left;">
+                            <span style="font-size: 0.65rem; color: #fff200; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase;">⚔️ DUELO ACTIVO EN PISTA</span>
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.22); padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);">
+                                <!-- Aliado Activo -->
+                                <div style="display: flex; align-items: center; gap: 6px; flex: 1; overflow: hidden;">
+                                    <img src="${activeAliado.animatedSprite}" alt="${activeAliado.name}" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(96,165,250,0.3));" onerror="this.onerror=null; this.src='${activeAliado.sprite}';">
+                                    <div style="display: flex; flex-direction: column; overflow: hidden;">
+                                        <span style="font-size: 0.5rem; color: #60a5fa; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px;">TU ACTIVO</span>
+                                        <span style="font-size: 0.8rem; font-weight: 900; color: #ffffff; text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${formatPokemonName(activeAliado.name)}</span>
+                                    </div>
                                 </div>
-                                <div style="display: inline-flex; gap: 4px; margin-top: 2px;">
-                                    ${bestLeadPoke.types.map(t => `<span class="type-badge" style="background:${TYPE_COLORS[t]}; font-size:0.6rem; padding:1px 5px; color:#ffffff; font-weight:800;">${TYPE_ICONS[t]} ${TYPE_NAMES[t]}</span>`).join('')}
+                                <div style="font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 0.75rem; color: #ef4444; text-shadow: 0 0 6px rgba(239,68,68,0.5); padding: 0 4px;">VS</div>
+                                <!-- Rival Activo -->
+                                <div style="display: flex; align-items: center; gap: 6px; flex: 1; justify-content: flex-end; text-align: right; overflow: hidden;">
+                                    <div style="display: flex; flex-direction: column; overflow: hidden;">
+                                        <span style="font-size: 0.5rem; color: #f87171; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px;">RIVAL ACTIVO</span>
+                                        <span style="font-size: 0.8rem; font-weight: 900; color: #ffffff; text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${formatPokemonName(rivalData.name)}</span>
+                                    </div>
+                                    <img src="${rivalData.animatedSprite}" alt="${rivalData.name}" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(248,113,113,0.3));" onerror="this.onerror=null; this.src='${rivalData.sprite}';">
                                 </div>
-                                <p style="font-size: 0.72rem; color: #e2e8f0; font-weight: 600; line-height: 1.35; margin-top: 5px;">
-                                    ${leadReason}
-                                </p>
                             </div>
+                            <p style="font-size: 0.68rem; color: #cbd5e1; font-weight: 700; line-height: 1.35; margin: 0; padding-top: 4px; border-top: 1px dashed rgba(255,255,255,0.06);">
+                                💡 <strong>Apertura recomendada:</strong> ${leadReason}
+                            </p>
                         </div>
 
                         <!-- Bloque 2: Decisión Táctica Rápida (Resumen Ágil) -->
