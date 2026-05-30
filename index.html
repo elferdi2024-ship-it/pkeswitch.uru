@@ -6029,6 +6029,50 @@
                     { name: 'stone-edge', type: 'rock', category: 'physical', power: '100', accuracy: '80' },
                     { name: 'knock-off', type: 'dark', category: 'physical', power: '65', accuracy: '100' }
                 ]
+            },
+            'arcanine': {
+                item: 'heavy-duty-boots',
+                ability: 'intimidate',
+                nature: 'jolly',
+                moves: [
+                    { name: 'flare-blitz', type: 'fire', category: 'physical', power: '120', accuracy: '100' },
+                    { name: 'extreme-speed', type: 'normal', category: 'physical', power: '80', accuracy: '100' },
+                    { name: 'wild-charge', type: 'electric', category: 'physical', power: '90', accuracy: '100' },
+                    { name: 'will-o-wisp', type: 'fire', category: 'status', power: '', accuracy: '85' }
+                ]
+            },
+            'shedinja': {
+                item: 'focus-sash',
+                ability: 'wonder-guard',
+                nature: 'adamant',
+                moves: [
+                    { name: 'shadow-sneak', type: 'ghost', category: 'physical', power: '40', accuracy: '100' },
+                    { name: 'x-scissor', type: 'bug', category: 'physical', power: '80', accuracy: '100' },
+                    { name: 'will-o-wisp', type: 'fire', category: 'status', power: '', accuracy: '85' },
+                    { name: 'swords-dance', type: 'normal', category: 'status', power: '', accuracy: '' }
+                ]
+            },
+            'azumarill': {
+                item: 'sitrus-berry',
+                ability: 'huge-power',
+                nature: 'adamant',
+                moves: [
+                    { name: 'belly-drum', type: 'normal', category: 'status', power: '', accuracy: '' },
+                    { name: 'aqua-jet', type: 'water', category: 'physical', power: '40', accuracy: '100' },
+                    { name: 'play-rough', type: 'fairy', category: 'physical', power: '90', accuracy: '90' },
+                    { name: 'liquidation', type: 'water', category: 'physical', power: '85', accuracy: '100' }
+                ]
+            },
+            'gengar': {
+                item: 'life-orb',
+                ability: 'cursed-body',
+                nature: 'timid',
+                moves: [
+                    { name: 'shadow-ball', type: 'ghost', category: 'special', power: '80', accuracy: '100' },
+                    { name: 'sludge-bomb', type: 'poison', category: 'special', power: '90', accuracy: '100' },
+                    { name: 'dazzling-gleam', type: 'fairy', category: 'special', power: '80', accuracy: '100' },
+                    { name: 'focus-blast', type: 'fighting', category: 'special', power: '120', accuracy: '70' }
+                ]
             }
         };
 
@@ -8545,8 +8589,8 @@
                 recBanner.classList.remove('no-advantage');
                 recBanner.classList.add('show');
                 
-                // Determinación del Pokémon activo propio (dinámico según selección en 6vs6)
-                const activeAliado = (currentBattleMode === '6vs6' && teamData[activeAllyIndex]) ? teamData[activeAllyIndex] : teamData[0];
+                // Determinación del Pokémon activo propio (dinámico en todos los modos de combate)
+                const activeAliado = teamData[activeAllyIndex] || teamData[0];
                 const activeReal = calculateRealStats(activeAliado);
                 const rivalReal = calculateRealStats(rivalData);
                 const activeSpeedDiff = activeReal.real.speed - rivalReal.real.speed;
@@ -11036,35 +11080,31 @@
             };
             showToast(`🎮 Generación de combate sincronizada automáticamente a: ${genNames[targetGen] || targetGen}`);
 
-            // 1. Cargar Pokémon del Equipo Propio
-            const myTeam = [];
-            for (let name of randomCombat.team) {
-                const p = await fetchPokemon(name);
-                if (p) {
-                    const lowerName = p.name.toLowerCase();
-                    if (COMPETITIVE_USAGE_STATS[lowerName]) {
-                        p.rl = JSON.parse(JSON.stringify(COMPETITIVE_USAGE_STATS[lowerName]));
-                        p.rl.status = 'none';
-                        p.rl.boosts = { attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
-                    }
-                    myTeam.push(p);
-                }
-            }
+            // 1. Cargar Pokémon del Equipo Propio y del Rival en Paralelo de Alto Rendimiento (Carga Instantánea)
+            const [myTeamRaw, rivalTeamRaw] = await Promise.all([
+                Promise.all(randomCombat.team.map(name => fetchPokemon(name))),
+                Promise.all(randomCombat.rival.map(name => fetchPokemon(name)))
+            ]);
 
-            // 2. Cargar Pokémon del Equipo Rival
-            const rivalTeam = [];
-            for (let name of randomCombat.rival) {
-                const p = await fetchPokemon(name);
-                if (p) {
-                    const lowerName = p.name.toLowerCase();
-                    if (COMPETITIVE_USAGE_STATS[lowerName]) {
-                        p.rl = JSON.parse(JSON.stringify(COMPETITIVE_USAGE_STATS[lowerName]));
-                        p.rl.status = 'none';
-                        p.rl.boosts = { attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
-                    }
-                    rivalTeam.push(p);
+            const myTeam = myTeamRaw.filter(Boolean).map(p => {
+                const lowerName = p.name.toLowerCase();
+                if (COMPETITIVE_USAGE_STATS[lowerName]) {
+                    p.rl = JSON.parse(JSON.stringify(COMPETITIVE_USAGE_STATS[lowerName]));
+                    p.rl.status = 'none';
+                    p.rl.boosts = { attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
                 }
-            }
+                return p;
+            });
+
+            const rivalTeam = rivalTeamRaw.filter(Boolean).map(p => {
+                const lowerName = p.name.toLowerCase();
+                if (COMPETITIVE_USAGE_STATS[lowerName]) {
+                    p.rl = JSON.parse(JSON.stringify(COMPETITIVE_USAGE_STATS[lowerName]));
+                    p.rl.status = 'none';
+                    p.rl.boosts = { attack: 0, defense: 0, spa: 0, spd: 0, speed: 0 };
+                }
+                return p;
+            });
 
             // Asignar al estado global
             teamData = myTeam;
