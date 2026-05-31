@@ -5884,30 +5884,58 @@
             const pivotFriendly = safestPivotName ? formatPokemonName(safestPivotName) : "";
             const moveFriendly = bestOurMoveName ? formatPokemonName(bestOurMoveName) : "un ataque fuerte";
             
+            const changeUrgentPhrases = [
+                `¡Alerta roja, bzzzt! ¡Saca a ${pivotFriendly} de inmediato, nos van a demoler si te quedas!`,
+                `¡Peligro inminente, bzzzt! Ese rival es letal. ¡Cambia ya mismo a ${pivotFriendly} para resistir!`,
+                `¡Retirada de emergencia! Saca a ${pivotFriendly} para absorber ese golpe letal, ¡bzzzt!`
+            ];
+            
+            const activeAttackPhrases = [
+                `¡Dale con todo, bzzzt! ¡Usa ${moveFriendly} y bórralo del mapa de un golpe!`,
+                `¡Control de velocidad total! Destruye a ese rival usando ${moveFriendly}, ¡bzzzt!`,
+                `¡Tenemos la iniciativa! Desata un ${moveFriendly} letal y quédate con el KO.`
+            ];
+            
+            const setupPhrases = [
+                `¡Ventana libre de peligro, bzzzt! Usa ${moveFriendly} para boostearte y preparar la barrida.`,
+                `¡El oponente es pasivo, bzzzt! Cárgate de stats con ${moveFriendly} o realiza un cambio gratis.`,
+                `¡Momento perfecto para el setup! Cárgate con ${moveFriendly} y toma el control absoluto.`
+            ];
+            
+            const pivotPhrases = [
+                `¡Bzzzt! Haz un pivot táctico rápido. Rotar hacia ${pivotFriendly} es tu jugada maestra.`,
+                `Prepara el cambio seguro, bzzzt. Rota hacia ${pivotFriendly} para mantener el momentum defensivo.`,
+                `Inercia táctica a favor: saca a ${pivotFriendly} y resiste su cobertura elemental.`
+            ];
+            
+            const neutralPhrases = [
+                `¡Duelo parejo en la arena, bzzzt! Ataca con ${moveFriendly} o adivina su cambio.`,
+                `Matchup balanceado. Mantén la presión con ${moveFriendly} y mantente alerta, ¡bzzzt!`,
+                `Cara a cara estable. Usa tu cobertura elemental ${moveFriendly} para desgastar.`
+            ];
+            
+            const getRandomPhrase = (arr) => arr[Math.floor(Math.random() * arr.length)];
+            
             if (badgeUpper.includes('CAMBIO URGENTE')) {
-                pitch = 1.9; // Worried tone
-                rate = 1.35; // Fast warning rate
-                if (pivotFriendly) {
-                    spokenSentence = `¡Peligro, cambio urgente! ¡Saca a ${pivotFriendly} ya, nos van a noquear!`;
-                } else {
-                    spokenSentence = `¡Alerta máxima, bzzzt! No hay cambios seguros en el banquillo. ¡Sostén el ataque o sacrifica al activo!`;
-                }
+                pitch = 1.85; 
+                rate = 1.35; 
+                spokenSentence = pivotFriendly ? getRandomPhrase(changeUrgentPhrases) : `¡Alerta máxima, bzzzt! No existen cambios seguros en el banquillo. ¡Sostén el ataque o prepárate para un sacrificio limpio!`;
             } else if (badgeUpper.includes('MANTENER Y ATACAR')) {
-                pitch = 1.45; // Safe confident tone
-                rate = 1.05;
-                spokenSentence = `¡Dale con todo, bzzzt! ¡Usa ${moveFriendly} y asegura el nocaut!`;
+                pitch = 1.45; 
+                rate = 1.1;
+                spokenSentence = getRandomPhrase(activeAttackPhrases);
             } else if (badgeUpper.includes('VENTANA DE SETUP')) {
                 pitch = 1.55;
-                rate = 1.1;
-                spokenSentence = "¡Ventana libre, bzzzt! Cárgate de poder o cambia gratis.";
+                rate = 1.05;
+                spokenSentence = getRandomPhrase(setupPhrases);
             } else if (badgeUpper.includes('PIVOTAR')) {
                 pitch = 1.65;
-                rate = 1.25;
-                spokenSentence = `¡Haz pivot táctico! Rotar hacia ${pivotFriendly} es la mejor jugada.`;
+                rate = 1.2;
+                spokenSentence = getRandomPhrase(pivotPhrases);
             } else {
                 pitch = 1.6;
                 rate = 1.15;
-                spokenSentence = "¡Duelo parejo! Ataca con coberturas o cambia de ritmo.";
+                spokenSentence = getRandomPhrase(neutralPhrases);
             }
             
             const utterance = new SpeechSynthesisUtterance(spokenSentence);
@@ -8555,6 +8583,7 @@
 
         function selectActiveRival(index) {
             activeRivalIndex = index;
+            lastRecommendedPivotIndex = -1; // Reset anti-bucle
             rivalData = rivalTeamData[index];
             renderRivalTeam();
             renderRival();
@@ -10117,6 +10146,714 @@
             `;
         }
 
+        // ==========================================================================
+        // MOTOR TÁCTICO INTELIGENTE & AUXILIARES ESTRATÉGICOS (v4.0)
+        // ==========================================================================
+        function getEffectiveMoves(poke) {
+            const moves = [];
+            if (poke.rl && poke.rl.moves) {
+                poke.rl.moves.forEach(m => {
+                    if (m.name && m.type && m.power && m.power !== '-') {
+                        moves.push(m);
+                    }
+                });
+            }
+            if (moves.length === 0) {
+                poke.types.forEach(t => {
+                    moves.push({
+                        name: `STAB ${TYPE_NAMES[t] || t}`,
+                        type: t,
+                        category: (poke.stats.spa || 0) > (poke.stats.attack || 0) ? 'special' : 'physical',
+                        power: '90'
+                    });
+                });
+            }
+            return moves;
+        }
+
+        function getMaxDamageDealt(attacker, defender) {
+            let maxDmg = 0, bestMove = '', bestResult = null;
+            getEffectiveMoves(attacker).forEach(m => {
+                const dmg = calculateDamageRange(attacker, defender, m);
+                if (dmg && dmg.maxPercent > maxDmg) {
+                    maxDmg = dmg.maxPercent;
+                    bestMove = m.name;
+                    bestResult = dmg;
+                }
+            });
+            return { maxPercent: maxDmg, moveName: bestMove, result: bestResult };
+        }
+
+        function getMaxDamageTaken(defender, attacker) {
+            let maxDmg = 0, worstMove = '', worstResult = null;
+            getEffectiveMoves(attacker).forEach(m => {
+                const dmg = calculateDamageRange(attacker, defender, m);
+                if (dmg && dmg.maxPercent > maxDmg) {
+                    maxDmg = dmg.maxPercent;
+                    worstMove = m.name;
+                    worstResult = dmg;
+                }
+            });
+            return { maxPercent: maxDmg, moveName: worstMove, result: worstResult };
+        }
+
+        function isSetupMove(moveName) {
+            const n = moveName.toLowerCase();
+            return n.includes('dance') || n.includes('mind') || n.includes('swords') ||
+                   n.includes('espad') || n.includes('calm') || n.includes('dragon') ||
+                   n.includes('drum') || n.includes('curse') || n.includes('maldici') ||
+                   n.includes('nasty plot') || n.includes('bulk up') || n.includes('coil') ||
+                   n.includes('shell smash') || n.includes('growth') || n.includes('work up');
+        }
+
+        function renderBasicTab(bestLeadPoke, getCachedStats) {
+            const analysisContent = document.getElementById('analysisContent');
+            if (!analysisContent) return;
+
+            const rows = teamData.map((p) => {
+                let offensive = getMatchupEffectiveness(p, rivalData);
+                let defensive = getMatchupEffectiveness(rivalData, p);
+
+                const pReal = getCachedStats(p).real;
+                const rReal = getCachedStats(rivalData).real;
+                const speedDiff = pReal.speed - rReal.speed;
+
+                const effClass = offensive > 1 ? 'eff-super' : offensive < 1 ? (offensive === 0 ? 'eff-immune' : 'eff-weak') : 'eff-neutral';
+                let effText = offensive > 1 ? `🔥 x${offensive}` : offensive < 1 ? (offensive === 0 ? '🚫 Inmune' : `🛡️ x${offensive}`) : '⚖️ x1';
+
+                let defText = `${defensive < 1 ? '🛡️' : defensive > 1 ? '⚠️' : '⚖️'} x${defensive}`;
+                let speedText = speedDiff > 0 ? '▲ +' + speedDiff : speedDiff < 0 ? '▼ ' + speedDiff : '= Igual';
+                let speedColor = speedDiff > 0 ? '#10b981' : speedDiff < 0 ? '#ef4444' : '#f59e0b';
+
+                if (isDoubleBattle && rivalData2) {
+                    let offensive2 = getMatchupEffectiveness(p, rivalData2);
+                    let defensive2 = getMatchupEffectiveness(rivalData2, p);
+                    let speedDiff2 = pReal.speed - getCachedStats(rivalData2).real.speed;
+
+                    const effClass2 = offensive2 > 1 ? 'eff-super' : offensive2 < 1 ? (offensive2 === 0 ? 'eff-immune' : 'eff-weak') : 'eff-neutral';
+                    let effText2 = offensive2 > 1 ? `🔥 x${offensive2}` : offensive2 < 1 ? (offensive2 === 0 ? '🚫 Inmune' : `🛡️ x${offensive2}`) : '⚖️ x1';
+                    let defText2 = `${defensive2 < 1 ? '🛡️' : defensive2 > 1 ? '⚠️' : '⚖️'} x${defensive2}`;
+
+                    effText = `
+                        <div style="font-size:0.68rem; line-height:1.25;">
+                            <div><strong>R1:</strong> <span class="effectiveness-badge ${effClass}" style="padding:1px 3px; font-size:0.6rem;">${effText}</span></div>
+                            <div style="margin-top:2px;"><strong>R2:</strong> <span class="effectiveness-badge ${effClass2}" style="padding:1px 3px; font-size:0.6rem;">${effText2}</span></div>
+                        </div>`;
+
+                    defText = `
+                        <div style="font-size:0.68rem; line-height:1.25;">
+                            <div><strong>R1:</strong> <span class="effectiveness-badge ${defensive < 1 ? 'eff-super' : defensive > 1 ? 'eff-weak' : 'eff-neutral'}" style="padding:1px 3px; font-size:0.6rem;">${defText}</span></div>
+                            <div style="margin-top:2px;"><strong>R2:</strong> <span class="effectiveness-badge ${defensive2 < 1 ? 'eff-super' : defensive2 > 1 ? 'eff-weak' : 'eff-neutral'}" style="padding:1px 3px; font-size:0.6rem;">${defText2}</span></div>
+                        </div>`;
+
+                    const speedText2 = speedDiff2 > 0 ? '▲ +' + speedDiff2 : speedDiff2 < 0 ? '▼ ' + speedDiff2 : '= Igual';
+                    const speedColor2 = speedDiff2 > 0 ? '#10b981' : speedDiff2 < 0 ? '#ef4444' : '#f59e0b';
+                    
+                    speedText = `
+                        <div style="font-size:0.68rem; line-height:1.25; font-weight:800;">
+                            <div><strong>R1:</strong> <span style="color:${speedColor}">${speedText}</span></div>
+                            <div><strong>R2:</strong> <span style="color:${speedColor2}">${speedText2}</span></div>
+                        </div>`;
+                } else {
+                    effText = `<span class="effectiveness-badge ${effClass}">${effText}</span>`;
+                    defText = `<span class="effectiveness-badge ${defensive < 1 ? 'eff-super' : defensive > 1 ? 'eff-weak' : 'eff-neutral'}">${defText}</span>`;
+                    speedText = `<span style="font-weight:800; font-size:0.82rem; color:${speedColor}">${speedText}</span>`;
+                }
+
+                const isBest = bestLeadPoke && p.name === bestLeadPoke.name;
+
+                return `
+                    <tr class="matchup-row ${isBest ? 'active' : ''}" style="${isBest ? 'border-left: 4px solid var(--poke-blue); background: rgba(59, 76, 202, 0.04);' : ''}">
+                        <td>
+                            <div class="matchup-pokemon">
+                                <img src="${p.animatedSprite}" alt="${p.name}" onerror="this.onerror=null; this.src='${p.sprite}';">
+                                <div>
+                                    <div class="matchup-pokemon-name">${formatPokemonName(p.name)}</div>
+                                    <div style="font-size:0.75rem;color:#64748b;font-weight:700;">Vel Real: ⚡${pReal.speed}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${effText}</td>
+                        <td>${defText}</td>
+                        <td>${speedText}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            analysisContent.innerHTML = `
+                <div class="analysis-tab-content active">
+                    <table class="matchup-table" style="margin-top:0;">
+                        <thead>
+                            <tr>
+                                <th>Pokémon de tu Equipo</th>
+                                <th>Pega al Rival</th>
+                                <th>Daño Recibido</th>
+                                <th>Velocidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderProTab(bestLeadPoke, leadReason, setupHtml, getCachedStats) {
+            const analysisContent = document.getElementById('analysisContent');
+            if (!analysisContent) return;
+
+            // 1. Escala de Velocidades
+            const speedList = [];
+            teamData.forEach((myPoke, idx) => {
+                const calc = getCachedStats(myPoke);
+                speedList.push({ poke: myPoke, isRival: false, speed: calc.real.speed, idx });
+            });
+
+            const activeRivalsForSpeed = currentBattleMode === '6vs6' ? rivalTeamData : (rivalData ? [rivalData] : []);
+            if (currentBattleMode === '1vsTeam' && isDoubleBattle && rivalData2) {
+                activeRivalsForSpeed.push(rivalData2);
+            }
+
+            activeRivalsForSpeed.forEach((rivalPoke, idx) => {
+                const calc = getCachedStats(rivalPoke);
+                speedList.push({ poke: rivalPoke, isRival: true, speed: calc.real.speed, idx });
+            });
+
+            speedList.sort((a, b) => b.speed - a.speed);
+
+            const speedTiersHtml = speedList.map((item, i) => {
+                const borderColor = item.isRival ? '#ef4444' : 'var(--poke-blue)';
+                const bg = item.isRival ? 'rgba(239, 68, 68, 0.03)' : 'rgba(59, 76, 202, 0.03)';
+                const nameColor = item.isRival ? '#b91c1c' : '#1e3a8a';
+                const label = item.isRival ? 'Rival' : 'Aliado';
+
+                return `
+                    <div style="display: flex; align-items: center; flex-shrink: 0; background: ${bg}; border: 2px solid ${borderColor}; border-radius: 12px; padding: 6px 12px; gap: 8px; position: relative; min-width: 120px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                        <span style="position: absolute; top: -7px; right: 8px; font-size: 0.58rem; font-weight: 900; color: white; background: ${borderColor}; padding: 1px 4px; border-radius: 4px; text-transform: uppercase;">
+                            ${label}
+                        </span>
+                        <img src="${item.poke.sprite}" alt="${item.poke.name}" style="width: 28px; height: 28px; object-fit: contain;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-size: 0.78rem; font-weight: 800; color: ${nameColor}; text-transform: capitalize;">${formatPokemonName(item.poke.name).substring(0, 10)}</span>
+                                <span style="font-size: 0.75rem; font-weight: 900; color: #475569;">⚡ ${item.speed} Spe</span>
+                            </div>
+                        </div>
+                        ${i < speedList.length - 1 ? `<div style="font-size: 1rem; font-weight: 900; color: #cbd5e1; margin-left: 4px;">➔</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            const speedTimelineWidget = `
+                <div class="pro-card" style="border-left: 6px solid #ec4899; margin-bottom: 16px; width: 100%; box-sizing: border-box;">
+                    <div class="pro-card-title" style="color: #db2777; justify-content: space-between; align-items: center; font-size:1.05rem;">
+                        <span style="display:flex; align-items:center; gap:6px;">⚡ Escala de Velocidades (Speed Tiers en Vivo)</span>
+                        <span style="font-size: 0.72rem; background: rgba(236, 72, 153, 0.1); color: #db2777; padding: 3px 8px; border-radius: 8px; font-weight:800;">Orden de Turnos Real</span>
+                    </div>
+                    <p style="font-size: 0.88rem; color: #64748b; font-weight: 600; margin-bottom: 12px; line-height: 1.4;">
+                        Calculado según la velocidad real en combate, considerando climas, parálisis, boosts de stage y objetos equipados.
+                    </p>
+                    <div style="display: flex; gap: 8px; overflow-x: auto; padding: 6px 2px; scrollbar-width: thin; -ms-overflow-style: none;">
+                        ${speedTiersHtml}
+                    </div>
+                </div>
+            `;
+
+            let leadWidgetHtml = '';
+            if (bestLeadPoke) {
+                leadWidgetHtml = `
+                    <div class="pro-card" style="border-left: 6px solid var(--poke-blue); width: 100%; box-sizing: border-box; background: rgba(59, 76, 202, 0.01); margin-bottom:16px; padding: 24px;">
+                        <div class="pro-card-title" style="color: var(--poke-blue); justify-content: space-between; align-items: center; font-size:1.05rem;">
+                            <span style="display:flex; align-items:center; gap:4px;">🎯 Plan de Batalla Táctico (Lead & Estrategia)</span>
+                            <span style="font-size: 0.72rem; background: rgba(59, 76, 202, 0.1); color: var(--poke-blue); padding: 3px 8px; border-radius: 8px; font-weight:800;">Alineación de Apertura</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 16px; margin-top: 12px;">
+                            <img src="${bestLeadPoke.animatedSprite}" alt="${bestLeadPoke.name}" style="width: 48px; height: 48px; object-fit: contain;" onerror="this.onerror=null; this.src='${bestLeadPoke.sprite}';">
+                            <div>
+                                <span style="font-size: 0.68rem; color: var(--poke-blue); font-weight: 900; text-transform: uppercase;">Líder Recomendado</span>
+                                <div style="font-weight: 900; font-size: 1.2rem; color: #1e3a8a; text-transform:capitalize;">${formatPokemonName(bestLeadPoke.name)}</div>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.88rem; color: #374151; font-weight: 600; line-height: 1.5; margin-top: 12px; margin-bottom: 0;">
+                            ${leadReason}
+                        </p>
+                        ${setupHtml}
+                    </div>
+                `;
+            }
+
+            // 3. Encontrar Sweepers
+            const sweepers = [];
+            const activeRivals = currentBattleMode === '6vs6' ? rivalTeamData : [rivalData];
+            if (currentBattleMode === '1vsTeam' && isDoubleBattle && rivalData2) {
+                activeRivals.push(rivalData2);
+            }
+
+            teamData.forEach(myPoke => {
+                const myReal = getCachedStats(myPoke);
+                let sweepCount = 0;
+                const sweepTargets = [];
+
+                activeRivals.forEach(rivalPoke => {
+                    const rivalReal = getCachedStats(rivalPoke);
+                    const outspeeds = myReal.real.speed > rivalReal.real.speed;
+                    let mult = getMatchupEffectiveness(myPoke, rivalPoke);
+
+                    let hasCompetitivelyStrongMove = false;
+                    let bestMoveDetails = "";
+
+                    getEffectiveMoves(myPoke).forEach(m => {
+                        const dmg = calculateDamageRange(myPoke, rivalPoke, m);
+                        if (dmg) {
+                            if (dmg.maxPercent >= 50 || getSingleTypeEffectiveness(m.type, rivalPoke) > 1) {
+                                hasCompetitivelyStrongMove = true;
+                                if (dmg.maxPercent > 0) {
+                                    bestMoveDetails = `(${m.name} ${dmg.minPercent}%-${dmg.maxPercent}%)`;
+                                }
+                            }
+                        }
+                    });
+
+                    if (outspeeds && (mult > 1 || hasCompetitivelyStrongMove)) {
+                        sweepCount++;
+                        sweepTargets.push({ rival: rivalPoke, details: bestMoveDetails });
+                    }
+                });
+
+                let isSetupSweeper = false;
+                getEffectiveMoves(myPoke).forEach(m => {
+                    if (isSetupMove(m.name)) isSetupSweeper = true;
+                });
+
+                if (sweepCount > 0) {
+                    sweepers.push({ poke: myPoke, count: sweepCount, targets: sweepTargets, speed: myReal.real.speed, isSetup: isSetupSweeper });
+                }
+            });
+
+            sweepers.sort((a, b) => b.count - a.count);
+
+            // 4. Pivots Seguros
+            const pivots = [];
+            activeRivals.forEach(rivalPoke => {
+                let bestPivot = null;
+                let safestPivotDmgVal = Infinity;
+                let bestPivotBulk = -Infinity;
+                let bestPivotDetails = "";
+
+                teamData.forEach(myPoke => {
+                    let damageTaken = getMatchupEffectiveness(rivalPoke, myPoke);
+                    let maxRealDmgTaken = getMaxDamageTaken(myPoke, rivalPoke).maxPercent;
+
+                    const metric = maxRealDmgTaken > 0 ? maxRealDmgTaken / 100 : damageTaken;
+                    const myReal = getCachedStats(myPoke);
+                    const bulk = myReal.real.hp + myReal.real.defense + myReal.real.spd;
+
+                    if (metric < safestPivotDmgVal) {
+                        safestPivotDmgVal = metric;
+                        bestPivotBulk = bulk;
+                        bestPivot = myPoke;
+                        bestPivotDetails = maxRealDmgTaken > 0 ? `Max golpe: ${maxRealDmgTaken}%` : `Daño: x${damageTaken}`;
+                    } else if (metric === safestPivotDmgVal && bulk > bestPivotBulk) {
+                        bestPivotBulk = bulk;
+                        bestPivot = myPoke;
+                        bestPivotDetails = maxRealDmgTaken > 0 ? `Max golpe: ${maxRealDmgTaken}%` : `Daño: x${damageTaken}`;
+                    }
+                });
+
+                if (bestPivot) {
+                    pivots.push({ rival: rivalPoke, pivot: bestPivot, damage: safestPivotDmgVal, bulk: bestPivotBulk, details: bestPivotDetails });
+                }
+            });
+
+            // 5. Amenazas
+            const threats = [];
+            activeRivals.forEach(rivalPoke => {
+                const rivalReal = getCachedStats(rivalPoke);
+                let threatCount = 0;
+                const threatTargets = [];
+
+                teamData.forEach(myPoke => {
+                    const myReal = getCachedStats(myPoke);
+                    const outspeeds = rivalReal.real.speed > myReal.real.speed;
+                    let mult = getMatchupEffectiveness(rivalPoke, myPoke);
+
+                    let hasHardHittingMove = false;
+                    let hitDetails = "";
+
+                    getEffectiveMoves(rivalPoke).forEach(m => {
+                        const dmg = calculateDamageRange(rivalPoke, myPoke, m);
+                        if (dmg && dmg.maxPercent >= 50) {
+                            hasHardHittingMove = true;
+                            hitDetails = ` (	ext{${dmg.koChance || (dmg.maxPercent + '%')}})`;
+                        }
+                    });
+
+                    if (outspeeds && (mult > 1 || hasHardHittingMove)) {
+                        threatCount++;
+                        threatTargets.push(formatPokemonName(myPoke.name) + hitDetails);
+                    }
+                });
+
+                if (threatCount >= 2) {
+                    threats.push({ rival: rivalPoke, count: threatCount, targets: threatTargets, speed: rivalReal.real.speed });
+                }
+            });
+
+            // 6. Ataques Letales
+            let ourLethalAttacksHtml = '';
+            const lethalMovesList = [];
+
+            teamData.forEach(myPoke => {
+                getEffectiveMoves(myPoke).forEach(m => {
+                    const dmg = calculateDamageRange(myPoke, rivalData, m);
+                    if (dmg && (dmg.maxPercent >= 20 || getSingleTypeEffectiveness(m.type, rivalData) > 1)) {
+                        lethalMovesList.push({ poke: myPoke, move: m, dmg: dmg, targetRival: rivalData });
+                    }
+
+                    if (isDoubleBattle && rivalData2) {
+                        const dmg2 = calculateDamageRange(myPoke, rivalData2, m);
+                        if (dmg2 && (dmg2.maxPercent >= 20 || getSingleTypeEffectiveness(m.type, rivalData2) > 1)) {
+                            lethalMovesList.push({ poke: myPoke, move: m, dmg: dmg2, targetRival: rivalData2 });
+                        }
+                    }
+                });
+            });
+
+            lethalMovesList.sort((a, b) => b.dmg.maxPercent - a.dmg.maxPercent);
+
+            if (lethalMovesList.length > 0) {
+                ourLethalAttacksHtml = lethalMovesList.map(item => {
+                    const percentColor = item.dmg.maxPercent >= 100 ? '#10b981' : item.dmg.maxPercent >= 50 ? '#f59e0b' : '#475569';
+                    const typeColor = TYPE_COLORS[item.move.type] || '#64748b';
+                    const typeIcon = TYPE_ICONS[item.move.type] || '🔮';
+                    const rivalLabel = (isDoubleBattle && rivalData2) ? ` <span style="font-size:0.68rem; color:#475569; background:rgba(0,0,0,0.04); padding:2px 6px; border-radius:6px; font-weight:700;">vs ${formatPokemonName(item.targetRival.name)}</span>` : '';
+
+                    return `
+                        <div class="pro-item-row" style="padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.03); display:flex; justify-content:space-between; align-items:center;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <img src="${item.poke.sprite}" alt="${item.poke.name}" style="width:28px; height:28px; object-fit:contain;">
+                                <div style="display:flex; flex-direction:column;">
+                                    <span style="font-size:0.88rem; font-weight:800; color:#1e293b; text-transform:capitalize;">${formatPokemonName(item.poke.name)}${rivalLabel}</span>
+                                    <span style="font-size:0.75rem; font-weight:800; color:${typeColor}; display:flex; align-items:center; gap:2px;">
+                                        ${typeIcon} ${item.move.name}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="text-align:right;">
+                                <span style="font-size:0.92rem; font-weight:900; color:	ext{${percentColor}}; font-family:'Outfit',sans-serif;">${item.dmg.minPercent}% - ${item.dmg.maxPercent}%</span>
+                                <div style="font-size:0.75rem; font-weight:800; color:#64748b;">${item.dmg.koChance}</div>
+                            </div>
+                        </div>
+                    `;
+                }).slice(0, 5).join('');
+            } else {
+                ourLethalAttacksHtml = `
+                    <div style="text-align:center; padding:16px; color:#64748b; font-size:0.88rem; font-weight:600;">
+                        ⚖️ Tu equipo no tiene ataques de gran impacto elemental activo.
+                    </div>
+                `;
+            }
+
+            // 7. Ataques Rival
+            let rivalDangerousAttacksHtml = '';
+            const rivalLethalList = [];
+
+            activeRivals.forEach(activeRivalPoke => {
+                teamData.forEach(myPoke => {
+                    getEffectiveMoves(activeRivalPoke).forEach(m => {
+                        const dmg = calculateDamageRange(activeRivalPoke, myPoke, m);
+                        if (dmg && (dmg.maxPercent >= 20 || getSingleTypeEffectiveness(m.type, myPoke) > 1)) {
+                            rivalLethalList.push({ attacker: activeRivalPoke, myPoke: myPoke, move: m, dmg: dmg });
+                        }
+                    });
+                });
+            });
+
+            rivalLethalList.sort((a, b) => b.dmg.maxPercent - a.dmg.maxPercent);
+
+            if (rivalLethalList.length > 0) {
+                rivalDangerousAttacksHtml = rivalLethalList.map(item => {
+                    const percentColor = item.dmg.maxPercent >= 50 ? '#ef4444' : '#f59e0b';
+                    const typeColor = TYPE_COLORS[item.move.type] || '#cbd5e1';
+                    const typeIcon = TYPE_ICONS[item.move.type] || '⚡';
+                    const attackerLabel = (isDoubleBattle && rivalData2) ? ` <span style="font-size:0.68rem; color:#b91c1c; background:rgba(239,68,68,0.05); padding:2px 6px; border-radius:6px; font-weight:700;">Rival: 	ext{${formatPokemonName(item.attacker.name)}}</span>` : '';
+
+                    return `
+                        <div class="pro-item-row" style="padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.03); display:flex; justify-content:space-between; align-items:center;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <div style="display:flex; align-items:center; flex-direction:column; min-width:45px;">
+                                    <span style="font-size:0.58rem; color:#ef4444; font-weight:900; text-transform:uppercase;">Daño a</span>
+                                    <img src="${item.myPoke.sprite}" alt="${item.myPoke.name}" style="width:24px; height:24px; object-fit:contain;">
+                                    <span style="font-size:0.72rem; font-weight:800; color:#1e293b; text-transform:capitalize;">${formatPokemonName(item.myPoke.name).substring(0,8)}</span>
+                                </div>
+                                <div style="display:flex; flex-direction:column; margin-left:6px;">
+                                    <span style="font-size:0.82rem; font-weight:800; color:#b91c1c; text-transform:capitalize;">${formatPokemonName(item.attacker.name)}${attackerLabel}</span>
+                                    <span style="font-size:0.75rem; font-weight:800; color:${typeColor}; display:flex; align-items:center; gap:2px;">
+                                        ${typeIcon} ${item.move.name}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="text-align:right;">
+                                <span style="font-size:0.92rem; font-weight:900; color:	ext{${percentColor}}; font-family:'Outfit',sans-serif;">${item.dmg.minPercent}% - ${item.dmg.maxPercent}%</span>
+                                <div style="font-size:0.75rem; font-weight:800; color:#64748b;">${item.dmg.koChance}</div>
+                            </div>
+                        </div>
+                    `;
+                }).slice(0, 5).join('');
+            } else {
+                rivalDangerousAttacksHtml = `
+                    <div style="text-align:center; padding:16px; color:#64748b; font-size:0.88rem; font-weight:600;">
+                        ✅ ¡Excelente! Los rivales activos no tienen ataques efectivos contra ningún miembro de tu equipo.
+                    </div>
+                `;
+            }
+
+            // Sweeper Estrella Card
+            let sweepersHtml = '';
+            if (sweepers.length > 0) {
+                const topSweeper = sweepers[0];
+                const baseAtk = topSweeper.poke.stats.attack || 0;
+                const baseSpA = topSweeper.poke.stats.spa || 0;
+                let sweeperTypeLabel = "Ofensivo Mixto";
+                let sweeperTypeIcon = "⚔️";
+                let sweeperBgGradient = "linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(5, 150, 105, 0.02) 100%)";
+                let sweeperBorderColor = "rgba(16, 185, 129, 0.2)";
+                let sweeperTextTitleColor = "#10b981";
+                
+                if (topSweeper.isSetup) {
+                    sweeperTypeLabel = "Setup Sweeper 🎯";
+                    sweeperTypeIcon = "🔮";
+                    sweeperBgGradient = "linear-gradient(135deg, rgba(139, 92, 246, 0.06) 0%, rgba(109, 40, 217, 0.02) 100%)";
+                    sweeperBorderColor = "rgba(139, 92, 246, 0.2)";
+                    sweeperTextTitleColor = "#8b5cf6";
+                } else if (baseAtk > baseSpA * 1.1) {
+                    sweeperTypeLabel = "Físico Ofensivo 💥";
+                    sweeperTypeIcon = "💥";
+                    sweeperBgGradient = "linear-gradient(135deg, rgba(239, 68, 68, 0.06) 0%, rgba(185, 28, 28, 0.02) 100%)";
+                    sweeperBorderColor = "rgba(239, 68, 68, 0.2)";
+                    sweeperTextTitleColor = "#ef4444";
+                } else if (baseSpA > baseAtk * 1.1) {
+                    sweeperTypeLabel = "Especial Ofensivo 🌀";
+                    sweeperTypeIcon = "🌀";
+                    sweeperBgGradient = "linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, rgba(29, 78, 216, 0.02) 100%)";
+                    sweeperBorderColor = "rgba(59, 130, 246, 0.2)";
+                    sweeperTextTitleColor = "#3b82f6";
+                }
+                
+                const targetsHtml = topSweeper.targets.map(t => {
+                    const rName = formatPokemonName(t.rival.name);
+                    return `
+                        <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.7); border:1px solid rgba(0,0,0,0.06); padding:6px 12px; border-radius:12px; box-shadow:0 2px 4px rgba(0,0,0,0.02); transition:transform 0.2s;" class="sweep-target-bubble">
+                            <img src="${t.rival.sprite}" alt="${t.rival.name}" style="width:28px; height:28px; object-fit:contain;">
+                            <div style="display:flex; flex-direction:column; gap:1px;">
+                                <span style="font-size:0.78rem; font-weight:800; color:#1e293b; text-transform:capitalize;">${rName}</span>
+                                <span style="font-size:0.68rem; font-weight:700; color:#64748b; font-family:monospace; line-height:1;">${t.details || 'Daño crítico'}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                sweepersHtml = `
+                    <div class="pro-card" style="border-left: 6px solid ${sweeperTextTitleColor}; background: ${sweeperBgGradient}; border:1px solid ${sweeperBorderColor}; border-left-width: 6px; border-radius: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.04); padding: 24px; overflow:hidden; margin-bottom:16px;">
+                        <div class="pro-card-title" style="color: ${sweeperTextTitleColor}; font-size:1.05rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <span style="display:flex; align-items:center; gap:6px;">${sweeperTypeIcon} Condición de Victoria (Sweeper Estrella)</span>
+                            <span style="font-size: 0.72rem; background: ${sweeperBorderColor}; color: ${sweeperTextTitleColor}; padding: 3px 8px; border-radius: 8px; font-weight:900; text-transform:uppercase;">${sweeperTypeLabel}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                            <div style="position:relative; display:flex; align-items:center; justify-content:center; width:64px; height:64px; background:rgba(255,255,255,0.8); border-radius:16px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+                                <img src="${topSweeper.poke.animatedSprite}" alt="${topSweeper.poke.name}" style="width: 52px; height: 52px; object-fit: contain; z-index:2;" onerror="this.onerror=null; this.src='${topSweeper.poke.sprite}';">
+                                <div style="position:absolute; width:100%; height:100%; border-radius:16px; background:${sweeperTextTitleColor}; opacity:0.04; filter:blur(4px);"></div>
+                            </div>
+                            <div>
+                                <div style="font-weight: 900; font-size: 1.3rem; color: #1e293b; text-transform:capitalize; display:flex; align-items:center; gap:6px;">
+                                    ${formatPokemonName(topSweeper.poke.name)}
+                                </div>
+                                <div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+                                    <span style="font-size: 0.75rem; color: #475569; font-weight: 800; background:rgba(255,255,255,0.7); border:1px solid rgba(0,0,0,0.06); padding:3px 8px; border-radius:8px; display:inline-flex; align-items:center; gap:4px;">
+                                        ⚡ ⚡${topSweeper.speed} Spe
+                                    </span>
+                                    <span style="font-size: 0.75rem; color: #047857; font-weight: 800; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.11); padding:3px 8px; border-radius:8px; display:inline-flex; align-items:center; gap:4px;">
+                                        ⚔️ Barre a ${topSweeper.count}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.88rem; color: #475569; font-weight: 600; line-height: 1.5; margin-bottom: 16px;">
+                            Con su velocidad superior y cobertura ofensiva, <strong>${formatPokemonName(topSweeper.poke.name)}</strong> es el atacante ideal para tomar la iniciativa de este matchup.
+                        </p>
+                        <div style="display:flex; flex-direction:column; gap:8px; border-top:1px solid rgba(0,0,0,0.04); padding-top:12px;">
+                            <span style="font-size:0.72rem; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; display:block;">Objetivos Ofensivos Directos (OHKO/2HKO)</span>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                ${targetsHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                sweepersHtml = `
+                    <div class="pro-card" style="border-left: 6px solid #64748b; padding: 24px; margin-bottom:16px;">
+                        <div class="pro-card-title" style="color: #475569; font-size:1.05rem;">
+                            ⚔️ Condición de Victoria
+                        </div>
+                        <p style="font-size: 0.88rem; color: #475569; font-weight: 600; line-height: 1.5; margin-bottom: 0; text-align: center; padding: 16px 0;">
+                            ⚖️ No se detectan sweepers puros con ventaja de velocidad y daño crítico. Se aconseja juego defensivo, pivots y desgaste.
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Alertas
+            let threatsHtml = '';
+            if (threats.length > 0) {
+                threatsHtml = threats.map(t => `
+                    <div class="pro-card" style="border-left: 6px solid #ef4444; background: rgba(239, 68, 68, 0.02); margin-bottom: 16px; padding: 24px; animation: pulseBorder 2s infinite alternate;">
+                        <div class="pro-card-title" style="color: #b91c1c; font-size:1.05rem;">
+                            ⚠️ ALERTA DE AMENAZA CRÍTICA RIVAL
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                            <img src="${t.rival.animatedSprite}" alt="${t.rival.name}" style="width: 52px; height: 52px; object-fit: contain;" onerror="this.onerror=null; this.src='${t.rival.sprite}';">
+                            <div>
+                                <div style="font-weight: 900; font-size: 1.15rem; color: #991b1b; text-transform:capitalize;">${formatPokemonName(t.rival.name)}</div>
+                                <div style="font-size: 0.88rem; color: #b91c1c; font-weight: 700; margin-top: 2px;">
+                                    Velocidad Rival: ⚡${t.speed} Spe | Amenaza a 	ext{${t.count}} de tus Pokémon
+                                </div>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.88rem; color: #374151; font-weight: 600; line-height: 1.5; margin-bottom: 0;">
+                            💀 <strong>${formatPokemonName(t.rival.name)}</strong> supera en velocidad y daña críticamente a: <span style="color: #b91c1c; font-weight: 800;">${t.targets.join(', ')}</span>. ¡Evita mantener a estos Pokémon en combate frente a él y usa pivots!
+                        </p>
+                    </div>
+                `).join('');
+            } else {
+                threatsHtml = `
+                    <div class="pro-card" style="border-left: 6px solid #10b981; background: rgba(16, 185, 129, 0.02); margin-bottom: 16px; padding: 24px;">
+                        <div class="pro-card-title" style="color: #047857; font-size:1.05rem;">
+                            👍 Alertas de Amenazas
+                        </div>
+                        <p style="font-size: 0.88rem; color: #047857; font-weight: 600; line-height: 1.5; margin-bottom: 0; text-align: center; padding: 16px 0;">
+                            ✅ ¡Perfecto! No se detectan oponentes más rápidos que amenacen con barrer a múltiples miembros de tu equipo.
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Pivots
+            let pivotsHtml = pivots.map(p => {
+                const dmgText = p.details || `Daño: x${p.damage}`;
+                const isDangerous = p.damage > 1;
+                const dmgColor = isDangerous ? '#ef4444' : p.damage === 0 ? '#8b5cf6' : '#10b981';
+                const dmgBg = isDangerous ? 'rgba(239, 68, 68, 0.08)' : p.damage === 0 ? 'rgba(139, 92, 246, 0.08)' : 'rgba(16, 185, 129, 0.08)';
+                const dmgBorder = isDangerous ? 'rgba(239, 68, 68, 0.15)' : p.damage === 0 ? 'rgba(139, 92, 246, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+                const rivalLabel = (isDoubleBattle && rivalData2) ? ` <span style="font-size:0.68rem; color:#64748b; background:rgba(0,0,0,0.03); padding:2px 6px; border-radius:6px; font-weight:800;">vs ${formatPokemonName(p.rival.name)}</span>` : '';
+
+                const typesBadges = p.pivot.types.map(t => 
+                    `<span style="width:7px; height:7px; border-radius:50%; background:	ext{${TYPE_COLORS[t]}}; display:inline-block;" title="${TYPE_NAMES[t]}"></span>`
+                ).join('');
+
+                const baseStats = p.pivot.stats || { hp: 50, attack: 50, defense: 50, spa: 50, spd: 50, speed: 50 };
+
+                const renderSmogonStat = (label, val, color) => {
+                    const width = Math.min(100, Math.round((val / 200) * 100));
+                    return `
+                        <div class="smogon-stat-row">
+                            <span class="smogon-stat-label">${label}</span>
+                            <div class="smogon-stat-bar-track">
+                                <div class="smogon-stat-bar-fill" style="width: ${width}%; background-color: ${color};"></div>
+                            </div>
+                            <span class="smogon-stat-value">${val}</span>
+                        </div>
+                    `;
+                };
+
+                const statBarsHtml = `
+                    <div style="margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 8px; width: 100%;">
+                        ${renderSmogonStat('hp', baseStats.hp || 50, '#ff5959')}
+                        ${renderSmogonStat('def', baseStats.defense || 50, '#fae078')}
+                        ${renderSmogonStat('spd', baseStats.spd || 50, '#a7db8d')}
+                    </div>
+                `;
+
+                return `
+                    <div class="pro-item-row" style="padding: 16px; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.03); border-radius: 16px; margin-bottom: 8px; transition: transform 0.2s, background 0.2s; display: flex; flex-direction: column; gap: 8px;" class="pivot-interactive-row">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div class="pro-item-left" style="gap: 12px; display:flex; align-items:center; flex:1;">
+                                <div style="display: flex; align-items: center; gap:8px; min-width: 95px; background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.03); padding:4px 8px; border-radius:8px;">
+                                    <img src="${p.rival.sprite}" alt="${p.rival.name}" style="width: 24px; height: 24px; object-fit: contain;">
+                                    <div style="display:flex; flex-direction:column;">
+                                        <span style="font-size: 0.55rem; color: #ef4444; font-weight: 950; text-transform: uppercase; line-height:1;">SI ENTRA</span>
+                                        <span style="font-size: 0.76rem; font-weight: 900; color: #334155; text-transform:capitalize; margin-top:2px;">${formatPokemonName(p.rival.name).substring(0, 8)}</span>
+                                    </div>
+                                </div>
+                                <div style="font-size: 1rem; color: var(--poke-blue); font-weight: 900;">➔</div>
+                                <div style="display: flex; align-items: center; gap:8px; min-width: 105px; background:rgba(59, 76, 202, 0.03); border:1px solid rgba(59, 76, 202, 0.08); padding:4px 8px; border-radius:8px; flex:1;">
+                                    <img src="${p.pivot.sprite}" alt="${p.pivot.name}" style="width: 24px; height: 24px; object-fit: contain;">
+                                    <div style="display:flex; flex-direction:column; flex:1;">
+                                        <span style="font-size: 0.55rem; color: var(--poke-blue); font-weight: 950; text-transform: uppercase; line-height:1;">CAMBIA A</span>
+                                        <span style="font-size: 0.76rem; font-weight: 900; color: #1e293b; text-transform:capitalize; margin-top:2px; display:inline-flex; align-items:center; gap:4px;">
+                                            ${formatPokemonName(p.pivot.name).substring(0, 8)}
+                                            <span style="display:inline-flex; gap:2px; align-items:center;">${typesBadges}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 4px; min-width: 90px;">
+                                <span class="effectiveness-badge" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 900; background: 	ext{${dmgBg}}; color: 	ext{${dmgColor}}; border:1px solid 	ext{${dmgBorder}}; border-radius: 6px; white-space: nowrap;">
+                                    ${dmgText}
+                                </span>
+                            </div>
+                        </div>
+                        ${statBarsHtml}
+                    </div>
+                `;
+            }).join('');
+
+            analysisContent.innerHTML = `
+                <div class="analysis-tab-content active">
+                    ${speedTimelineWidget}
+                    ${leadWidgetHtml}
+                    
+                    <div class="pro-plan-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        
+                        <!-- Columna Izquierda: Sweeper Estrella y Alertas de Amenaza -->
+                        <div>
+                            ${sweepersHtml}
+                            ${threatsHtml}
+                        </div>
+                        
+                        <!-- Columna Derecha: Pivots Seguros y Ataques del Rival -->
+                        <div>
+                            <!-- Carta de Ataques Peligrosos del Rival contra tu Equipo -->
+                            <div class="pro-card" style="border-left: 6px solid #ef4444; margin-bottom: 16px;">
+                                <div class="pro-card-title" style="color: #b91c1c; justify-content: space-between; font-size:1.05rem; align-items:center;">
+                                    <span style="color:#b91c1c;">💀 Ataques Peligrosos del Rival contra tu Equipo</span>
+                                    <span style="font-size: 0.72rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 3px 8px; border-radius: 8px; font-weight:800;">Amenaza Ofensiva</span>
+                                </div>
+                                <p style="font-size: 0.88rem; color: #64748b; font-weight: 600; margin-bottom: 12px; line-height: 1.4;">
+                                    Muestra las combinaciones de ataques del oponente más letales contra tus miembros.
+                                </p>
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    ${rivalDangerousAttacksHtml}
+                                </div>
+                            </div>
+
+                            <div class="pro-card" style="border-left: 6px solid var(--poke-blue);">
+                                <div class="pro-card-title" style="color: var(--poke-blue); justify-content: space-between; font-size:1.05rem;">
+                                    <span>🔄 Rotaciones Clave / Cambios Seguros</span>
+                                    <span style="font-size: 0.72rem; background: rgba(59, 76, 202, 0.1); color: var(--poke-blue); padding: 3px 8px; border-radius: 8px; font-weight:800;">Simulador Defensivo</span>
+                                </div>
+                                <p style="font-size: 0.88rem; color: #64748b; font-weight: 600; margin-bottom: 12px; line-height: 1.4;">
+                                    Calcula el Pokémon de tu equipo que mejor resiste al oponente y posee el mayor bulk defensivo real en vivo.
+                                </p>
+                                <div class="pro-step-list" style="gap: 8px;">
+                                    ${pivotsHtml}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        }
+
         function analyzeMatchups() {
             const analysisTabs = document.getElementById('analysisTabs');
             const weatherSelectorContainer = document.getElementById('weatherSelectorContainer');
@@ -10140,7 +10877,7 @@
             if (analysisTabs) analysisTabs.style.display = 'flex';
             if (weatherSelectorContainer) weatherSelectorContainer.style.display = 'flex';
 
-                        // ----------------------------------------------------
+            // ----------------------------------------------------
             // CACHE DE ESTADÍSTICAS REALES (MEMOIZACIÓN)
             // ----------------------------------------------------
             const statsCache = new Map();
@@ -10259,7 +10996,7 @@
                         bannerClass = "warning";
                         rotomSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/animated/479.gif";
                         actionText = `¡Mantén a ${formatPokemonName(activeAlly.name)} y ataca!`;
-                        actionReason = `Ya pivoteaste a este Pokémon. Aunque el rival es rápido, resiste razonablemente (${Math.round(maxDmgTaken)}% máx). Evita loops de cambio y ataca.`;
+                        actionReason = `Ya pivoteaste a este Pokémon. Aunque el oponente es más rápido, resiste razonablemente (${Math.round(maxDmgTaken)}% máx). ¡Evita bucles infinitos de cambios y ataca!`;
                         actionDetails = `⚔️ Ataca con <strong>${ourBestMoveName ? formatPokemonName(ourBestMoveName) : 'tu ataque más fuerte'}</strong> para desgastar.`;
                     } else {
                         actionBadge = "⚠️ CAMBIO URGENTE";
@@ -10327,16 +11064,19 @@
                     actionDetails = safestPivot ? `🔄 <strong>Pivot Táctico</strong>: Considera rotar hacia <strong>${formatPokemonName(safestPivot.name)}</strong> (${safestPivotDetail}) para absorber coberturas elementales.` : `⚖️ Utiliza coberturas de daño o estados alterados para desgastar.`;
                 }
                 
-                // Actualizar Banner en el DOM
+                // Actualizar Banner en el DOM (¡Inyección del Sprite de Rotom!)
                 if (recBanner) {
                     recBanner.className = `recommendation-banner show ${bannerClass}`;
                     const imgEl = document.getElementById('recPokemonImg');
                     if (imgEl) {
-                        imgEl.src = activeAlly.sprite;
-                        imgEl.alt = activeAlly.name;
+                        imgEl.src = rotomSprite; // ¡Mostramos a Rotom animado hablando!
+                        imgEl.alt = "Rotom Copilot";
+                        imgEl.style.width = "64px";
+                        imgEl.style.height = "64px";
+                        imgEl.style.objectFit = "contain";
                     }
                     const labelEl = recBanner.querySelector('.rec-label');
-                    if (labelEl) labelEl.innerHTML = `<span class="rotom-badge-status">${actionBadge}</span>`;
+                    if (labelEl) labelEl.innerHTML = `<span class="rotom-badge-status" style="background:#ff315f; border:1px solid white;">🏆 Copiloto Rotom VGC Pro</span>`;
                     const titleEl = document.getElementById('recTitle');
                     if (titleEl) titleEl.innerHTML = actionText;
                     const reasonEl = document.getElementById('recReason');
@@ -10483,7 +11223,7 @@
                     <div style="margin-top: 12px; padding: 10px 14px; background: rgba(245, 158, 11, 0.05); border: 1.5px dashed #f59e0b; border-radius: 12px; display:flex; align-items:center; gap:8px;">
                         <span style="font-size:1.2rem;">🎯</span>
                         <div style="font-size: 0.82rem; color: #78350f; font-weight: 700; line-height: 1.4;">
-                            <strong>Oportunidad de Boost</strong>: <strong>${formatPokemonName(topSetup.poke.name)}</strong> solo recibe un ${topSetup.dmg}% máx ${labelText}. ¡Usa <strong>${topSetup.move}</strong> para boostearte y barrer!
+                            <strong>Oportunidad de Boost</strong>: <strong>${formatPokemonName(topSetup.poke.name)}</strong> solo recibe un <u>${topSetup.dmg}</u>% máx ${labelText}. ¡Usa <strong>${topSetup.move}</strong> para boostearte y barrer!
                         </div>
                     </div>
                 `;
@@ -10498,6 +11238,7 @@
                 renderProTab(bestLeadPoke, leadReason, setupHtml, getCachedStats);
             }
         }
+
 
 
 
