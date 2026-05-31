@@ -6898,6 +6898,7 @@
                 koChance
             };
         }
+        function presetModalStats(idx, type, isRival) {
             const team = isRival ? rivalTeamData : teamData;
             const p = team[idx];
             if (p) {
@@ -8968,6 +8969,40 @@
                         if (rivalData2.rl && rivalData2.rl.moves) {
                             rivalData2.rl.moves.forEach(m => {
                                 if (m.name && m.type && m.power && m.power !== '-') {
+                                    rivalMoves2.push(m);
+                                }
+                            });
+                        }
+                        if (rivalMoves2.length === 0) {
+                            rivalData2.types.forEach(t => {
+                                rivalMoves2.push({
+                                    name: `STAB ${TYPE_NAMES[t] || t}`,
+                                    type: t,
+                                    category: (rivalData2.stats.spa || 0) > (rivalData2.stats.attack || 0) ? 'special' : 'physical',
+                                    power: '90'
+                                });
+                            });
+                        }
+                        rivalMoves2.forEach(m => {
+                            const dmg = calculateDamageRange(rivalData2, p, m);
+                            if (dmg && dmg.maxPercent > maxDmgTaken2) {
+                                maxDmgTaken2 = dmg.maxPercent;
+                            }
+                        });
+                    }
+
+                    const combinedDmg = maxDmgTaken + maxDmgTaken2;
+                    const condition = (isDoubleBattle && rivalData2) ? (combinedDmg < 50 || (maxDmgTaken < 30 && maxDmgTaken2 < 30)) : (maxDmgTaken < 35);
+
+                    if (condition) {
+                        setupCandidates.push({
+                            poke: p,
+                            move: setupMoveName,
+                            dmg: Math.round(isDoubleBattle ? combinedDmg : maxDmgTaken)
+                        });
+                    }
+                }
+            });
             if (activeAnalysisTab === 'basic') {
                 // RENDERIZADO BÁSICO: Coberturas
                 const rows = teamData.map((p) => {
