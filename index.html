@@ -5752,13 +5752,17 @@
             let spokenSentence = "";
             
             const badgeUpper = (badge || '').toUpperCase();
-            const pivotFriendly = safestPivotName ? formatPokemonName(safestPivotName) : "un compañero";
+            const pivotFriendly = safestPivotName ? formatPokemonName(safestPivotName) : "";
             const moveFriendly = bestOurMoveName ? formatPokemonName(bestOurMoveName) : "un ataque fuerte";
             
             if (badgeUpper.includes('CAMBIO URGENTE')) {
                 pitch = 1.9; // Worried tone
                 rate = 1.35; // Fast warning rate
-                spokenSentence = `¡Peligro, cambio urgente! ¡Saca a ${pivotFriendly} ya, nos van a noquear!`;
+                if (pivotFriendly) {
+                    spokenSentence = `¡Peligro, cambio urgente! ¡Saca a ${pivotFriendly} ya, nos van a noquear!`;
+                } else {
+                    spokenSentence = `¡Alerta máxima, bzzzt! No hay cambios seguros en el banquillo. ¡Sostén el ataque o sacrifica al activo!`;
+                }
             } else if (badgeUpper.includes('MANTENER Y ATACAR')) {
                 pitch = 1.45; // Safe confident tone
                 rate = 1.05;
@@ -8620,17 +8624,26 @@
                     });
                 }
                 
-                // 4. Buscar el Pivot defensivo más seguro en nuestro equipo
+                // 4. Buscar el Pivot defensivo y Outspeeder más seguro en nuestro equipo
                 let safestPivot = null;
                 let safestPivotDmg = Infinity;
                 let safestPivotDetail = "";
+                
+                let bestOutspeeder = null;
+                let bestOutspeederDmgDealt = -Infinity;
+                let bestOutspeederDmgTaken = Infinity;
                 
                 teamData.forEach((myPoke, index) => {
                     // Evitar pivotar al mismo Pokémon activo
                     if (index === activeAllyIndex) return;
                     
+                    // Calcular velocidad y daño recibido
+                    const pokeReal = calculateRealStats(myPoke);
+                    const isFaster = pokeReal.real.speed - rivalReal.real.speed > 0;
+                    
                     let damageFactor = getMatchupEffectiveness(rivalData, myPoke);
                     let maxRealDmg = 0;
+                    let maxRealDmg2 = 0; // Para dobles
                     
                     if (rivalData.rl && rivalData.rl.moves) {
                         rivalData.rl.moves.forEach(m => {
@@ -8643,11 +8656,70 @@
                         });
                     }
                     
-                    const metric = maxRealDmg > 0 ? maxRealDmg / 100 : damageFactor;
-                    if (metric < safestPivotDmg) {
-                        safestPivotDmg = metric;
-                        safestPivot = myPoke;
-                        safestPivotDetail = maxRealDmg > 0 ? `recibe ${maxRealDmg}% máx` : `efectividad x${damageFactor}`;
+                    if (isDoubleBattle && rivalData2) {
+                        if (rivalData2.rl && rivalData2.rl.moves) {
+                            rivalData2.rl.moves.forEach(m => {
+                                if (m.name && m.type && m.power && m.power !== '-') {
+                                    const dmg = calculateDamageRange(rivalData2, myPoke, m);
+                                    if (dmg && dmg.maxPercent > maxRealDmg2) {
+                                        maxRealDmg2 = dmg.maxPercent;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    
+                    const totalDmgTaken = maxRealDmg + maxRealDmg2;
+                    const metric = totalDmgTaken > 0 ? totalDmgTaken / 100 : damageFactor;
+                    
+                    // ¿Es un pivot defensivo viable? No debe estar en Cambio Urgente por sí mismo
+                    // O sea, no debe ser más lento Y recibir >= 50% de daño (o >= 75% combinado en dobles)
+                    const isThreatenedOnEntry = !isFaster && (maxRealDmg >= 50 || (isDoubleBattle && totalDmgTaken >= 75));
+                    
+                    if (!isThreatenedOnEntry) {
+                        if (metric < safestPivotDmg) {
+                            safestPivotDmg = metric;
+                            safestPivot = myPoke;
+                            safestPivotDetail = maxRealDmg > 0 ? `recibe ${Math.round(maxRealDmg)}% máx` : `efectividad x${damageFactor}`;
+                        }
+                    }
+                    
+                    // Buscar el mejor Outspeeder de venganza para relevo limpio
+                    if (isFaster) {
+                        // Calcular cuánto daño le hace al rival para ver si puede vengar
+                        let maxDmgDealt = 0;
+                        const pokeMoves = [];
+                        if (myPoke.rl && myPoke.rl.moves) {
+                            myPoke.rl.moves.forEach(m => {
+                                if (m.name && m.type && m.power && m.power !== '-') {
+                                    pokeMoves.push(m);
+                                }
+                            });
+                        }
+                        if (pokeMoves.length === 0) {
+                            myPoke.types.forEach(t => {
+                                pokeMoves.push({
+                                    name: `STAB ${TYPE_NAMES[t] || t}`,
+                                    type: t,
+                                    category: (myPoke.stats.spa || 0) > (myPoke.stats.attack || 0) ? 'special' : 'physical',
+                                    power: '90'
+                                });
+                            });
+                        }
+                        
+                        pokeMoves.forEach(m => {
+                            const dmg = calculateDamageRange(myPoke, rivalData, m);
+                            if (dmg && dmg.maxPercent > maxDmgDealt) {
+                                maxDmgDealt = dmg.maxPercent;
+                            }
+                        });
+                        
+                        // Queremos el outspeeder que más daño haga o que menos daño reciba
+                        if (maxDmgDealt > bestOutspeederDmgDealt) {
+                            bestOutspeederDmgDealt = maxDmgDealt;
+                            bestOutspeeder = myPoke;
+                            bestOutspeederDmgTaken = maxRealDmg;
+                        }
                     }
                 });
                 
@@ -8669,11 +8741,21 @@
                     bannerClass = "danger";
                     rotomSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/479.gif"; // Rotom alarmado
                     
-                    const pivotName = safestPivot ? formatPokemonName(safestPivot.name) : "un compañero";
-                    actionText = safestPivot ? `¡Retira a ${formatPokemonName(activeAlly.name)} y saca a ${pivotName}!` : `¡Peligro! Cambia de Pokémon de inmediato.`;
-                    
-                    actionReason = `El rival <strong>${formatPokemonName(rivalData.name)}</strong> nos supera en velocidad (⚡${rivalSpeedFriendly} vs ⚡${speedFriendly} Spe) y nos debilita críticamente con <strong>${formatPokemonName(rivalMaxMoveName)}</strong> (${Math.round(maxDmgTaken)}% de daño).`;
-                    actionDetails = safestPivot ? `🛡️ <strong>Pivot Recomendado</strong>: <strong>${pivotName}</strong> tiene la mejor resistencia pasiva contra el rival en el banquillo (${safestPivotDetail}).` : `⚠️ ¡No mantengas a este Pokémon en combate!`;
+                    if (safestPivot) {
+                        const pivotName = formatPokemonName(safestPivot.name);
+                        actionText = `¡Retira a ${formatPokemonName(activeAlly.name)} y saca a ${pivotName}!`;
+                        actionReason = `El rival <strong>${formatPokemonName(rivalData.name)}</strong> nos supera en velocidad (⚡${rivalSpeedFriendly} vs ⚡${speedFriendly} Spe) y nos debilita críticamente con <strong>${formatPokemonName(rivalMaxMoveName)}</strong> (${Math.round(maxDmgTaken)}% de daño).`;
+                        actionDetails = `🛡️ <strong>Pivot Seguro</strong>: <strong>${pivotName}</strong> resiste el golpe de entrada de forma estable (${safestPivotDetail}) sin entrar en bucle de amenaza inmediata.`;
+                    } else if (bestOutspeeder) {
+                        const outspeederName = formatPokemonName(bestOutspeeder.name);
+                        actionText = `¡Sacrifica atacando y realiza un Relevo Limpio con ${outspeederName}!`;
+                        actionReason = `El rival <strong>${formatPokemonName(rivalData.name)}</strong> nos supera en velocidad y nos debilita críticamente. No existen cambios seguros en el banquillo que resistan el cambio directo.`;
+                        actionDetails = `⚔️ <strong>Plan de Venganza</strong>: Mantén a <strong>${formatPokemonName(activeAlly.name)}</strong> para arañar daño residual. Tras caer debilitado, saca limpio a <strong>${outspeederName}</strong>, quien lo supera en velocidad (⚡${calculateRealStats(bestOutspeeder).real.speed} Spe vs ⚡${rivalSpeedFriendly} Spe) y puede castigarlo severamente.`;
+                    } else {
+                        actionText = `¡Intenta infligir el máximo daño o usa prioridad!`;
+                        actionReason = `¡Alerta de Encierro! <strong>${formatPokemonName(rivalData.name)}</strong> nos supera en velocidad y tiene control total de daño sobre todo nuestro equipo. No hay pivots viables ni outspeeders.`;
+                        actionDetails = `🚨 <strong>Situación de Jake</strong>: Todo el equipo es más lento y vulnerable. ¡Ataca con tu movimiento más fuerte o prioridad para reducir su salud lo máximo posible!`;
+                    }
                 }
                 else if (canKO) {
                     // MANTENER Y ATACAR
