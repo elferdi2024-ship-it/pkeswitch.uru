@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.5.0] - 2026-05-31
+
+### Added
+- **Cerebro Táctico de Rotom (Duelo Cara a Cara Activo)**: Implementamos el motor analítico definitivo en tiempo real. Ahora Rotom evalúa el enfrentamiento directo entre el Pokémon aliado activo de la arena (`teamData[activeAllyIndex]`) y los oponentes activos (`rivalData` / `rivalData2`), catalogando el turno reactivamente en 4 estados tácticos competitivos:
+  - **⚠️ CAMBIO URGENTE**: Alerta en rojo si estamos en rango de muerte (OHKO/2HKO) de un rival más veloz, recomendando automáticamente el pivot más resistente del banquillo con cálculo de daño exacto.
+  - **🔥 MANTENER Y ATACAR**: Alerta en verde si superamos en velocidad y aseguramos un OHKO o daño superior al 50%, sugiriendo el movimiento ofensivo letal.
+  - **🎯 VENTANA DE SETUP**: Alerta en morado si el daño recibido es mínimo (<30%) y poseemos un movimiento de boost (Danza Espada, Paz Mental, etc.) para cargarnos de poder gratis.
+  - **⚔️ DUELO PAREJO**: Alerta en dorado si el enfrentamiento es neutro, recomendando coberturas eficientes y desgaste posicional.
+- **Panel de Selección Rápida en Arena (Quick Selectors)**: Añadimos un panel táctil premium superior con burbujas de los 6 Pokémon de nuestro equipo y los 6 Pokémon del rival. Permite alternar en caliente el combatiente activo de la arena con un solo toque, sincronizando reactivamente las estimaciones de daño y consejos de Rotom en los modos vs 1 y vs 2.
+- **Motor Competitivo de Habilidades Avanzadas**: Refinamos al máximo el estimador de daño (`calculateDamageRange`) al integrar en vivo:
+  - **Inmunidades Elementales**: Soporte para *Levitación* (tierra), *Absorber Fuego*, *Absorber Agua/Piel Seca/Colector* (agua), *Absorber Electricidad/Electromotor/Pararrayos* (eléctrico) y *Herbívoro* (planta).
+  - **Reductores de Daño**: Soporte para *Sebo* (Fuego/Hielo -50%), *Filtro / Roca Sólida* (Súper efectivo -25%) y *Compensación / Multiescala* (Daño a full HP -50%).
+  - **Potenciadores Ofensivos**: Soporte para *Potencia / Pure Power* (Ataque Físico x2) y *Agallas / Guts* (Ataque x1.5 si hay estado alterado y anulación de quemadura).
+- **Sintetizador Rotom Dinámico**: Sincronizamos la narración por voz de Web Speech API con el estado del duelo cara a cara activo de la arena, integrando filtros anti-repetición consecutiva para una locución fluida.
+
+---
+
 ## [1.4.0] - 2026-05-30
 
 ### Fixed

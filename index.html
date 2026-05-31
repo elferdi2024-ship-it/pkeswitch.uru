@@ -262,10 +262,46 @@
             animation: slideDown 0.5s ease;
             position: relative;
             overflow: hidden;
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
         .recommendation-banner.show {
             display: block;
+        }
+
+        .recommendation-banner.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+            box-shadow: 0 12px 40px rgba(239, 68, 68, 0.45) !important;
+            border: 1.5px solid rgba(255,255,255,0.2) !important;
+        }
+        .recommendation-banner.success {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
+            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.45) !important;
+            border: 1.5px solid rgba(255,255,255,0.2) !important;
+        }
+        .recommendation-banner.setup {
+            background: linear-gradient(135deg, #8b5cf6 0%, #4f46e5 100%) !important;
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.45) !important;
+            border: 1.5px solid rgba(255,255,255,0.2) !important;
+        }
+        .recommendation-banner.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            box-shadow: 0 12px 40px rgba(245, 158, 11, 0.45) !important;
+            border: 1.5px solid rgba(255,255,255,0.2) !important;
+        }
+        .rotom-badge-status {
+            font-size: 0.72rem;
+            font-weight: 900;
+            background: rgba(255, 255, 255, 0.22);
+            padding: 3px 8px;
+            border-radius: 20px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 4px;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
 
         .recommendation-banner.no-advantage {
@@ -4763,6 +4799,9 @@
                         </label>
                     </div>
 
+                    <!-- Panel de Selección Rápida en Arena de Turno Activo -->
+                    <div id="vgcArenaSelectors" style="display: none;"></div>
+
                     <div id="rivalSearchContainer" style="display: grid; grid-template-columns: 1fr; gap: 12px; transition: all 0.3s ease;">
                         <!-- Buscador Rival 1 -->
                         <div class="search-box" id="rivalSearchBox1">
@@ -6586,6 +6625,19 @@
                 return null;
             }
 
+            // Habilidades del atacante que modifican la estadística final directamente
+            if (attacker.rl && attacker.rl.ability) {
+                const ab = attacker.rl.ability.toLowerCase().trim();
+                // Huge Power / Pure Power (x2 a Ataque Físico)
+                if (move.category === 'physical' && (ab.includes("huge power") || ab.includes("potencia") || ab.includes("pure power") || ab.includes("energia pura") || ab.includes("energía pura"))) {
+                    atkStat = atkStat * 2;
+                }
+                // Guts / Agallas (x1.5 a Ataque si tiene estado alterado)
+                if (move.category === 'physical' && (ab.includes("guts") || ab.includes("agallas")) && attacker.rl.status !== 'none') {
+                    atkStat = Math.floor(atkStat * 1.5);
+                }
+            }
+
             // Fórmula base de daño físico oficial
             const baseDamage = Math.floor(
                 Math.floor((Math.floor((2 * level) / 5 + 2) * power * atkStat) / defStat) / 50
@@ -6633,12 +6685,14 @@
             // 5. Quemadura
             let burnMult = 1.0;
             if (attacker.rl && attacker.rl.status === 'brn' && move.category === 'physical') {
+                let hasGuts = false;
                 if (attacker.rl.ability) {
                     const ab = attacker.rl.ability.toLowerCase();
-                    if (!ab.includes("guts") && !ab.includes("agallas")) {
-                        burnMult = 0.5;
+                    if (ab.includes("guts") || ab.includes("agallas")) {
+                        hasGuts = true;
                     }
-                } else {
+                }
+                if (!hasGuts) {
                     burnMult = 0.5;
                 }
             }
@@ -6714,7 +6768,40 @@
 
             // Generar los 16 rodillos aleatorios
             const rolls = [];
+            
+            // Comprobación de habilidades del defensor para inmunidades o reducciones elementales
+            let defenderAbility = (defender.rl && defender.rl.ability) ? defender.rl.ability.toLowerCase().trim() : '';
+            let isImmune = false;
+            
+            if (defenderAbility) {
+                // Levitación (inmune a tierra)
+                if (moveType === 'ground' && (defenderAbility.includes("levitate") || defenderAbility.includes("levitacion") || defenderAbility.includes("levitación"))) {
+                    isImmune = true;
+                }
+                // Absorber Fuego
+                if (moveType === 'fire' && (defenderAbility.includes("flash fire") || defenderAbility.includes("absorber fuego"))) {
+                    isImmune = true;
+                }
+                // Absorber Agua / Piel Seca / Colector
+                if (moveType === 'water' && (defenderAbility.includes("water absorb") || defenderAbility.includes("absorber agua") || defenderAbility.includes("dry skin") || defenderAbility.includes("piel seca") || defenderAbility.includes("storm drain") || defenderAbility.includes("colector"))) {
+                    isImmune = true;
+                }
+                // Absorber Electricidad / Electromotor / Pararrayos
+                if (moveType === 'electric' && (defenderAbility.includes("volt absorb") || defenderAbility.includes("absorber electricidad") || defenderAbility.includes("motor drive") || defenderAbility.includes("electromotor") || defenderAbility.includes("lightning rod") || defenderAbility.includes("pararrayos"))) {
+                    isImmune = true;
+                }
+                // Herbívoro
+                if (moveType === 'grass' && (defenderAbility.includes("sap sipper") || defenderAbility.includes("herbivoro") || defenderAbility.includes("herbívoro"))) {
+                    isImmune = true;
+                }
+            }
+
             for (let i = 85; i <= 100; i++) {
+                if (isImmune) {
+                    rolls.push(0);
+                    continue;
+                }
+
                 let damage = Math.floor(baseDamage * weatherMult);
                 damage = Math.floor(damage * terrainMult);
                 damage = Math.floor(damage * burnMult);
@@ -6724,7 +6811,25 @@
                 damage = Math.floor((damage * i) / 100);
                 
                 damage = Math.floor(damage * stabMult);
-                damage = Math.floor(damage * typeMult);
+                
+                // Habilidades de reducción de daño en el defensor
+                let finalTypeMult = typeMult;
+                if (defenderAbility) {
+                    // Sebo (daño de fuego/hielo x0.5)
+                    if ((moveType === 'fire' || moveType === 'ice') && (defenderAbility.includes("thick fat") || defenderAbility.includes("sebo"))) {
+                        damage = Math.floor(damage * 0.5);
+                    }
+                    // Filtro / Roca Sólida / Armadura Prisma (daño súper efectivo x0.75)
+                    if (typeMult > 1 && (defenderAbility.includes("filter") || defenderAbility.includes("filtro") || defenderAbility.includes("solid rock") || defenderAbility.includes("roca solida") || defenderAbility.includes("roca sólida") || defenderAbility.includes("prism armor"))) {
+                        damage = Math.floor(damage * 0.75);
+                    }
+                    // Multiescala / Compensación (daño a 100% HP x0.5)
+                    if (defenderAbility.includes("multiscale") || defenderAbility.includes("compensacion") || defenderAbility.includes("compensación") || defenderAbility.includes("shadow shield") || defenderAbility.includes("guardia espectro")) {
+                        damage = Math.floor(damage * 0.5);
+                    }
+                }
+
+                damage = Math.floor(damage * finalTypeMult);
                 damage = Math.floor(damage * itemMult);
 
                 // Aplicar reducción por baya de resistencia
@@ -6733,16 +6838,13 @@
                 }
 
                 // Wonder Guard Check
-                if (defender.rl && defender.rl.ability) {
-                    const ab = defender.rl.ability.toLowerCase().trim();
-                    if (ab.includes("wonder guard") || ab.includes("superguarda")) {
-                        if (typeMult <= 1) {
-                            damage = 0;
-                        }
+                if (defenderAbility.includes("wonder guard") || defenderAbility.includes("superguarda")) {
+                    if (typeMult <= 1) {
+                        damage = 0;
                     }
                 }
 
-                if (damage === 0 && typeMult > 0 && power > 0) {
+                if (damage === 0 && typeMult > 0 && power > 0 && !isImmune) {
                     damage = 1;
                 }
 
@@ -6796,8 +6898,6 @@
                 koChance
             };
         }
-
-        function presetModalStats(idx, type, isRival) {
             const team = isRival ? rivalTeamData : teamData;
             const p = team[idx];
             if (p) {
@@ -7699,6 +7799,7 @@
                 renderMatrix();
             }
             analyzeMatchups();
+            if (typeof updateArenaQuickSelectors === 'function') updateArenaQuickSelectors();
             saveStateToLocalStorage();
         }
 
@@ -7761,6 +7862,7 @@
                 </div>
             `;
             display.classList.add('has-data');
+            if (typeof updateArenaQuickSelectors === 'function') updateArenaQuickSelectors();
         }
 
         // Select Pokemon
@@ -7820,6 +7922,14 @@
                         document.getElementById('rivalSuggestions').style.display = 'none';
                         document.getElementById('rivalSearch').value = '';
                     }
+                    // Sincronizar rivalData con rivalTeamData[0] para mantener consistencia
+                    if (rivalTeamData.length === 0) {
+                        rivalTeamData.push(pokemon);
+                        activeRivalIndex = 0;
+                    } else {
+                        rivalTeamData[0] = pokemon;
+                    }
+                    if (typeof updateArenaQuickSelectors === 'function') updateArenaQuickSelectors();
                 }
             } else {
                 if (teamData.length >= 6) {
@@ -7873,6 +7983,7 @@
                 </div>
             `;
             display.classList.add('has-data');
+            if (typeof updateArenaQuickSelectors === 'function') updateArenaQuickSelectors();
         }
 
         // Render Team
@@ -7930,6 +8041,7 @@
                 grid.appendChild(slot);
             }
             updateTeamSynergy();
+            if (typeof updateArenaQuickSelectors === 'function') updateArenaQuickSelectors();
         }
 
         // Renderizar el equipo Rival en modo 6vs6
@@ -7986,6 +8098,7 @@
                 
                 grid.appendChild(slot);
             }
+            if (typeof updateArenaQuickSelectors === 'function') updateArenaQuickSelectors();
         }
 
         // ==========================================================================
@@ -8199,11 +8312,75 @@
             if (body && p) body.innerHTML = renderSlotStatsModalContent(p, idx, isRival);
         }
 
+        function updateArenaQuickSelectors() {
+            const container = document.getElementById('vgcArenaSelectors');
+            if (!container) return;
+
+            if (teamData.length === 0 && rivalTeamData.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.gap = '8px';
+            container.style.marginBottom = '12px';
+            container.style.padding = '8px 12px';
+            container.style.background = 'rgba(255,255,255,0.01)';
+            container.style.border = '1px solid rgba(255,255,255,0.05)';
+            container.style.borderRadius = '12px';
+
+            let allyHtml = '';
+            if (teamData.length > 0) {
+                allyHtml = `
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:0.68rem; font-weight:800; color:#cbd5e1; min-width:85px;">🔵 Aliado Activo:</span>
+                        <div style="display:flex; gap:6px; overflow-x:auto;">
+                            ${teamData.map((p, i) => {
+                                const isActive = i === activeAllyIndex;
+                                const border = isActive ? '2px solid var(--poke-blue)' : '1px solid rgba(255,255,255,0.1)';
+                                const bg = isActive ? 'rgba(59, 76, 202, 0.15)' : 'rgba(255,255,255,0.03)';
+                                return `
+                                    <div onclick="selectActiveAlly(${i})" style="cursor:pointer; display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; border:${border}; background:${bg}; transition:all 0.2s;" title="${formatPokemonName(p.name)}">
+                                        <img src="${p.sprite}" alt="${p.name}" style="width:26px; height:26px; object-fit:contain;">
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            let rivalHtml = '';
+            if (rivalTeamData.length > 0) {
+                rivalHtml = `
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:4px; border-top:1px solid rgba(255,255,255,0.03); padding-top:4px;">
+                        <span style="font-size:0.68rem; font-weight:800; color:#cbd5e1; min-width:85px;">🔴 Rival Activo:</span>
+                        <div style="display:flex; gap:6px; overflow-x:auto;">
+                            ${rivalTeamData.map((p, i) => {
+                                const isActive = i === activeRivalIndex;
+                                const border = isActive ? '2px solid #ef4444' : '1px solid rgba(255,255,255,0.1)';
+                                const bg = isActive ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.03)';
+                                return `
+                                    <div onclick="selectActiveRival(${i})" style="cursor:pointer; display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; border:${border}; background:${bg}; transition:all 0.2s;" title="${formatPokemonName(p.name)}">
+                                        <img src="${p.sprite}" alt="${p.name}" style="width:26px; height:26px; object-fit:contain;">
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = allyHtml + rivalHtml;
+        }
+
         function selectActiveRival(index) {
             activeRivalIndex = index;
             rivalData = rivalTeamData[index];
             renderRivalTeam();
             renderRival();
+            updateArenaQuickSelectors();
             analyzeMatchups();
             saveStateToLocalStorage();
         }
@@ -8211,6 +8388,7 @@
         function selectActiveAlly(index) {
             activeAllyIndex = index;
             renderTeam();
+            updateArenaQuickSelectors();
             analyzeMatchups();
             saveStateToLocalStorage();
         }
@@ -8227,6 +8405,7 @@
             analyzeMatchups();
             renderMatrix();
             updateShareSection();
+            if (typeof updateArenaQuickSelectors === 'function') updateArenaQuickSelectors();
             saveStateToLocalStorage();
         }
 
@@ -8240,6 +8419,7 @@
             updateShareSection();
             analyzeMatchups();
             if (currentBattleMode === '6vs6') renderMatrix();
+            if (typeof updateArenaQuickSelectors === 'function') updateArenaQuickSelectors();
             saveStateToLocalStorage();
         }
 
@@ -8317,6 +8497,247 @@
 
             if (analysisTabs) analysisTabs.style.display = 'flex';
             if (weatherSelectorContainer) weatherSelectorContainer.style.display = 'flex';
+
+            // ----------------------------------------------------
+            // CEREBRO TÁCTICO DE ROTOM: DUELO ACTIVO CARA A CARA
+            // ----------------------------------------------------
+            const activeAlly = teamData[activeAllyIndex] || teamData[0];
+            
+            if (activeAlly && rivalData) {
+                const myReal = calculateRealStats(activeAlly);
+                const rivalReal = calculateRealStats(rivalData);
+                const speedDiff = myReal.real.speed - rivalReal.real.speed;
+                const speedFriendly = myReal.real.speed;
+                const rivalSpeedFriendly = rivalReal.real.speed;
+                
+                // 1. Calcular el daño máximo que recibimos del rival activo
+                let maxDmgTaken = 0;
+                let rivalMaxMoveName = "Ataque STAB";
+                let rivalMaxDmgResult = null;
+                const rivalMoves = [];
+                
+                if (rivalData.rl && rivalData.rl.moves) {
+                    rivalData.rl.moves.forEach(m => {
+                        if (m.name && m.type && m.power && m.power !== '-') {
+                            rivalMoves.push(m);
+                        }
+                    });
+                }
+                if (rivalMoves.length === 0) {
+                    rivalData.types.forEach(t => {
+                        rivalMoves.push({
+                            name: `STAB ${TYPE_NAMES[t] || t}`,
+                            type: t,
+                            category: (rivalData.stats.spa || 0) > (rivalData.stats.attack || 0) ? 'special' : 'physical',
+                            power: '90'
+                        });
+                    });
+                }
+                
+                rivalMoves.forEach(m => {
+                    const dmg = calculateDamageRange(rivalData, activeAlly, m);
+                    if (dmg && dmg.maxPercent > maxDmgTaken) {
+                        maxDmgTaken = dmg.maxPercent;
+                        rivalMaxMoveName = m.name;
+                        rivalMaxDmgResult = dmg;
+                    }
+                });
+                
+                // Si es batalla doble, evaluar también al segundo rival contra nuestro activo
+                let maxDmgTaken2 = 0;
+                let rivalMaxMoveName2 = "";
+                if (isDoubleBattle && rivalData2) {
+                    const rivalMoves2 = [];
+                    if (rivalData2.rl && rivalData2.rl.moves) {
+                        rivalData2.rl.moves.forEach(m => {
+                            if (m.name && m.type && m.power && m.power !== '-') {
+                                rivalMoves2.push(m);
+                            }
+                        });
+                    }
+                    if (rivalMoves2.length === 0) {
+                        rivalData2.types.forEach(t => {
+                            rivalMoves2.push({
+                                name: `STAB ${TYPE_NAMES[t] || t}`,
+                                type: t,
+                                category: (rivalData2.stats.spa || 0) > (rivalData2.stats.attack || 0) ? 'special' : 'physical',
+                                power: '90'
+                            });
+                        });
+                    }
+                    rivalMoves2.forEach(m => {
+                        const dmg = calculateDamageRange(rivalData2, activeAlly, m);
+                        if (dmg && dmg.maxPercent > maxDmgTaken2) {
+                            maxDmgTaken2 = dmg.maxPercent;
+                            rivalMaxMoveName2 = m.name;
+                        }
+                    });
+                }
+                
+                // 2. Calcular el daño máximo que hacemos al rival activo
+                let maxDmgDealt = 0;
+                let ourBestMoveName = "";
+                let ourBestDmgResult = null;
+                const ourMoves = [];
+                
+                if (activeAlly.rl && activeAlly.rl.moves) {
+                    activeAlly.rl.moves.forEach(m => {
+                        if (m.name && m.type && m.power && m.power !== '-') {
+                            ourMoves.push(m);
+                        }
+                    });
+                }
+                if (ourMoves.length === 0) {
+                    activeAlly.types.forEach(t => {
+                        ourMoves.push({
+                            name: `STAB ${TYPE_NAMES[t] || t}`,
+                            type: t,
+                            category: (activeAlly.stats.spa || 0) > (activeAlly.stats.attack || 0) ? 'special' : 'physical',
+                            power: '90'
+                        });
+                    });
+                }
+                
+                ourMoves.forEach(m => {
+                    const dmg = calculateDamageRange(activeAlly, rivalData, m);
+                    if (dmg && dmg.maxPercent > maxDmgDealt) {
+                        maxDmgDealt = dmg.maxPercent;
+                        ourBestMoveName = m.name;
+                        ourBestDmgResult = dmg;
+                    }
+                });
+                
+                // 3. Evaluar si poseemos movimientos de Boost/Setup
+                let setupMoveName = "";
+                if (activeAlly.rl && activeAlly.rl.moves) {
+                    activeAlly.rl.moves.forEach(m => {
+                        if (m.name && (m.name.includes("dance") || m.name.includes("mind") || m.name.includes("swords") || 
+                                      m.name.includes("espad") || m.name.includes("calm") || m.name.includes("dragon") || 
+                                      m.name.includes("drum") || m.name.includes("curse") || m.name.includes("maldici"))) {
+                            setupMoveName = m.name;
+                        }
+                    });
+                }
+                
+                // 4. Buscar el Pivot defensivo más seguro en nuestro equipo
+                let safestPivot = null;
+                let safestPivotDmg = Infinity;
+                let safestPivotDetail = "";
+                
+                teamData.forEach((myPoke, index) => {
+                    // Evitar pivotar al mismo Pokémon activo
+                    if (index === activeAllyIndex) return;
+                    
+                    let damageFactor = getMatchupEffectiveness(rivalData, myPoke);
+                    let maxRealDmg = 0;
+                    
+                    if (rivalData.rl && rivalData.rl.moves) {
+                        rivalData.rl.moves.forEach(m => {
+                            if (m.name && m.type && m.power && m.power !== '-') {
+                                const dmg = calculateDamageRange(rivalData, myPoke, m);
+                                if (dmg && dmg.maxPercent > maxRealDmg) {
+                                    maxRealDmg = dmg.maxPercent;
+                                }
+                            }
+                        });
+                    }
+                    
+                    const metric = maxRealDmg > 0 ? maxRealDmg / 100 : damageFactor;
+                    if (metric < safestPivotDmg) {
+                        safestPivotDmg = metric;
+                        safestPivot = myPoke;
+                        safestPivotDetail = maxRealDmg > 0 ? `recibe ${maxRealDmg}% máx` : `efectividad x${damageFactor}`;
+                    }
+                });
+                
+                // 5. Determinar Acción y Estado Táctico
+                let actionBadge = "";
+                let actionText = "";
+                let actionReason = "";
+                let actionDetails = "";
+                let rotomSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/animated/479.gif"; // Rotom Base animado
+                let bannerClass = "";
+                
+                const combinedDmgTaken = maxDmgTaken + maxDmgTaken2;
+                const isUnderThreat = speedDiff < 0 && (maxDmgTaken >= 50 || (isDoubleBattle && combinedDmgTaken >= 75));
+                const canKO = speedDiff > 0 && maxDmgDealt >= 90;
+                
+                if (isUnderThreat) {
+                    // CAMBIO URGENTE
+                    actionBadge = "⚠️ CAMBIO URGENTE";
+                    bannerClass = "danger";
+                    rotomSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/479.gif"; // Rotom alarmado
+                    
+                    const pivotName = safestPivot ? formatPokemonName(safestPivot.name) : "un compañero";
+                    actionText = safestPivot ? `¡Retira a ${formatPokemonName(activeAlly.name)} y saca a ${pivotName}!` : `¡Peligro! Cambia de Pokémon de inmediato.`;
+                    
+                    actionReason = `El rival <strong>${formatPokemonName(rivalData.name)}</strong> nos supera en velocidad (⚡${rivalSpeedFriendly} vs ⚡${speedFriendly} Spe) y nos debilita críticamente con <strong>${formatPokemonName(rivalMaxMoveName)}</strong> (${Math.round(maxDmgTaken)}% de daño).`;
+                    actionDetails = safestPivot ? `🛡️ <strong>Pivot Recomendado</strong>: <strong>${pivotName}</strong> tiene la mejor resistencia pasiva contra el rival en el banquillo (${safestPivotDetail}).` : `⚠️ ¡No mantengas a este Pokémon en combate!`;
+                }
+                else if (canKO) {
+                    // MANTENER Y ATACAR
+                    actionBadge = "🔥 MANTENER Y ATACAR";
+                    bannerClass = "success";
+                    rotomSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/479-wash.gif"; // Rotom Wash pro
+                    
+                    actionText = `¡Usa ${formatPokemonName(ourBestMoveName)} de ${formatPokemonName(activeAlly.name)}!`;
+                    actionReason = `Superamos en velocidad al rival (⚡${speedFriendly} vs ⚡${rivalSpeedFriendly} Spe) y logramos noquearlo o causarle daño crítico con <strong>${formatPokemonName(ourBestMoveName)}</strong> (${ourBestDmgResult ? ourBestDmgResult.koChance : (Math.round(maxDmgDealt) + '%')}).`;
+                    actionDetails = `🎯 <strong>Ataque Letal</strong>: Inflige entre <strong>${ourBestDmgResult ? ourBestDmgResult.minPercent : 0}% - ${Math.round(maxDmgDealt)}%</strong> de daño limpio. ¡Asegura la inercia ofensiva!`;
+                }
+                else if (maxDmgTaken < 30 && setupMoveName) {
+                    // VENTANA DE SETUP
+                    actionBadge = "🎯 VENTANA DE SETUP";
+                    bannerClass = "setup";
+                    rotomSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/479-mow.gif"; // Rotom Mow estratégico
+                    
+                    actionText = `¡Usa ${formatPokemonName(setupMoveName)} para boostearte!`;
+                    actionReason = `El rival <strong>${formatPokemonName(rivalData.name)}</strong> solo nos hace un daño mínimo de <strong>${Math.round(maxDmgTaken)}%</strong> con <strong>${formatPokemonName(rivalMaxMoveName)}</strong>. ¡Es un turno completamente gratis!`;
+                    actionDetails = `🔮 <strong>Estrategia Competitiva</strong>: Aprovecha la pasividad defensiva del oponente para cargarte de poder y facilitar un barrido (sweep) de turnos completos.`;
+                }
+                else {
+                    // DUELO PAREJO
+                    actionBadge = "⚔️ DUELO PAREJO";
+                    bannerClass = "warning";
+                    rotomSprite = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/479.gif"; // Rotom
+                    
+                    const bestMoveFriendly = ourBestMoveName ? formatPokemonName(ourBestMoveName) : "un ataque fuerte";
+                    actionText = `¡Ataca con ${bestMoveFriendly} o haz pivot táctico!`;
+                    actionReason = `El duelo está sumamente parejo. ${speedDiff > 0 ? 'Superamos' : 'El rival supera'} en velocidad (⚡${speedFriendly} vs ⚡${rivalSpeedFriendly} Spe). Nuestro mejor ataque inflige un <strong>${Math.round(maxDmgDealt)}%</strong>.`;
+                    actionDetails = safestPivot ? `🔄 <strong>Pivot Táctico</strong>: Considera rotar hacia <strong>${formatPokemonName(safestPivot.name)}</strong> (${safestPivotDetail}) para absorber coberturas elementales del rival.` : `⚖️ Utiliza coberturas de daño o estados alterados para desgastar.`;
+                }
+                
+                // Actualizar Banner en el DOM
+                const recBanner = document.getElementById('recBanner');
+                if (recBanner) {
+                    recBanner.className = `recommendation-banner show ${bannerClass}`;
+                    
+                    const imgEl = document.getElementById('recPokemonImg');
+                    if (imgEl) {
+                        imgEl.src = activeAlly.sprite;
+                        imgEl.alt = activeAlly.name;
+                    }
+                    
+                    const labelEl = recBanner.querySelector('.rec-label');
+                    if (labelEl) labelEl.innerHTML = `<span class="rotom-badge-status">${actionBadge}</span>`;
+                    
+                    const titleEl = document.getElementById('recTitle');
+                    if (titleEl) titleEl.innerHTML = actionText;
+                    
+                    const reasonEl = document.getElementById('recReason');
+                    if (reasonEl) reasonEl.innerHTML = actionReason;
+                    
+                    const detailsEl = document.getElementById('recDetails');
+                    if (detailsEl) detailsEl.innerHTML = actionDetails;
+                    
+                    // Sincronizar sintetizador de voz de Rotom en caliente si está activado
+                    // Evitamos repetir la misma frase consecutiva para no saturar al usuario
+                    const currentAdviceText = `${actionBadge}. ${actionText}. ${actionReason}`;
+                    if (currentAdviceText !== lastSpokenAdvice) {
+                        lastSpokenAdvice = currentAdviceText;
+                        speakRotomAdvice(actionText, actionBadge, safestPivot ? safestPivot.name : '', ourBestMoveName);
+                    }
+                }
+            }
 
             // ----------------------------------------------------
             // 1. Algoritmo de Líder de Combate Recomendado (Recommended Lead)
@@ -8547,377 +8968,6 @@
                         if (rivalData2.rl && rivalData2.rl.moves) {
                             rivalData2.rl.moves.forEach(m => {
                                 if (m.name && m.type && m.power && m.power !== '-') {
-                                    rivalMoves2.push(m);
-                                }
-                            });
-                        }
-                        if (rivalMoves2.length === 0) {
-                            rivalData2.types.forEach(t => {
-                                rivalMoves2.push({
-                                    name: `STAB ${TYPE_NAMES[t] || t}`,
-                                    type: t,
-                                    category: (rivalData2.stats.spa || 0) > (rivalData2.stats.attack || 0) ? 'special' : 'physical',
-                                    power: '90'
-                                });
-                            });
-                        }
-                        rivalMoves2.forEach(m => {
-                            const dmg = calculateDamageRange(rivalData2, p, m);
-                            if (dmg && dmg.maxPercent > maxDmgTaken2) {
-                                maxDmgTaken2 = dmg.maxPercent;
-                            }
-                        });
-                    }
-
-                    const combinedDmg = maxDmgTaken + maxDmgTaken2;
-                    const condition = (isDoubleBattle && rivalData2) ? (combinedDmg < 50 || (maxDmgTaken < 30 && maxDmgTaken2 < 30)) : (maxDmgTaken < 35);
-
-                    if (condition) {
-                        setupCandidates.push({
-                            poke: p,
-                            move: setupMoveName,
-                            dmg: Math.round(isDoubleBattle ? combinedDmg : maxDmgTaken)
-                        });
-                    }
-                }
-            });
-
-            // ----------------------------------------------------
-            // 3. Renderizar en el recBanner el Centro de Mando Táctico + Asistente Rotom
-            // ----------------------------------------------------
-            if (bestLeadPoke && recBanner) {
-                recBanner.classList.remove('no-advantage');
-                recBanner.classList.add('show');
-                
-                // Determinación del Pokémon activo propio (dinámico en todos los modos de combate)
-                const activeAliado = teamData[activeAllyIndex] || teamData[0];
-                const activeReal = calculateRealStats(activeAliado);
-                const rivalReal = calculateRealStats(rivalData);
-                const activeSpeedDiff = activeReal.real.speed - rivalReal.real.speed;
-                const activeIsFaster = activeSpeedDiff > 0;
-                
-                // Algoritmo: Buscar Pivot Seguro de reserva
-                let safestPivot = null;
-                let safestPivotDmg = Infinity;
-                
-                teamData.forEach(p => {
-                    if (p.name !== activeAliado.name) {
-                        let maxRealDmgTaken = 0;
-                        const rivalMoves = [];
-                        
-                        if (rivalData.rl && rivalData.rl.moves) {
-                            rivalData.rl.moves.forEach(m => {
-                                if (m.name && m.type && m.power && m.power !== '-') {
-                                    rivalMoves.push(m);
-                                }
-                            });
-                        }
-                        if (rivalMoves.length === 0) {
-                            rivalData.types.forEach(t => {
-                                rivalMoves.push({
-                                    name: 'STAB ' + (TYPE_NAMES[t] || t),
-                                    type: t,
-                                    category: (rivalData.stats.spa || 0) > (rivalData.stats.attack || 0) ? 'special' : 'physical',
-                                    power: '90'
-                                });
-                            });
-                        }
-                        rivalMoves.forEach(m => {
-                            const dmg = calculateDamageRange(rivalData, p, m);
-                            if (dmg && dmg.maxPercent > maxRealDmgTaken) {
-                                maxRealDmgTaken = dmg.maxPercent;
-                            }
-                        });
-                        if (maxRealDmgTaken < safestPivotDmg) {
-                            safestPivotDmg = maxRealDmgTaken;
-                            safestPivot = p;
-                        }
-                    }
-                });
-                
-                // Algoritmo: Daño de nuestro Pokémon activo contra el rival activo
-                let maxOurDmgPercent = 0;
-                let bestOurMove = '';
-                let bestOurMoveType = '';
-                const activeMoves = [];
-                
-                if (activeAliado.rl && activeAliado.rl.moves) {
-                    activeAliado.rl.moves.forEach(m => {
-                        if (m.name && m.type && m.power && m.power !== '-') {
-                            activeMoves.push(m);
-                        }
-                    });
-                }
-                if (activeMoves.length === 0) {
-                    activeAliado.types.forEach(t => {
-                        activeMoves.push({
-                            name: 'STAB ' + (TYPE_NAMES[t] || t),
-                            type: t,
-                            category: (activeAliado.stats.spa || 0) > (activeAliado.stats.attack || 0) ? 'special' : 'physical',
-                            power: '90'
-                        });
-                    });
-                }
-                activeMoves.forEach(m => {
-                    const dmg = calculateDamageRange(activeAliado, rivalData, m);
-                    if (dmg && dmg.maxPercent > maxOurDmgPercent) {
-                        maxOurDmgPercent = dmg.maxPercent;
-                        bestOurMove = m.name;
-                        bestOurMoveType = m.type;
-                    }
-                });
-                
-                // Algoritmo: Daño del rival activo contra nuestro Pokémon activo
-                let maxRivalDmgPercent = 0;
-                let bestRivalMove = '';
-                let bestRivalMoveType = '';
-                const activeRivalMoves = [];
-                
-                if (rivalData.rl && rivalData.rl.moves) {
-                    rivalData.rl.moves.forEach(m => {
-                        if (m.name && m.type && m.power && m.power !== '-') {
-                            activeRivalMoves.push(m);
-                        }
-                    });
-                }
-                if (activeRivalMoves.length === 0) {
-                    rivalData.types.forEach(t => {
-                        activeRivalMoves.push({
-                            name: 'STAB ' + (TYPE_NAMES[t] || t),
-                            type: t,
-                            category: (rivalData.stats.spa || 0) > (rivalData.stats.attack || 0) ? 'special' : 'physical',
-                            power: '90'
-                        });
-                    });
-                }
-                activeRivalMoves.forEach(m => {
-                    const dmg = calculateDamageRange(rivalData, activeAliado, m);
-                    if (dmg && dmg.maxPercent > maxRivalDmgPercent) {
-                        maxRivalDmgPercent = dmg.maxPercent;
-                        bestRivalMove = m.name;
-                        bestRivalMoveType = m.type;
-                    }
-                });
-                
-                // Decisiones Tácticas Inmersivas (Asistente Rotom con contexto de Modos de Juego)
-                let adviceBadge = 'PIVOTAR';
-                let adviceBadgeColor = '#f59e0b';
-                let adviceText = '';
-
-                // Detección de tipos de movimientos tácticos en el set de nuestro Pokémon activo (Hazards & Pivots)
-                let hasPivotMove = false;
-                let pivotMoveName = '';
-                let hasHazardMove = false;
-                let hazardMoveName = '';
-                let hasBoostSetupMove = false;
-                let boostSetupMoveName = '';
-
-                if (activeAliado.rl && activeAliado.rl.moves) {
-                    activeAliado.rl.moves.forEach(m => {
-                        if (m.name) {
-                            const nameLower = m.name.toLowerCase();
-                            if (['u-turn', 'volt-switch', 'flip-turn', 'ida-y-vuelta', 'voltiocambio', 'vira-viraje', 'partida'].some(x => nameLower.includes(x))) {
-                                hasPivotMove = true;
-                                pivotMoveName = m.name;
-                            }
-                            if (['stealth-rock', 'spikes', 'toxic-spikes', 'sticky-web', 'trampa-rocas', 'púas', 'red-viscosa'].some(x => nameLower.includes(x))) {
-                                hasHazardMove = true;
-                                hazardMoveName = m.name;
-                            }
-                            if (['dance', 'mind', 'swords', 'espad', 'calm', 'dragon', 'drum', 'curse', 'maldici', 'maquinacion', 'nasty'].some(x => nameLower.includes(x))) {
-                                hasBoostSetupMove = true;
-                                boostSetupMoveName = m.name;
-                            }
-                        }
-                    });
-                }
-
-                if (currentBattleMode === '1vsTeam') {
-                    // MODO RANDOMBLOCKE (Prioridad: SUPERVIVENCIA ABSOLUTA)
-                    if (maxRivalDmgPercent >= 50) {
-                        adviceBadge = 'CAMBIO URGENTE';
-                        adviceBadgeColor = '#ef4444';
-                        adviceText = `⚠️ <strong>¡PELIGRO EN RANDOMBLOCKE!</strong> El rival te causa daño crítico (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>) con <strong>${formatPokemonName(bestRivalMove)}</strong>. Perder un Pokémon es definitivo. ¡No arriesgues! ${safestPivot ? `Retírate inmediatamente al pivot seguro: <strong>${formatPokemonName(safestPivot.name)}</strong> (recibe solo ~${Math.round(safestPivotDmg)}% máx).` : '¡Usa Protección o Pantallas para mitigar el golpe!'}`;
-                    } else if (activeIsFaster && maxOurDmgPercent >= 100) {
-                        adviceBadge = 'MANTENER Y ATACAR';
-                        adviceBadgeColor = '#10b981';
-                        adviceText = `🔥 <strong>¡ASEGURA EL K.O. SIN RIESGO!</strong> Superas en velocidad al rival y lo noqueas de un golpe directo con <strong>${formatPokemonName(bestOurMove)}</strong> (<strong>${Math.round(maxOurDmgPercent)}% máx</strong>). El enemigo caerá antes de poder tocarte. ¡Ataca ya!`;
-                    } else if (maxRivalDmgPercent < 30 && (hasBoostSetupMove || setupCandidates.some(c => c.poke.name === activeAliado.name))) {
-                        adviceBadge = 'VENTANA DE SETUP';
-                        adviceBadgeColor = '#a855f7';
-                        const mName = boostSetupMoveName || 'boost';
-                        adviceText = `🛡️ <strong>Ventana de Setup Segura:</strong> El rival te hace cosquillas (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>). Aprovecha este turno libre para potenciarte con <strong>${formatPokemonName(mName)}</strong> y barrer su equipo con total seguridad.`;
-                    } else if (activeIsFaster && maxOurDmgPercent >= 50) {
-                        adviceBadge = 'MANTENER Y ATACAR';
-                        adviceBadgeColor = '#10b981';
-                        adviceText = `⚔️ <strong>Ventaja Ofensiva Segura:</strong> Eres más rápido y causas daño masivo (<strong>${Math.round(maxOurDmgPercent)}% máx</strong>) con <strong>${formatPokemonName(bestOurMove)}</strong>. Mantente firme para finiquitar el duelo en dos turnos, cuidando que su desgaste no te ponga en rango de crítico.`;
-                    } else {
-                        adviceBadge = 'PIVOTAR';
-                        adviceBadgeColor = '#f59e0b';
-                        adviceText = `🔄 <strong>Pivot de Conservación:</strong> El duelo es incierto y arriesgas desgaste valioso. ${safestPivot ? `Es preferible pivotar hacia <strong>${formatPokemonName(safestPivot.name)}</strong> (amortigua recibiendo solo ~${Math.round(safestPivotDmg)}% máx) para conservar la vida al 100%.` : 'Utiliza movimientos de estado o coberturas elementales con precaución.'}`;
-                    }
-                } else {
-                    // MODO 6vs6 COMPETITIVO GLOBAL (Prioridad: ESTRATEGIA, MOMENTUM & PRESION)
-                    if (activeIsFaster && maxOurDmgPercent >= 100) {
-                        adviceBadge = 'MANTENER Y ATACAR';
-                        adviceBadgeColor = '#10b981';
-                        adviceText = `🔥 <strong>¡OPORTUNIDAD DE K.O. TÁCTICO!</strong> Eres más rápido. Tu movimiento <strong>${formatPokemonName(bestOurMove)}</strong> noquea al rival de un golpe (<strong>${Math.round(maxOurDmgPercent)}% máx</strong>). ¡ATACA DIRECTAMENTE! <em>Consejo:</em> Si el rival prevé tu ataque y cambia a un counter (ej. saca a Tyranitar contra tu atacante especial), tu siguiente jugada idónea será rotar inmediatamente a <strong>Lucario</strong> o a tu atacante físico.`;
-                    } else if (maxRivalDmgPercent >= 80) {
-                        adviceBadge = 'CAMBIO URGENTE';
-                        adviceBadgeColor = '#ef4444';
-                        adviceText = `⚠️ <strong>¡PELIGRO DE K.O. RIVAL!</strong> El rival te tiene acorralado y es más rápido o te noquea con <strong>${formatPokemonName(bestRivalMove)}</strong> (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>). <strong>Evita este matchup a toda costa</strong>. ${safestPivot ? `Cambia en el acto a tu pivot seguro: <strong>${formatPokemonName(safestPivot.name)}</strong> (recibe solo ~${Math.round(safestPivotDmg)}% máx) para conservar tu momentum.` : '¡Usa pantallas, Protección o un señuelo!'}`;
-                    } else if (hasHazardMove && maxRivalDmgPercent < 35) {
-                        adviceBadge = 'VENTANA DE SETUP';
-                        adviceBadgeColor = '#a855f7';
-                        adviceText = `🛡️ <strong>Ventana de Hazards (Turno 1 / Apertura)</strong>: El oponente te causa muy poco daño (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>). <strong>¡Es el momento perfecto para usar ${formatPokemonName(hazardMoveName)}!</strong> Siembra el campo para desgastar sus futuros cambios. Si responde rotando a un counter, tu respuesta en el Turno 2 será pivotar hacia <strong>${safestPivot ? formatPokemonName(safestPivot.name) : 'un pivot seguro'}</strong>.`;
-                    } else if (hasPivotMove && activeIsFaster && maxOurDmgPercent < 50) {
-                        adviceBadge = 'PIVOTAR';
-                        adviceBadgeColor = '#f59e0b';
-                        adviceText = `🔄 <strong>Secuencia de Pivot Ofensivo</strong>: Superas en velocidad al oponente pero tu daño directo no asegura el K.O. <strong>¡Usa tu movimiento de pivot: ${formatPokemonName(pivotMoveName)}!</strong> Ataca primero rompiendo su Banda Focus/Robustez y cambia en el mismo acto hacia <strong>${safestPivot ? formatPokemonName(safestPivot.name) : 'un counter directo'}</strong> para conservar el control ofensivo.`;
-                    } else if (activeIsFaster && maxOurDmgPercent >= 50) {
-                        adviceBadge = 'MANTENER Y ATACAR';
-                        adviceBadgeColor = '#10b981';
-                        adviceText = `⚔️ <strong>Ventaja Ofensiva Activa:</strong> Superas en velocidad y causas daño masivo (<strong>${Math.round(maxOurDmgPercent)}% máx</strong>) con <strong>${formatPokemonName(bestOurMove)}</strong>. Mantente en combate para asegurar el KO en 2 turnos. Si el rival responde cambiando a un contraataque de tipo resistente (ej. saca a Tyranitar contra tu Greninja), el plan de juego pro es rotar de inmediato a <strong>Lucario</strong> para explotar su debilidad cuádruple.`;
-                    } else if (!activeIsFaster && maxRivalDmgPercent >= 45) {
-                        adviceBadge = 'PIVOTAR';
-                        adviceBadgeColor = '#f59e0b';
-                        adviceText = `🔄 <strong>Desventaja de Matchup</strong>: El rival es más rápido y causa desgaste crítico (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>) con <strong>${formatPokemonName(bestRivalMove)}</strong>. <strong>No absorbas daño gratuito</strong>. Pivota de inmediato hacia tu pivot defensivo <strong>${safestPivot ? formatPokemonName(safestPivot.name) : 'principal'}</strong> para resistir el golpe y recuperar el posicionamiento de campo.`;
-                    } else if (maxRivalDmgPercent < 30 && (hasBoostSetupMove || setupCandidates.some(c => c.poke.name === activeAliado.name))) {
-                        adviceBadge = 'VENTANA DE SETUP';
-                        adviceBadgeColor = '#a855f7';
-                        const mName = boostSetupMoveName || 'boost';
-                        adviceText = `🛡️ <strong>Oportunidad de Boost</strong>: El oponente apenas te daña (<strong>${Math.round(maxRivalDmgPercent)}% máx</strong>). Aprovecha este turno libre para potenciarte con <strong>${formatPokemonName(mName)}</strong> y convertir a <strong>${formatPokemonName(activeAliado.name)}</strong> en un sweeper imparable en esta ventana libre.`;
-                    } else {
-                        adviceBadge = 'PIVOTAR';
-                        adviceBadgeColor = '#f59e0b';
-                        adviceText = `⚖️ <strong>Duelo de Cobertura Elemental:</strong> Matchup equilibrado. Si el rival responde cambiando a un contraataque, aprovecha tu red de inmunidades o pivota a <strong>${safestPivot ? formatPokemonName(safestPivot.name) : 'tu pivot defensivo'}</strong> para mantener el control posicional.`;
-                    }
-                }
-
-                // Sinergias Especiales & Habilidades
-                let synergyHtml = '';
-                const lowerAbility = (activeAliado.rl?.ability || '').toLowerCase().trim();
-                if (currentWeather === 'rain' && lowerAbility === 'swift swim') {
-                    synergyHtml = `<div style="background:rgba(59,76,202,0.15); border:1px solid rgba(59,76,202,0.3); border-radius:8px; padding:6px 10px; font-size:0.7rem; color:#fff; font-weight:600; line-height:1.35;">🌧️ <strong>Clima Swift Swim</strong>: La velocidad de <strong>${formatPokemonName(activeAliado.name)}</strong> se duplica a <strong>⚡${activeReal.real.speed} Spe</strong> en lluvia. ¡Atacas primero!</div>`;
-                } else if (currentWeather === 'sun' && lowerAbility === 'chlorophyll') {
-                    synergyHtml = `<div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:8px; padding:6px 10px; font-size:0.7rem; color:#fff; font-weight:600; line-height:1.35;">☀️ <strong>Clima Clorofila</strong>: La velocidad de <strong>${formatPokemonName(activeAliado.name)}</strong> se duplica a <strong>⚡${activeReal.real.speed} Spe</strong> bajo el sol. ¡Dominio total!</div>`;
-                } else if (lowerAbility === 'wonder guard') {
-                    synergyHtml = `<div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:6px 10px; font-size:0.7rem; color:#fff; font-weight:600; line-height:1.35;">🛡️ <strong>Wonder Guard Activo</strong>: <strong>Shedinja</strong> solo recibe daño de ataques Súper Efectivos. ¡Matchup inmune!</div>`;
-                } else if (lowerAbility === 'technician') {
-                    synergyHtml = `<div style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:6px 10px; font-size:0.7rem; color:#fff; font-weight:600; line-height:1.35;">⚔️ <strong>Técnico Activo</strong>: Los ataques de potencia <= 60 de <strong>Scizor</strong> reciben un 50% de poder adicional.</div>`;
-                } else if (lowerAbility === 'intimidate') {
-                    synergyHtml = `<div style="background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.3); border-radius:8px; padding:6px 10px; font-size:0.7rem; color:#fff; font-weight:600; line-height:1.35;">👥 <strong>Intimidación Activa</strong>: Reduce el ataque físico del oponente al entrar al combate.</div>`;
-                } else if (lowerAbility === 'gale wings') {
-                    synergyHtml = `<div style="background:rgba(255,27,78,0.15); border:1px solid rgba(255,27,78,0.3); border-radius:8px; padding:6px 10px; font-size:0.7rem; color:#fff; font-weight:600; line-height:1.35;">🦅 <strong>Gale Wings Activo</strong>: Los movimientos de tipo Volador de <strong>Talonflame</strong> tienen prioridad +1 a PS llenos.</div>`;
-                } else {
-                    synergyHtml = `<div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:6px 10px; font-size:0.7rem; color:#cbd5e1; font-weight:600; line-height:1.35;">⚖️ <strong>Sinergia Estándar</strong>: Sin modificadores pasivos especiales en este turno. Mantén el posicionamiento elemental.</div>`;
-                }
-
-                recBanner.innerHTML = `
-                    <!-- Cabecera -->
-                    <div style="padding: 8px 18px; border-bottom: 1px solid rgba(255,222,0,0.2); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25);">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/479.gif" alt="Rotom" style="width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(255, 222, 0, 0.5)); flex-shrink: 0; margin-top: -2px; image-rendering: pixelated;">
-                            <span style="font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 0.85rem; color: #fff200; letter-spacing: 0.8px; display: flex; align-items: center;">ASISTENTE ROTOM DE TURNOS PRO</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <button id="rotomVoiceToggle" onclick="toggleRotomVoice()" style="background: rgba(255,255,255,0.06); border: 1.5px dashed ${localStorage.getItem('pokeswitch_rotom_voice') === 'true' ? '#fff200' : 'rgba(255,255,255,0.15)'}; border-radius: 20px; padding: 4px 10px; font-size: 0.65rem; font-weight: 800; color: ${localStorage.getItem('pokeswitch_rotom_voice') === 'true' ? '#fff200' : '#cbd5e1'}; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease; outline: none; margin-right: 6px;">
-                                <span id="rotomVoiceIcon">${localStorage.getItem('pokeswitch_rotom_voice') === 'true' ? '🔊' : '🔇'}</span>
-                                <span id="rotomVoiceText">Voz: ${localStorage.getItem('pokeswitch_rotom_voice') === 'true' ? 'ON' : 'OFF'}</span>
-                            </button>
-                            <span style="font-size: 0.65rem; background: ${adviceBadgeColor}; color: #ffffff; padding: 3px 8px; border-radius: 6px; font-weight: 900; text-transform: uppercase; font-family: 'Outfit', sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">${adviceBadge}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="rec-content" style="padding: 18px; width: 100%; box-sizing: border-box; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; position: relative; z-index: 2;">
-                        
-                        <!-- Bloque 1: Duelo Activo en Pista -->
-                        <div style="background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; text-align: left;">
-                            <span style="font-size: 0.65rem; color: #fff200; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase;">⚔️ DUELO ACTIVO EN PISTA</span>
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.22); padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);">
-                                <!-- Aliado Activo -->
-                                <div style="display: flex; align-items: center; gap: 6px; flex: 1; overflow: hidden;">
-                                    <img src="${activeAliado.animatedSprite}" alt="${activeAliado.name}" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(96,165,250,0.3));" onerror="this.onerror=null; this.src='${activeAliado.sprite}';">
-                                    <div style="display: flex; flex-direction: column; overflow: hidden;">
-                                        <span style="font-size: 0.5rem; color: #60a5fa; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px;">TU ACTIVO</span>
-                                        <span style="font-size: 0.8rem; font-weight: 900; color: #ffffff; text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${formatPokemonName(activeAliado.name)}</span>
-                                    </div>
-                                </div>
-                                <div style="font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 0.75rem; color: #ef4444; text-shadow: 0 0 6px rgba(239,68,68,0.5); padding: 0 4px;">VS</div>
-                                <!-- Rival Activo -->
-                                <div style="display: flex; align-items: center; gap: 6px; flex: 1; justify-content: flex-end; text-align: right; overflow: hidden;">
-                                    <div style="display: flex; flex-direction: column; overflow: hidden;">
-                                        <span style="font-size: 0.5rem; color: #f87171; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px;">RIVAL ACTIVO</span>
-                                        <span style="font-size: 0.8rem; font-weight: 900; color: #ffffff; text-transform: capitalize; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${formatPokemonName(rivalData.name)}</span>
-                                    </div>
-                                    <img src="${rivalData.animatedSprite}" alt="${rivalData.name}" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(248,113,113,0.3));" onerror="this.onerror=null; this.src='${rivalData.sprite}';">
-                                </div>
-                            </div>
-                            <p style="font-size: 0.68rem; color: #cbd5e1; font-weight: 700; line-height: 1.35; margin: 0; padding-top: 4px; border-top: 1px dashed rgba(255,255,255,0.06);">
-                                💡 <strong>Apertura recomendada:</strong> ${leadReason}
-                            </p>
-                        </div>
-
-                        <!-- Bloque 2: Decisión Táctica Rápida (Resumen Ágil) -->
-                        <div style="background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
-                            <span style="font-size: 0.65rem; color: #60a5fa; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase;">Decisión Directa (Mando en Vivo)</span>
-                            
-                            <div style="display:flex; flex-direction:column; gap:6px;">
-                                <div style="display:flex; align-items:center; gap:6px; font-size:0.74rem; color:#ffffff; font-weight:700;">
-                                    <span>⚡ Velocidad:</span>
-                                    <span style="color:${activeIsFaster ? '#10b981' : '#ef4444'}; font-weight:900;">
-                                        ${activeIsFaster ? '▲ Eres más rápido' : '▼ Eres más lento'} (Aliado: ⚡${activeReal.real.speed} Spe vs Rival: ⚡${rivalReal.real.speed} Spe)
-                                    </span>
-                                </div>
-                                
-                                <div style="display:flex; align-items:center; gap:6px; font-size:0.74rem; color:#ffffff; font-weight:700;">
-                                    <span>💥 Ofensiva:</span>
-                                    <span>Usa <strong style="color:#f59e0b; text-transform:capitalize;">${bestOurMove || 'STAB'}</strong> (${Math.round(maxOurDmgPercent)}% máx)</span>
-                                </div>
-
-                                <div style="display:flex; align-items:center; gap:6px; font-size:0.74rem; color:#ffffff; font-weight:700;">
-                                    <span>🛡️ Defensiva:</span>
-                                    <span>Rival ataca con <strong style="color:#ef4444; text-transform:capitalize;">${bestRivalMove || 'STAB'}</strong> (${Math.round(maxRivalDmgPercent)}% máx)</span>
-                                </div>
-
-                                ${safestPivot ? `
-                                <div style="display:flex; align-items:center; gap:6px; font-size:0.74rem; color:#ffffff; font-weight:700;">
-                                    <span>🔄 Pivot Seguro:</span>
-                                    <span>Cambiar a <strong style="color:#60a5fa; text-transform:capitalize;">${formatPokemonName(safestPivot.name)}</strong> (absorbe a ${Math.round(safestPivotDmg)}% máx)</span>
-                                </div>` : ''}
-                            </div>
-                        </div>
-
-                        <!-- Bloque 3: Estrategia de Cobertura & Combos -->
-                        <div style="background: rgba(255, 255, 255, 0.04); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
-                            <span style="font-size: 0.65rem; color: #a855f7; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase;">Acción Sugerida Rotom</span>
-                            
-                            <p style="font-size: 0.74rem; color: #cbd5e1; font-weight: 700; line-height: 1.4;">
-                                ${adviceText}
-                            </p>
-                            
-                            <div style="margin-top: 4px; font-size: 0.68rem;">
-                                ${synergyHtml}
-                            </div>
-                        </div>
-
-                    </div>
-                `;
-
-                if (localStorage.getItem('pokeswitch_rotom_voice') === 'true' && adviceText !== lastSpokenAdvice) {
-                    speakRotomAdvice(adviceText, adviceBadge, safestPivot ? safestPivot.name : '', bestOurMove);
-                    lastSpokenAdvice = adviceText;
-                }
-
-                // Resaltar slot en la interfaz del equipo
-                document.querySelectorAll('.team-slot').forEach((slot, idx) => {
-                    slot.classList.toggle('active', idx === activeAllyIndex);
-                });
-            }
-
-            // ----------------------------------------------------
-            // 4. Renderizado según pestaña seleccionada
-            // ----------------------------------------------------
             if (activeAnalysisTab === 'basic') {
                 // RENDERIZADO BÁSICO: Coberturas
                 const rows = teamData.map((p) => {
