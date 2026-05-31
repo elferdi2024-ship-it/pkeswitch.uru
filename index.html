@@ -4607,6 +4607,25 @@
             opacity: 1;
             visibility: visible;
         }
+
+        /* Micro-animaciones dinámicas de alta fidelidad VGC */
+        .sweep-target-bubble {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s, background-color 0.2s !important;
+        }
+        .sweep-target-bubble:hover {
+            transform: translateY(-2px) scale(1.02);
+            border-color: rgba(16, 185, 129, 0.4) !important;
+            background: white !important;
+        }
+        .pro-item-row {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, border-color 0.2s !important;
+        }
+        .pro-item-row:hover {
+            transform: translateX(4px) scale(1.01);
+            background: rgba(59, 76, 202, 0.04) !important;
+            border-color: rgba(59, 76, 202, 0.15) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
     </style>
 
 </head>
@@ -9564,7 +9583,7 @@
                                         if (dmg.maxPercent >= 50 || getSingleTypeEffectiveness(m.type, rivalPoke) > 1) {
                                             hasCompetitivelyStrongMove = true;
                                             if (dmg.maxPercent > 0) {
-                                                bestMoveDetails = ` (${m.name} ${dmg.minPercent}%-${dmg.maxPercent}%)`;
+                                                bestMoveDetails = `(${m.name} ${dmg.minPercent}%-${dmg.maxPercent}%)`;
                                             }
                                         }
                                     }
@@ -9574,16 +9593,31 @@
 
                         if (outspeeds && (mult > 1 || hasCompetitivelyStrongMove)) {
                             sweepCount++;
-                            sweepTargets.push(formatPokemonName(rivalPoke.name) + bestMoveDetails);
+                            sweepTargets.push({
+                                rival: rivalPoke,
+                                details: bestMoveDetails
+                            });
                         }
                     });
+
+                    let isSetupSweeper = false;
+                    if (myPoke.rl && myPoke.rl.moves) {
+                        myPoke.rl.moves.forEach(m => {
+                            if (m.name && (m.name.includes("dance") || m.name.includes("mind") || m.name.includes("swords") || 
+                                          m.name.includes("espad") || m.name.includes("calm") || m.name.includes("dragon") || 
+                                          m.name.includes("drum") || m.name.includes("curse") || m.name.includes("maldici"))) {
+                                isSetupSweeper = true;
+                            }
+                        });
+                    }
 
                     if (sweepCount > 0) {
                         sweepers.push({
                             poke: myPoke,
                             count: sweepCount,
                             targets: sweepTargets,
-                            speed: myReal.real.speed
+                            speed: myReal.real.speed,
+                            isSetup: isSetupSweeper
                         });
                     }
                 });
@@ -9868,23 +9902,85 @@
                 let sweepersHtml = '';
                 if (sweepers.length > 0) {
                     const topSweeper = sweepers[0];
-                    sweepersHtml = `
-                        <div class="pro-card" style="border-left: 5px solid #10b981; background: rgba(16, 185, 129, 0.02);">
-                            <div class="pro-card-title" style="color: #047857; font-size:0.8rem;">
-                                🏆 Condición de Victoria (Sweeper Estrella)
+                    
+                    // Determinar tipo de Sweeper
+                    const myRealStats = calculateRealStats(topSweeper.poke);
+                    const baseAtk = topSweeper.poke.stats.attack || 0;
+                    const baseSpA = topSweeper.poke.stats.spa || 0;
+                    let sweeperTypeLabel = "Ofensivo Mixto";
+                    let sweeperTypeIcon = "⚔️";
+                    let sweeperBgGradient = "linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(5, 150, 105, 0.02) 100%)";
+                    let sweeperBorderColor = "rgba(16, 185, 129, 0.2)";
+                    let sweeperTextTitleColor = "#10b981";
+                    
+                    if (topSweeper.isSetup) {
+                        sweeperTypeLabel = "Setup Sweeper 🎯";
+                        sweeperTypeIcon = "🔮";
+                        sweeperBgGradient = "linear-gradient(135deg, rgba(139, 92, 246, 0.06) 0%, rgba(109, 40, 217, 0.02) 100%)";
+                        sweeperBorderColor = "rgba(139, 92, 246, 0.2)";
+                        sweeperTextTitleColor = "#8b5cf6";
+                    } else if (baseAtk > baseSpA * 1.1) {
+                        sweeperTypeLabel = "Físico Ofensivo 💥";
+                        sweeperTypeIcon = "💥";
+                        sweeperBgGradient = "linear-gradient(135deg, rgba(239, 68, 68, 0.06) 0%, rgba(185, 28, 28, 0.02) 100%)";
+                        sweeperBorderColor = "rgba(239, 68, 68, 0.2)";
+                        sweeperTextTitleColor = "#ef4444";
+                    } else if (baseSpA > baseAtk * 1.1) {
+                        sweeperTypeLabel = "Especial Ofensivo 🌀";
+                        sweeperTypeIcon = "🌀";
+                        sweeperBgGradient = "linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, rgba(29, 78, 216, 0.02) 100%)";
+                        sweeperBorderColor = "rgba(59, 130, 246, 0.2)";
+                        sweeperTextTitleColor = "#3b82f6";
+                    }
+                    
+                    // Renderizar objetivos del sweep en píldoras con mini-sprites
+                    const targetsHtml = topSweeper.targets.map(t => {
+                        const rName = formatPokemonName(t.rival.name);
+                        return `
+                            <div style="display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.7); border:1px solid rgba(0,0,0,0.06); padding:4px 8px; border-radius:10px; box-shadow:0 2px 4px rgba(0,0,0,0.02); transition:transform 0.2s;" class="sweep-target-bubble">
+                                <img src="${t.rival.sprite}" alt="${t.rival.name}" style="width:20px; height:20px; object-fit:contain;">
+                                <div style="display:flex; flex-direction:column; gap:1px;">
+                                    <span style="font-size:0.68rem; font-weight:800; color:#1e293b; text-transform:capitalize;">${rName}</span>
+                                    <span style="font-size:0.56rem; font-weight:700; color:#64748b; font-family:monospace; line-height:1;">${t.details || 'Daño crítico'}</span>
+                                </div>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
-                                <img src="${topSweeper.poke.animatedSprite}" alt="${topSweeper.poke.name}" style="width: 44px; height: 44px; object-fit: contain;" onerror="this.onerror=null; this.src='${topSweeper.poke.sprite}';">
+                        `;
+                    }).join('');
+
+                    sweepersHtml = `
+                        <div class="pro-card" style="border-left: 5px solid ${sweeperTextTitleColor}; background: ${sweeperBgGradient}; border:1px solid ${sweeperBorderColor}; border-left-width: 5px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); overflow:hidden;">
+                            <div class="pro-card-title" style="color: ${sweeperTextTitleColor}; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <span style="display:flex; align-items:center; gap:4px;">${sweeperTypeIcon} Condición de Victoria (Sweeper Estrella)</span>
+                                <span style="font-size: 0.62rem; background: ${sweeperBorderColor}; color: ${sweeperTextTitleColor}; padding: 2px 8px; border-radius: 8px; font-weight:900; text-transform:uppercase;">${sweeperTypeLabel}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">
+                                <div style="position:relative; display:flex; align-items:center; justify-content:center; width:52px; height:52px; background:rgba(255,255,255,0.8); border-radius:14px; border:1px solid rgba(0,0,0,0.05); box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+                                    <img src="${topSweeper.poke.animatedSprite}" alt="${topSweeper.poke.name}" style="width: 44px; height: 44px; object-fit: contain; z-index:2;" onerror="this.onerror=null; this.src='${topSweeper.poke.sprite}';">
+                                    <div style="position:absolute; width:100%; height:100%; border-radius:14px; background:${sweeperTextTitleColor}; opacity:0.04; filter:blur(4px);"></div>
+                                </div>
                                 <div>
-                                    <div style="font-weight: 900; font-size: 1.05rem; color: #065f46; text-transform:capitalize;">${formatPokemonName(topSweeper.poke.name)}</div>
-                                    <div style="font-size: 0.75rem; color: #047857; font-weight: 700; margin-top: 1px;">
-                                        Velocidad Real: ⚡${topSweeper.speed} Spe | Barre a ⚔️ ${topSweeper.count} oponente(s)
+                                    <div style="font-weight: 900; font-size: 1.1rem; color: #1e293b; text-transform:capitalize; display:flex; align-items:center; gap:6px;">
+                                        ${formatPokemonName(topSweeper.poke.name)}
+                                    </div>
+                                    <div style="display:flex; gap:8px; margin-top:3px; flex-wrap:wrap;">
+                                        <span style="font-size: 0.65rem; color: #475569; font-weight: 800; background:rgba(255,255,255,0.7); border:1px solid rgba(0,0,0,0.06); padding:2px 6px; border-radius:6px; display:inline-flex; align-items:center; gap:3px;">
+                                            ⚡ ⚡${topSweeper.speed} Spe
+                                        </span>
+                                        <span style="font-size: 0.65rem; color: #047857; font-weight: 800; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.12); padding:2px 6px; border-radius:6px; display:inline-flex; align-items:center; gap:3px;">
+                                            ⚔️ Barre a ${topSweeper.count}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
-                            <p style="font-size: 0.76rem; color: #374151; font-weight: 600; line-height: 1.4; margin-bottom: 0;">
-                                Con su velocidad superior y cobertura elemental ofensiva, <strong>${formatPokemonName(topSweeper.poke.name)}</strong> es tu mejor opción para liderar el ataque. Puede noquear o presionar con gran daño a: <span style="color: #047857; font-weight: 800;">${topSweeper.targets.join(', ')}</span>.
+                            <p style="font-size: 0.76rem; color: #475569; font-weight: 600; line-height: 1.4; margin-bottom: 12px;">
+                                Con su velocidad superior y cobertura ofensiva, <strong>${formatPokemonName(topSweeper.poke.name)}</strong> es el atacante ideal para tomar la iniciativa de este matchup.
                             </p>
+                            <div style="display:flex; flex-direction:column; gap:5px; border-top:1px solid rgba(0,0,0,0.04); padding-top:10px;">
+                                <span style="font-size:0.6rem; font-weight:900; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; display:block;">Objetivos Ofensivos Directos (OHKO/2HKO)</span>
+                                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                    ${targetsHtml}
+                                </div>
+                            </div>
                         </div>
                     `;
                 } else {
@@ -9939,30 +10035,62 @@
                 let pivotsHtml = pivots.map(p => {
                     const dmgText = p.details || `Daño: x${p.damage}`;
                     const isDangerous = p.damage > 1;
-                    const dmgColor = isDangerous ? '#b91c1c' : '#047857';
-                    const dmgBg = isDangerous ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)';
-                    const rivalLabel = (isDoubleBattle && rivalData2) ? ` <span style="font-size:0.52rem; color:#475569; background:rgba(0,0,0,0.04); padding:1px 4px; border-radius:3px;">vs ${formatPokemonName(p.rival.name)}</span>` : '';
+                    const dmgColor = isDangerous ? '#ef4444' : p.damage === 0 ? '#8b5cf6' : '#10b981';
+                    const dmgBg = isDangerous ? 'rgba(239, 68, 68, 0.08)' : p.damage === 0 ? 'rgba(139, 92, 246, 0.08)' : 'rgba(16, 185, 129, 0.08)';
+                    const dmgBorder = isDangerous ? 'rgba(239, 68, 68, 0.15)' : p.damage === 0 ? 'rgba(139, 92, 246, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+                    const rivalLabel = (isDoubleBattle && rivalData2) ? ` <span style="font-size:0.52rem; color:#64748b; background:rgba(0,0,0,0.03); padding:1px 4px; border-radius:3px; font-weight:800;">vs ${formatPokemonName(p.rival.name)}</span>` : '';
+
+                    // Tipos elementales del pivot
+                    const typesBadges = p.pivot.types.map(t => 
+                        `<span style="width:6px; height:6px; border-radius:50%; background:${TYPE_COLORS[t]}; display:inline-block;" title="${TYPE_NAMES[t]}"></span>`
+                    ).join('');
+
+                    // Calcular porcentaje de barra de bulk (comparado con un max teórico de bulk de 600)
+                    const bulkPercent = Math.min(100, Math.round((p.bulk / 600) * 100));
 
                     return `
-                        <div class="pro-item-row" style="padding: 10px 0;">
-                            <div class="pro-item-left" style="gap: 10px;">
-                                <div style="display: flex; flex-direction: column; align-items: center; min-width: 55px;">
-                                    <span style="font-size: 0.58rem; color: #b91c1c; font-weight: 900; text-transform: uppercase; margin-bottom: 2px;">Si sale</span>
-                                    <img src="${p.rival.sprite}" alt="${p.rival.name}" style="width: 28px; height: 28px; object-fit: contain;">
-                                    <span style="font-size: 0.68rem; font-weight: 800; color: #1e293b; text-transform:capitalize;">${formatPokemonName(p.rival.name).substring(0, 8)}</span>
+                        <div class="pro-item-row" style="padding: 10px; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.03); border-radius: 12px; margin-bottom: 6px; transition: transform 0.2s, background 0.2s;" class="pivot-interactive-row">
+                            <div class="pro-item-left" style="gap: 12px; display:flex; align-items:center; flex:1;">
+                                
+                                <!-- Oponente (Si sale) -->
+                                <div style="display: flex; align-items: center; gap:6px; min-width: 90px; background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.03); padding:4px 8px; border-radius:8px;">
+                                    <img src="${p.rival.sprite}" alt="${p.rival.name}" style="width: 24px; height: 24px; object-fit: contain;">
+                                    <div style="display:flex; flex-direction:column;">
+                                        <span style="font-size: 0.55rem; color: #ef4444; font-weight: 900; text-transform: uppercase; line-height:1;">SI ENTRA</span>
+                                        <span style="font-size: 0.72rem; font-weight: 900; color: #334155; text-transform:capitalize; margin-top:2px;">${formatPokemonName(p.rival.name).substring(0, 8)}</span>
+                                    </div>
                                 </div>
-                                <div style="font-size: 1rem; color: var(--poke-blue); font-weight: 900;">➔</div>
-                                <div style="display: flex; flex-direction: column; align-items: center; min-width: 55px;">
-                                    <span style="font-size: 0.58rem; color: var(--poke-blue); font-weight: 900; text-transform: uppercase; margin-bottom: 2px;">Cambia a</span>
-                                    <img src="${p.pivot.sprite}" alt="${p.pivot.name}" style="width: 28px; height: 28px; object-fit: contain;">
-                                    <span style="font-size: 0.68rem; font-weight: 800; color: #1e293b; text-transform:capitalize;">${formatPokemonName(p.pivot.name).substring(0, 8)}</span>
+                                
+                                <div style="font-size: 0.95rem; color: var(--poke-blue); font-weight: 900; display:flex; align-items:center; justify-content:center;">➔</div>
+                                
+                                <!-- Pivot Recomendado (Cambia a) -->
+                                <div style="display: flex; align-items: center; gap:6px; min-width: 100px; background:rgba(59, 76, 202, 0.03); border:1px solid rgba(59, 76, 202, 0.08); padding:4px 8px; border-radius:8px; flex:1;">
+                                    <div style="position:relative; display:flex; align-items:center; justify-content:center; width:26px; height:26px;">
+                                        <img src="${p.pivot.sprite}" alt="${p.pivot.name}" style="width: 26px; height: 26px; object-fit: contain; z-index:2;">
+                                        <div style="position:absolute; width:100%; height:100%; border-radius:50%; background:var(--poke-blue); opacity:0.04; filter:blur(2px);"></div>
+                                    </div>
+                                    <div style="display:flex; flex-direction:column; flex:1;">
+                                        <span style="font-size: 0.55rem; color: var(--poke-blue); font-weight: 900; text-transform: uppercase; line-height:1;">CAMBIA A</span>
+                                        <span style="font-size: 0.72rem; font-weight: 900; color: #1e293b; text-transform:capitalize; margin-top:2px; display:inline-flex; align-items:center; gap:4px;">
+                                            ${formatPokemonName(p.pivot.name).substring(0, 8)}
+                                            <span style="display:inline-flex; gap:2px; align-items:center;">${typesBadges}</span>
+                                        </span>
+                                    </div>
                                 </div>
+                                
                             </div>
-                            <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 4px;">
-                                <span class="effectiveness-badge" style="padding: 3px 6px; font-size: 0.68rem; font-weight: 900; background: ${dmgBg}; color: ${dmgColor}; border-radius: 6px; white-space: nowrap;">
+                            
+                            <!-- Detalles Defensivos y Bulk -->
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 4px; min-width: 90px;">
+                                <span class="effectiveness-badge" style="padding: 3px 8px; font-size: 0.65rem; font-weight: 900; background: ${dmgBg}; color: ${dmgColor}; border:1px solid ${dmgBorder}; border-radius: 6px; white-space: nowrap; font-family:monospace; box-shadow: 0 1px 2px rgba(0,0,0,0.01);">
                                     ${dmgText}
                                 </span>
-                                <span style="font-size: 0.6rem; color: #64748b; font-weight: 700;">Bulk Total: 🛡️${p.bulk}${rivalLabel}</span>
+                                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:1px; width:100%;">
+                                    <span style="font-size: 0.55rem; color: #64748b; font-weight: 800;">Bulk: 🛡️${p.bulk}${rivalLabel}</span>
+                                    <div style="width:65px; height:3px; background:#e2e8f0; border-radius:2px; overflow:hidden; margin-top:1px;">
+                                        <div style="width:${bulkPercent}%; height:100%; background:linear-gradient(90deg, #3b82f6, #60a5fa); border-radius:2px;"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
